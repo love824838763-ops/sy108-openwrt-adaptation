@@ -1,0 +1,1030 @@
+# mcc|mnc|apn|pdp|auth|user|pass|carrier  (LineageOS apns-conf + 本项目实测覆盖)
+001|01|VZWINTERNET|IPV4V6|none|||Test Internet
+001|010|VZWINTERNET|IPV4V6|none|||VZW Test Internet
+202|01|internet|IPV4V6|none|||Cosmote Internet
+202|05|internet.vodafone.gr|IPV4|none|||Vf Internet
+202|09|myq|IPV4V6|none|||Q-Telecom Internet
+202|10|gint.b-online.gr|IPV4|none|||Wind Internet
+202|17|internet.nova.gr|IPV4V6|none|||Nova Internet
+204|02|internet.tele2.nl|IPV4|none|||Tele2 NL
+204|04|ctnet|IPV4V6|none|ctnet@mycdma.cn|vnet.mobi|中国电信NET设置
+204|08|KPN4G.nl|IPV4|none|||KPN 4G LTE
+204|09|data.lycamobile.nl|IPV4|none|lmnl|plus|Lycamobile NL
+204|12|internet|IPV4|none|||Telfort Internet
+204|16|internet|IPV4|none|||T-Mobile Internet
+204|20|internet|IPV4|none|||Orange NL
+206|01|internet.proximus.be|IPV4|none|||Proximus Internet
+206|05|telenetwap.be|IPV4|none|||Telenet
+206|06|data.lycamobile.be|IPV4|none|lmbe|plus|Lycamobile BE
+206|10|mworld.be|IPV4|none|mobistar|mobistar|Mobistar
+206|20|gprs.base.be|IPV4|none|base|base|BASE Belgium
+208|01|orange.fr|IPV4|none|orange|orange|Orange Internet
+208|02|orange.fr|IPV4|none|||Orange GPRS ISP
+208|09|sl2sfr|IPV4|none|||SFR
+208|10|wap65|IPV4|none|||Auchan WAP
+208|11|websfr|IPV4|none|||ACCESS DATA
+208|13|websfr|IPV4|none|||ACCESS DATA
+208|15|free|IPV4|none|||Free Mobile
+208|17|bornsip|IPV4|none|||Legos
+208|20|a2bouygtel.com|IPV4|none|a2b|acces|Bouygues Pro
+208|21|ebouygtel.com|IPV4|none|||BouyguesGPRS ISP
+208|23|virgin-mobile.fr|IPV4|none|||Virgin FR
+208|25|data.lycamobile.fr|IPV4|none|lmfr|plus|Lycamobile FR
+208|26|fnetnrj|IPV4|none|||NRJ WEB
+208|30|symacom.fr|IPV4|none|||Syma
+208|88|ebouygtel.com|IPV4|none|||BouyguesGPRS ISP
+209|01|ofnew.fr|IPV4|none|orange|orange|NRJ WEB
+214|01|airtelwap.es|IPV4|none|wap@wap|wap125|Vodafone ES
+214|02|telefonica.es|IPV4|none|telefonica|telefonica|Movistar
+214|03|orangeworld|IPV4|none|orange|orange|Orange Internet Móvil
+214|04|internet|IPV4|none|||Yoigo Internet
+214|05|tuenti.com|IPV4|none|tuenti|tuenti|Tuenti
+214|06|lowi.private.omv.es|IPV4|none|||Lowi
+214|07|telefonica.es|IPV4|none|telefonica|telefonica|Movistar
+214|16|internet.telecable.es|IPV4|none|telecable|telecable|TeleCable Internet
+214|18|internet.ono.com|IPV4|none|||ONO Internet
+214|27|truphone.com|IPV4|none|||Truphone
+214|32|internetmas|IPV4|none|||Masmovil
+214|34|inet.es|IPV4V6|none|||INET Internet
+216|01|net|IPV4|none|||Telenor Net
+216|30|wnw|IPV4|none|||T-Mobile HU
+216|70|internet.vodafone.net|IPV4|none|||Vodafone HU
+218|03|gprs.eronet.ba|IPV4|none|||ERONET START
+218|05|3g1|IPV4|none|||M-tel
+218|90|active.bhmobile.ba|IPV4|none|||BH Mobile
+219|01|web.htgprs|IPV4|none|||T-Mobile HR
+219|02|wap.tele2.hr|IPV4|none|||Tele2 HR
+219|10|gprs0.vipnet.hr|IPV4|none|||VIPnet
+220|01|internet|IPV4|none|telenor|gprs|Telenor RS
+220|02|internet|IPV4|none|gprs|gprs|Telenor MNE internet
+220|03|gprsinternet|IPV4|none|mts|064|MTS RS INTERNET
+220|04|tmcg-wnw|IPV4|none|38267|38267|T-Mobile Internet
+220|05|vipmobile|IPV4|none|vipmobile|vipmobile|Vip GPRS
+222|01|ibox.tim.it|IPV4|none|||TIM IT
+222|010|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|011|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|012|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|013|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|014|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|015|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|016|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|017|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|018|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|019|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|07|web.kenamobile.it|IPV4|none|||Kena Mobile Web
+222|10|mobile.vodafone.it|IPV4|none|||Vodafone IT
+222|11|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|12|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|13|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|14|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|15|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|16|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|17|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|18|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|19|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+222|33|wap.postemobile.it|IPV4|none|||PosteMobile WAP
+222|50|iliad|IPV4|none|||Iliad
+222|53|internet.coopvoce.it|IPV4|none|||WEB CoopVoce
+222|88|internet.wind|IPV4|none|||Wind IT WEB
+222|99|tre.it|IPV4|none|||3
+226|01|internet.vodafone.ro|IPV4|none|internet.vodafone.ro|vodafone|Vodafone Internet
+226|03|internet|IPV4|none|||Cosmote Internet
+226|05|internet|IPV4|none|||Digi Mobil
+226|06|internet|IPV4|none|||Cosmote Internet
+226|10|net|IPV4|none|||Orange Internet
+228|01|gprs.swisscom.ch|IPV4|none|||Swisscom
+228|02|internet|IPV4|none|||Sunrise Internet
+228|03|internet|IPV4|none|||Salt Internet
+228|54|data.lycamobile.ch|IPV4|none|lmch|plus|Lycamobile CH
+230|01|internet.t-mobile.cz|IPV4|none|wap|wap|T-Mobile CZ
+230|02|internet|IPV4|none|||O2 CZ
+230|03|internet|IPV4|none|||Vodafone CZ
+230|99|Internet|IPV4|none|||GPRS Web
+231|01|internet|IPV4|none|||Orange Internet
+231|02|internet|IPV4|none|||T-Mobile Internet
+231|04|internet|IPV4|none|||Telekom SK
+231|05|internet|IPV4|none|||Orange Internet
+231|06|O2 internet|IPV4|none|||Internet
+232|01|a1.net|IPV4V6|none|ppp@a1plus.at|ppp|A1 Internet
+232|03|internet.t-mobile.at|IPV4|none|t-mobile|tm|T-Mobile A Internet
+232|05|drei.at|IPV4|none|||3 AT
+232|07|webaut|IPV4|none|||HoT Internet
+232|10|drei.at|IPV4|none|||3 AT
+232|11|bob.at|IPV4V6|none|data@bob.at|ppp|Bob
+232|12|webapn.at|IPV4V6|none|||Yesss
+232|13|internet.t-mobile.at|IPV4|none|t-mobile|tm|T-Mobile A Internet
+232|17|mass.at|IPV4|none|||spusu
+234|01|prepay.tesco-mobile.com|IPV4|none|tescowap|password|Tesco Prepay
+234|02|payandgo.o2.co.uk|IPV4|none|payandgo|password|O2 Internet(pre)
+234|09|internet|IPV4|none|||Sure Internet
+234|10|wap.telecom.co.nz|IPV4|none|||TelecomDefault
+234|11|payandgo.o2.co.uk|IPV4|none|payandgo|password|O2 Internet(pre)
+234|15|pp.vodafone.co.uk|IPV4|none|web|web|Vodafone Internet(Pre)
+234|20|three.co.uk|IPV4|none|||3 Internet
+234|230|btmobile.bt.com|IPV4|none|bt|bt|BT Business
+234|25|truphone.com|IPV4|none|||Truphone UK
+234|30|everywhere|IPV4V6|none|eesecure|secure|EE Internet
+234|31|everywhere|IPV4V6|none|eesecure|secure|EE Internet
+234|32|everywhere|IPV4V6|none|eesecure|secure|EE Internet
+234|33|everywhere|IPV4V6|none|eesecure|secure|EE Internet
+234|34|everywhere|IPV4V6|none|eesecure|secure|EE Internet
+234|35|truphone.com|IPV4|none|||Truphone Internet
+234|38|goto.virginmobile.uk|IPV4|none|||Virgin Mobile
+234|50|pepper|IPV4|none|||Jersey Internet
+234|55|internet|IPV4|none|||Sure Internet
+234|58|web.prontogo.net|IPV4|none|webgo|webgo|Manx Internet(Pre)
+234|86|everywhere|IPV4V6|none|eesecure|secure|EE Internet
+238|01|internet|IPV4|none|||TDC
+238|02|internet|IPV4|none|||Telenor Internet
+238|06|data.tre.dk|IPV4|none|||3
+238|10|wap|IPV4|none|||Telmore WAP
+238|12|data.lycamobile.dk|IPV4|none|lmdk|plus|Lycamobile DK
+238|20|websp|IPV4|none|||Call me Internet
+238|30|www.internet.mtelia.dk|IPV4|none|||Telia SuifPort
+238|77|Internet|IPV4|none|||Telenor Internet
+240|01|halebop.telia.se|IPV4|none|||Halebop Internet
+240|02|data.tre.se|IPV4|none|||3
+240|04|services.telenor.se|IPV4|none|||Telenor Mobilsurf
+240|06|services.telenor.se|IPV4|none|||Telenor Mobilsurf
+240|07|4g.tele2.se|IPV4|none|||Tele2 Internet
+240|08|services.glocalnet.se|IPV4|none|||Glocalnet Mobilsurf
+240|09|services.telenor.se|IPV4|none|||Telenor Mobilsurf
+240|10|data.springmobil.se|IPV4|none|||Spring data
+240|12|data.lycamobile.se|IPV4|none|lmse|plus|Lycamobile SE
+240|24|services.telenor.se|IPV4|none|||Telenor Mobilsurf
+242|01|telenor.smart|IPV4V6|none|||Telenor
+242|02|netcom|IPV4|none|||NetCom
+242|04|internet.tele2.no|IPV4|none|||Tele2 Internet
+242|05|internet|IPV4|none|||NwN Internet
+242|08|internet|IPV4|none|||TDC Internet
+244|03|internet|IPV4|none|||DNA Internet
+244|04|internet|IPV4|none|||DNA Internet
+244|05|internet|IPV4|none|||Elisa Internet
+244|10|internet.song.fi|IPV4|none|song@internet|songnet|TDC Internet
+244|12|internet|IPV4|none|||DNA Internet
+244|13|internet|IPV4|none|||DNA Internet
+244|14|internet|IPV4|none|||GSMAland internet
+244|21|wap.saunalahti.fi|IPV4|none|||Saunalahti Wap
+244|91|internet|IPV4|none|||Sonera Internet
+246|01|gprs.startas.lt|IPV4|none|omni|omni|Omnitel
+246|02|banga|IPV4|none|||Bite LT Internet
+246|03|internet.tele2.lt|IPV4|none|||Tele2 Internet LT
+246|081|VZWINTERNET|IPV4V6|none|||VZW Test Internet
+246|81|VZWINTERNET|IPV4V6|none|||VZW Test Internet
+247|01|internet.lmt.lv|IPV4|none|||LMT
+247|02|internet.tele2.lv|IPV4|none|wap|wap|Tele2 Internet LV
+247|05|internet|IPV4|none|||Bite LV Internet
+248|01|internet.emt.ee|IPV4|none|||EMT
+248|02|internet|IPV4|none|||Elisa EE
+248|03|internet.tele2.ee|IPV4|none|wap|wap|Tele2 EE
+250|01|internet.mts.ru|IPV4|none|mts|mts|MTS RU
+250|02|internet|IPV4|none|||Megafon Internet
+250|04|internet.mts.ru|IPV4|none|mts|mts|МТС-интернет
+250|05|internet.etk.ru|IPV4|none|||ETK
+250|07|internet.smarts.ru|IPV4|none|||Smarts RU internet
+250|10|internet.mts.ru|IPV4|none|mts|mts|МТС-интернет
+250|11|internet.beeline.ru|IPV4|none|beeline|beeline|Beeline internet
+250|12|inet.bwc.ru|IPV4|none|bwc|bwc|GPRS-Internet
+250|13|internet.mts.ru|IPV4|none|mts|mts|МТС-интернет
+250|17|internet.usi.ru|IPV4|none|||Internet
+250|20|internet.tele2.ru|IPV4|none|||Tele2 RU
+250|26|vtb|IPV4|none|||VTB
+250|30|Internet|IPV4|none|gdata|gdata|MegaFon Internet
+250|39|internet.usi.ru|IPV4|none|||USI GPRS
+250|44|internet.beeline.ru|IPV4|none|beeline|beeline|Beeline internet
+250|45|gpb|IPV4|none|||GPB Mobile
+250|50|internet.sberbank-tele.com|IPV4|none|||SberMobile
+250|62|m.tinkoff|IPV4|none|||Tinkoff Mobile
+250|92|internet.mts.ru|IPV4|none|mts|mts|МТС-интернет
+250|93|internet.mts.ru|IPV4|none|mts|mts|МТС-интернет
+250|99|internet.beeline.ru|IPV4|none|beeline|beeline|BeeLine RU
+255|01|internet|IPV4|none|||Vodafone UA
+255|02|www.ab.kyivstar.net|IPV4|none|||Beeline UA
+255|03|www.kyivstar.net|IPV4|none|||Kyivstar
+255|06|internet|IPV4|none|||lifecell
+255|07|3g.utel.ua|IPV4|none|||TriMob
+257|01|plus.velcom.by|IPV4|none|plus|plus|Velcom BY // Web Plus
+257|02|mts|IPV4|none|mts|mts|MTS BY
+257|04|internet.life.com.by|IPV4|none|||life Internet
+259|01|wap.orange.md|IPV4|none|||Orange IMO
+259|02|internet|IPV4|none|||MD MOLDCELL
+259|05|internet3g.unite.md|IPV4|none|||Unite Internet PrePay
+260|01|www.mova.pl|IPV4|none|||Carrefour Mova
+260|02|erainternet|IPV4|none|erainternet|erainternet|Era Internet
+260|03|internet|IPV4|none|internet|internet|Internet Orange
+260|06|Internet|IPV4|none|||Internet
+260|09|data.lycamobile.pl|IPV4|none|lmpl|plus|Lycamobile PL
+260|12|internet.cp|IPV4|none|||Cyfrowy Polsat INTERNET
+260|17|darmowy|IPV4|none|||Aero2
+260|33|truphone.com|IPV4|none|||Truphone PL
+262|01|internet.v6.telekom|IPV4V6|none|telekom|tm|Congstar Internet
+262|02|web.vodafone.de|IPV4|none|||LIDL Connect
+262|03|internet.eplus.de|IPV4|none|eplus|internet|MEDIONmobile
+262|07|pinternet.interkom.de|IPV4|none|||netzclub
+262|42|truphone.com|IPV4|none|||Truphone
+268|01|net2.vodafone.pt|IPV4|none|vodafone|vodafone|Vodafone Net2
+268|02|internet|IPV4|none|||DIGI PT
+268|03|umts|IPV4|none|||NOS/WTF Internet
+268|04|data.lycamobile.pt|IPV4|none|lmpt|plus|Lycamobile PT
+268|06|internet|IPV4|none|||MEO Internet
+270|01|web.pt.lu|IPV4|none|||Luxgsm Internet
+270|77|internet|IPV4|none|||Tango
+270|99|orange.lu|IPV4|none|||Orange LU
+272|01|tescomobile.liffeytelecom.com|IPV4|none|||Tesco
+272|02|internet|IPV4|none|||O2 Internet
+272|03|data.mymeteor.ie|IPV4|none|||Meteor Internet
+272|05|3ireland.ie|IPV4|none|||3 Internet
+272|10|tescomobile.liffeytelecom.com|IPV4|none|||Tesco
+272|11|tescomobile.liffeytelecom.com|IPV4|none|||TMI APN
+272|13|data.lycamobile.ie|IPV4|none|lmie|plus|Lycamobile IE
+272|15|internet|IPV4|none|||Virgin Media Ireland
+274|01|internet|IPV4|none|||Siminn Internet
+274|02|gprs.is|IPV4|none|||Vodafone Internet
+274|11|net.nova.is|IPV4|none|||Net Nova
+274|12|internet.tal.is|IPV4|none|||Tal
+276|01|internet.one|IPV4|none|||One Internet
+276|02|vodafoneweb|IPV4|none|||Vodafone AL
+280|01|cytamobile|IPV4|none|||CYTA
+280|10|internet|IPV4|none|||MTN Internet
+280|20|ip.primetel|IPV4|none|||PrimeTel
+282|01|internet|IPV4|none|||Geocell
+283|01|internet.beeline.am|IPV4|none|internet|internet|Beeline AM
+283|05|inet.vivacell.am|IPV4|none|||VivaCell-MTS Internet
+283|10|internet|IPV4|none|||Orange AM
+284|01|inet-gprs.mtel.bg|IPV4|none|||M-Tel Internet
+284|03|internet.vivacom.bg|IPV4|none|VIVACOM|VIVACOM|VIVACOM Internet
+284|05|telenor|IPV4|none|telenor||Telenor Internet
+284|11|bulsat.com|IPV4|none|||Bulsatcom
+286|01|Internet|IPV4|none|||Turkcell Internet
+286|02|internet|IPV4V6|none|vodafone|vodafone|Vodafone TR
+286|03|internet|IPV4|none|wap|wap|AVEA
+290|01|internet|IPV4|none|||Tele GPRS
+293|40|internet.simobil.si|IPV4|none|simobil|internet|Si.mobil Internet
+293|41|internet|IPV4|none|mobitel|internet|Mobitel Internet
+293|64|internet.t-2.net|IPV4|none|||T-2 Internet
+293|70|internet.tusmobil.si|IPV4|none|tusmobil|internet|Tusmobil Internet
+294|01|internet|IPV4|none|internet|t-mobile|T-Mobile MK
+294|03|vipoperator|IPV4|none|vipoperator|vipoperator|Vip internet
+297|01|internet|IPV4|none|gprs|gprs|Telenor MNE internet
+297|02|tmcg-wnw|IPV4|none|38267|38267|T-Mobile CG
+302|130|internet.xploremobile.com|IPV4V6|none|||Xplore Mobility
+302|150|data.cogecomobile.ca|IPV4V6|none|||Cogeco
+302|151|data.cogecomobile.ca|IPV4V6|none|||Cogeco
+302|270|wisp.mobi.eastlink.ca|IPV4|none|||Eastlink
+302|320|chatrweb.apn|IPV4V6|none|||Chatr Internet
+302|370|ltemobile.apn|IPV4V6|none|||Fido
+302|490|internet.freedommobile.ca|IPV4V6|none|||Freedom Mobile
+302|500|media.ng|IPV4|none|||Videotron
+302|510|media.ng|IPV4|none|||Videotron
+302|520|media.ng|IPV4|none|||Videotron
+302|610|pda.bell.ca|IPV6|none|||Bell Mobility
+302|630|pda.bell.ca|IPV6|none|||Bell Mobility
+302|640|pda.bell.ca|IPV6|none|||Bell Mobility
+302|654|pda.stm.sk.ca|IPV4V6|none|||SaskTel
+302|660|sp.mts|IPV4V6|none|||MTS
+302|680|pda.stm.sk.ca|IPV4V6|none|||SaskTel
+302|681|pda.stm.sk.ca|IPV4V6|none|||SaskTel
+302|720|ltemobile.apn|IPV4V6|none|||Rogers
+302|721|rogerswpn.apn|IPV4V6|none|||Rogers WPN
+302|780|pda.stm.sk.ca|IPV4V6|none|||SaskTel
+302|781|pda.stm.sk.ca|IPV4V6|none|||SaskTel
+310|00|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|002|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|003|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|004|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|005|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|006|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|012|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|020|SMART.COM|IPV4|none|||UNIONINTERNET
+310|027|wap.metropcs.net|IPV4|none|MDN@mymetropcs.com|metropcs|metropcs
+310|030|private.centennialwireless.com|IPV4|none|privuser|priv|Internet
+310|090|isp|IPV4|none|||Internet
+310|100|plateauweb|IPV4|none|||PLATWEB
+310|120|n.ispsn|IPV4V6|none|||Sprint LTE internet
+310|150|ndo|IPV4|none|||Cricket AIO
+310|170|wap.cingular|IPV4|none|||ATT WAP
+310|180|wap.cingular|IPV4|none|||ATT WAP
+310|260|PWG|IPV4V6|none|||US Mobile
+310|280|nxtgenphone|IPV4V6|none|||ATT Nextgenphone
+310|290|nep.data|IPV4|none|||nep.data
+310|300|truphone.com|IPV4|none|||Truphone
+310|320|isp.cellularoneaz.net|IPV4|none|||Cellular One NEAZ ISP
+310|340|internet.westlink|IPV4|none|||Westlink Internet
+310|380|wap.cingular|IPV4|none|||ATT WAP
+310|390|web.celloneet.com|IPV4|none|user1@web.celloneet.com|celloneet|COET Web
+310|410|nxtgenphone|IPV4V6|none|||ATT Nextgenphone
+310|420|wap.gocbw.com|IPV4|none|cbw|*|CBW Wap
+310|450|internet.vedge.com|IPV4|none|||Viero
+310|460|wap|IPV4|none|||WAP
+310|470|isp.cingular|IPV4|none|||DataConnect
+310|480|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|481|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|483|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|486|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|489|VZWINTERNET|IPV4V6|none|||Verizon Internet
+310|560|wap.cingular|IPV4|none|||ATT WAP
+310|570|internet|IPV4|none|||Cellular One Smartphone
+310|580|internet.inland.com|IPV4V6|none|||Inland Cellular LTE
+310|610|internet.epictouch|IPV4|none|||EpicINT
+310|640|internet.air.net|IPV4|none|||Airfire GPRS
+310|680|Broadband|IPV4|none|||ATT Broadband
+310|690|biz.immix.com|IPV4|none|||ADAT
+310|70|wap.cingular|IPV4|none|||ATT WAP
+310|710|ningiq|IPV4|none|||ASTAC
+310|770|i2.iwireless.com|IPV4|none|||Internet
+310|840|isp|IPV4|none|||Internet
+310|870|data.kaplan|IPV4|none|||Pace Net
+310|880|wapdtcw.com|IPV4|none|||DTC WAP
+310|90|wap.cingular|IPV4|none|||ATT WAP
+310|910|wap.firstcellular.com|IPV4|none|||WOW_WAP
+310|980|wap.cingular|IPV4|none|||ATT WAP
+310|99|VZWINTERNET|IPV4V6|none|||Verizon Internet
+311|020|wap.cv|IPV4|none|||Chariton_WAP
+311|030|internet.indigoip|IPV4|none|||Indigo
+311|080|pine|IPV4|none|||Pine WAP
+311|150|wap.cingular|IPV4|none|||ATT WAP
+311|170|wap.cingular|IPV4|none|||ATT WAP
+311|180|wap.cingular|IPV4|none|||ATT WAP
+311|210|internet.farmerswireless.com|IPV4|none|||Farmers
+311|220|usccinternet|IPV4V6|none|||U.S. Cellular
+311|221|usccinternet|IPV4V6|none|||U.S. Cellular
+311|222|usccinternet|IPV4V6|none|||U.S. Cellular
+311|223|usccinternet|IPV4V6|none|||U.S. Cellular
+311|224|usccinternet|IPV4V6|none|||U.S. Cellular
+311|225|CdmaNai|IPV4V6|none|||U.S. Cellular
+311|226|usccinternet|IPV4V6|none|||U.S. Cellular
+311|227|usccinternet|IPV4V6|none|||U.S. Cellular
+311|228|usccinternet|IPV4V6|none|||U.S. Cellular
+311|229|usccinternet|IPV4V6|none|||U.S. Cellular
+311|230|Internet.cs4glte.com|IPV4|none|||LTE INTERNET
+311|370|web.gci|IPV4|none|||GCI Web
+311|380|wap.cingular|IPV4|none|||ATT WAP
+311|480|internet|IPV4V6|none|||Verizon
+311|482|VZWINTERNET|IPV4V6|none|||Verizon Internet
+311|485|VZWINTERNET|IPV4V6|none|||Verizon Internet
+311|500|WAP|IPV4|none|||Mosiac WAP
+311|530|mms.mymobiletxt.com|IPV4|none|||Internet
+311|560|wap.cingular|IPV4|none|||ATT WAP
+311|580|usccinternet|IPV4V6|none|||LTE - USCC INTERNET
+311|581|usccinternet|IPV4V6|none|||U.S. Cellular
+311|582|usccinternet|IPV4V6|none|||U.S. Cellular
+311|583|usccinternet|IPV4V6|none|||U.S. Cellular
+311|584|usccinternet|IPV4V6|none|||U.S. Cellular
+311|585|usccinternet|IPV4V6|none|||U.S. Cellular
+311|586|usccinternet|IPV4V6|none|||U.S. Cellular
+311|587|usccinternet|IPV4V6|none|||U.S. Cellular
+311|588|usccinternet|IPV4V6|none|||U.S. Cellular
+311|589|usccinternet|IPV4V6|none|||U.S. Cellular
+311|660|internet.metropcs|IPV4|none|||MetroPCS DEFAULT
+311|680|wap.cingular|IPV4|none|||ATT WAP
+311|70|wap.cingular|IPV4|none|||ATT WAP
+311|90|wap.cingular|IPV4|none|||ATT WAP
+311|96|data.lycamobile.com|IPV4|none|lmus|plus|Lyca Mobile
+311|980|wap.cingular|IPV4|none|||ATT WAP
+330|11|internet.claropr.com|IPV4|none|||Claro PR
+330|110|lte.claropr.com|IPV4|none|||LTE CLARO
+334|020|internet.itelcel.com|IPV4V6|none|webgprs|webgprs2002|Telcel Internet
+334|03|internet.movistar.mx|IPV4|none|movistar|movistar|Movistar MX
+334|05|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+334|050|web.iusacellgsm.mx|IPV4|none|iusacellgsm|iusacellgsm|Iusacell Internet
+334|090|wap.nexteldata.com.mx|IPV4|none|||Nextel Navegación
+334|30|internet.movistar.mx|IPV4|none|movistar|movistar|Movistar INTERNET
+338|05|web|IPV4|none|||Digicel Web
+338|050|web|IPV4|none|||Digicel Web
+338|180|ppinternet|IPV4|none|||LIME Prepaid Internet
+338|50|wap.digiceljamaica.com|IPV4|none|||Digicel JM
+338|70|internet.ideasclaro.com.jm|IPV4|none|||Claro JM
+340|01|orangeweb|IPV4|none|orange|orange|Orange World
+340|02|onlywap|IPV4|none|only|only|Onlyplanet
+340|20|web.digicelfr.com|IPV4|none|||Digicel FR Web
+342|600|ppinternet|IPV4|none|||LIME Prepaid Internet
+342|750|web.digicelbarbados.com|IPV4|none|||Digicel BB
+344|03|ppnet.apuapcs.ag|IPV4|none|||Imobile
+344|920|ppinternet|IPV4|none|||LIME Prepaid Internet
+346|140|ppinternet|IPV4|none|||LIME Prepaid Internet
+348|170|ppinternet|IPV4|none|||LIME Prepaid Internet
+348|770|web|IPV4|none|||Digicel Web
+352|110|ppinternet|IPV4|none|||LIME Prepaid Internet
+354|860|ppinternet|IPV4|none|||LIME Prepaid Internet
+356|110|ppinternet|IPV4|none|||LIME Prepaid Internet
+358|110|ppinternet|IPV4|none|||LIME Prepaid Internet
+360|070|wap.digiceloecs.com|IPV4|none|wapoecs|wap03oecs|Digicel VC
+360|110|ppinternet|IPV4|none|||LIME Prepaid Internet
+362|69|web|IPV4|none|||Digicel Web
+363|01|wap.setar.aw|IPV4|none|||Setar
+363|02|web|IPV4|none|||Digicel Web
+364|390|internet.btcbahamas.com|IPV4|none|||BATELCO BS
+365|840|ppinternet|IPV4|none|||LIME Prepaid Internet
+366|110|ppinternet|IPV4|none|||LIME Prepaid Internet
+370|01|orangenet.com.do|IPV4|none|||Orange DO
+370|010|orangenet.com.do|IPV4|none|orange|orange|Orange Net
+370|02|internet.ideasclaro.com.do|IPV4|none|||Ideas CLARO
+370|04|edge.viva.net.do|IPV4|none|viva|viva|Viva Edge
+372|01|web|IPV4|none|||Digicel Web
+374|12|bconnected|IPV4|none|||Prepaid Data
+374|120|bconnected|IPV4|none|||Prepaid Data
+374|121|bconnected|IPV4|none|||Prepaid Data
+374|122|bconnected|IPV4|none|||Prepaid Data
+374|123|bconnected|IPV4|none|||Prepaid Data
+374|124|bconnected|IPV4|none|||Prepaid Data
+374|125|bconnected|IPV4|none|||Prepaid Data
+374|126|bconnected|IPV4|none|||Prepaid Data
+374|127|bconnected|IPV4|none|||Prepaid Data
+374|128|bconnected|IPV4|none|||Prepaid Data
+374|129|bconnected|IPV4|none|||Prepaid Data
+374|13|web|IPV4|none|||Digicel Web
+374|130|web|IPV4|none|||Digicel Web
+376|350|ppinternet|IPV4|none|||LIME Prepaid Internet
+400|01|internet|IPV4|none|||Azercell
+400|02|mms|IPV4|none|||Bakcell
+400|04|nar|IPV4|none|nar|nar|Nar
+401|01|internet.beeline.kz|IPV4|none|internet.beeline||BeeLine KZ
+401|02|internet|IPV4|none|||Kcell
+404|00|WAP|IPV4|none|wap@wap.mtsindia.in|MTS|MTS WAP
+404|01|portalnmms|IPV4|none|||Vodafone
+404|02|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|03|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|04|internet|IPV4|none|||IDEA Internet
+404|05|portalnmms|IPV4|none|||Vodafone
+404|06|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|07|internet|IPV4|none|||IDEA Internet
+404|09|rcomnet|IPV4|none|||NetConnect
+404|10|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|11|portalnmms|IPV4|none|||Vodafone
+404|12|internet|IPV4|none|||IDEA Internet
+404|13|rcomnet|IPV4|none|||RCOM
+404|14|internet|IPV4|none|||IDEA Internet
+404|15|portalnmms|IPV4|none|||Vodafone
+404|16|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|17|aircelgprs|IPV4|none|||Aircel Online
+404|18|rcomnet|IPV4|none|||NetConnect
+404|19|internet|IPV4|none|||IDEA Internet
+404|20|portalnmms|IPV4|none|||Vodafone
+404|21|www|IPV4|none|||Loop Internet
+404|22|internet|IPV4|none|||IDEA Internet
+404|24|internet|IPV4|none|||IDEA Internet
+404|25|aircelgprs|IPV4|none|||Aircel Online
+404|27|portalnmms|IPV4|none|||Vodafone
+404|28|aircelgprs|IPV4|none|||Aircel Online
+404|29|aircelgprs|IPV4|none|||Aircel Online
+404|30|portalnmms|IPV4|none|||Vodafone
+404|31|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|33|aircelwap|IPV4|none|||Aircel
+404|34|bsnlnet|IPV4|none|||BSNL NET
+404|35|aircelgprs|IPV4|none|||Aircel Online
+404|36|rcomnet|IPV4|none|||NetConnect
+404|37|aircelgprs|IPV4|none|||Aircel Online
+404|38|bsnlnet|IPV4|none|||BSNL NET
+404|40|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|41|aircelgprs|IPV4|none|||Aircel Online
+404|42|aircelgprs|IPV4|none|||Aircel Online
+404|43|www|IPV4|none|||Vodafone IN
+404|44|internet|IPV4|none|||IDEA Internet
+404|45|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|46|portalnmms|IPV4|none|||Vodafone
+404|49|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|50|rcomnet|IPV4|none|||NetConnect
+404|51|bsnlnet|IPV4|none|||BSNL NET
+404|52|rcomnet|IPV4|none|||NetConnect
+404|53|bsnlnet|IPV4|none|||BSNL NET
+404|54|bsnlnet|IPV4|none|||BSNL NET
+404|55|bsnlnet|IPV4|none|||BSNL NET
+404|56|internet|IPV4|none|||IDEA Internet
+404|57|bsnlnet|IPV4|none|||BSNL NET
+404|58|bsnlnet|IPV4|none|||BSNL NET
+404|59|bsnlnet|IPV4|none|||BSNL NET
+404|60|portalnmms|IPV4|none|||Vodafone
+404|61|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|62|bsnlnet|IPV4|none|||BSNL NET
+404|64|bsnlnet|IPV4|none|||BSNL NET
+404|66|bsnlnet|IPV4|none|||BSNL NET
+404|67|portalnmms|IPV4|none|||Vodafone
+404|68|gprsppsmum|IPV4|none|mtnl|mtnl123|MTNL GPRS
+404|69|gprsppsmum|IPV4|none|mtnl|mtnl123|MTNL GPRS
+404|70|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|71|bsnlnet|IPV4|none|||BSNL NET
+404|72|bsnlnet|IPV4|none|||BSNL NET
+404|73|bsnlnet|IPV4|none|||BSNL NET
+404|74|bsnlnet|IPV4|none|||BSNL NET
+404|75|bsnlnet|IPV4|none|||BSNL NET
+404|76|bsnlnet|IPV4|none|||BSNL NET
+404|77|bsnlnet|IPV4|none|||BSNL NET
+404|78|internet|IPV4|none|||IDEA Internet
+404|79|bsnlnet|IPV4|none|||BSNL NET
+404|80|bsnlnet|IPV4|none|||BSNL NET
+404|81|bsnlnet|IPV4|none|||BSNL NET
+404|82|internet|IPV4|none|||IDEA Internet
+404|83|rcomnet|IPV4|none|||NetConnect
+404|84|portalnmms|IPV4|none|||Vodafone
+404|85|rcomnet|IPV4|none|||NetConnect
+404|86|portalnmms|IPV4|none|||Vodafone
+404|87|internet|IPV4|none|||IDEA Internet
+404|88|portalnmms|IPV4|none|||Vodafone
+404|89|internet|IPV4|none|||IDEA Internet
+404|90|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|91|aircelgprs|IPV4|none|||Aircel Online
+404|92|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|93|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|94|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|95|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|96|airtelgprs.com|IPV4|none|||Airtel GPRS
+404|97|airtelfun.com|IPV4|none|||Airtel Live
+404|98|airtelgprs.com|IPV4|none|||Airtel GPRS
+405|01|rcomnet|IPV4|none|||NetConnect
+405|03|rcomnet|IPV4|none|||NetConnect
+405|04|rcomnet|IPV4|none|||NetConnect
+405|05|rcomnet|IPV4|none|||NetConnect
+405|06|rcomnet|IPV4|none|||NetConnect
+405|07|rcomnet|IPV4|none|||NetConnect
+405|08|rcomnet|IPV4|none|||NetConnect
+405|09|rcomnet|IPV4|none|||NetConnect
+405|10|rcomnet|IPV4|none|||NetConnect
+405|11|rcomnet|IPV4|none|||NetConnect
+405|12|rcomnet|IPV4|none|||NetConnect
+405|13|rcomnet|IPV4|none|||NetConnect
+405|14|rcomnet|IPV4|none|||NetConnect
+405|15|rcomnet|IPV4|none|||NetConnect
+405|17|rcomnet|IPV4|none|||NetConnect
+405|18|rcomnet|IPV4|none|||NetConnect
+405|19|rcomnet|IPV4|none|||NetConnect
+405|20|rcomnet|IPV4|none|||NetConnect
+405|21|rcomnet|IPV4|none|||NetConnect
+405|22|rcomnet|IPV4|none|||NetConnect
+405|23|rcomnet|IPV4|none|||NetConnect
+405|25|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|26|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|27|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|28|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|29|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|30|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|31|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|32|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|33|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|34|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|35|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|36|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|37|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|38|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|39|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|40|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|41|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|42|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|43|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|44|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|45|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|46|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|47|TATA.DOCOMO.INTERNET|IPV4|none|||TATA DOCOMO INTERNET
+405|51|airtelgprs.com|IPV4|none|||Airtel GPRS
+405|52|airtelgprs.com|IPV4|none|||Airtel GPRS
+405|53|airtelgprs.com|IPV4|none|||Airtel GPRS
+405|54|airtelgprs.com|IPV4|none|||Airtel GPRS
+405|55|airtelgprs.com|IPV4|none|||Airtel GPRS
+405|56|airtelgprs.com|IPV4|none|||Airtel GPRS
+405|66|portalnmms|IPV4|none|||Vodafone
+405|67|portalnmms|IPV4|none|||Vodafone
+405|70|internet|IPV4|none|||IDEA Internet
+405|750|portalnmms|IPV4|none|||Vodafone
+405|751|portalnmms|IPV4|none|||Vodafone
+405|752|portalnmms|IPV4|none|||Vodafone
+405|753|portalnmms|IPV4|none|||Vodafone
+405|754|portalnmms|IPV4|none|||Vodafone
+405|755|portalnmms|IPV4|none|||Vodafone
+405|756|portalnmms|IPV4|none|||Vodafone
+405|799|internet|IPV4|none|||IDEA Internet
+405|800|aircelgprs|IPV4|none|||Aircel Online
+405|801|aircelgprs|IPV4|none|||Aircel Online
+405|802|aircelgprs|IPV4|none|||Aircel Online
+405|803|aircelgprs|IPV4|none|||Aircel Online
+405|804|aircelgprs|IPV4|none|||Aircel Online
+405|805|aircelgprs|IPV4|none|||Aircel Online
+405|806|aircelgprs|IPV4|none|||Aircel Online
+405|807|aircelgprs|IPV4|none|||Aircel Online
+405|808|aircelgprs|IPV4|none|||Aircel Online
+405|809|aircelgprs|IPV4|none|||Aircel Online
+405|810|aircelgprs|IPV4|none|||Aircel Online
+405|811|aircelgprs|IPV4|none|||Aircel Online
+405|812|aircelgprs|IPV4|none|||Aircel Online
+405|813|Uninor|IPV4|none|||Uninor
+405|814|Uninor|IPV4|none|||Uninor
+405|816|Uninor|IPV4|none|||Uninor
+405|817|Uninor|IPV4|none|||Uninor
+405|818|Uninor|IPV4|none|||Uninor
+405|819|Uninor|IPV4|none|||Uninor
+405|820|Uninor|IPV4|none|||Uninor
+405|821|Uninor|IPV4|none|||Uninor
+405|822|Uninor|IPV4|none|||Uninor
+405|840|jionet|IPV4V6|none|||Jio 4G
+405|844|Uninor|IPV4|none|||Uninor
+405|845|internet|IPV4|none|||IDEA Internet
+405|846|internet|IPV4|none|||IDEA Internet
+405|847|internet|IPV4|none|||IDEA Internet
+405|848|internet|IPV4|none|||IDEA Internet
+405|849|internet|IPV4|none|||IDEA Internet
+405|850|internet|IPV4|none|||IDEA Internet
+405|851|internet|IPV4|none|||IDEA Internet
+405|852|internet|IPV4|none|||IDEA Internet
+405|853|internet|IPV4|none|||IDEA Internet
+405|854|jionet|IPV4V6|none|||Jio 4G
+405|855|jionet|IPV4V6|none|||Jio 4G
+405|856|jionet|IPV4V6|none|||Jio 4G
+405|857|jionet|IPV4V6|none|||Jio 4G
+405|858|jionet|IPV4V6|none|||Jio 4G
+405|859|jionet|IPV4V6|none|||Jio 4G
+405|860|jionet|IPV4V6|none|||Jio 4G
+405|861|jionet|IPV4V6|none|||Jio 4G
+405|862|jionet|IPV4V6|none|||Jio 4G
+405|863|jionet|IPV4V6|none|||Jio 4G
+405|864|jionet|IPV4V6|none|||Jio 4G
+405|865|jionet|IPV4V6|none|||Jio 4G
+405|866|jionet|IPV4V6|none|||Jio 4G
+405|867|jionet|IPV4V6|none|||Jio 4G
+405|868|jionet|IPV4V6|none|||Jio 4G
+405|869|jionet|IPV4V6|none|||Jio 4G
+405|870|jionet|IPV4V6|none|||Jio 4G
+405|871|jionet|IPV4V6|none|||Jio 4G
+405|872|jionet|IPV4V6|none|||Jio 4G
+405|873|jionet|IPV4V6|none|||Jio 4G
+405|874|jionet|IPV4V6|none|||Jio 4G
+405|875|Uninor|IPV4|none|||Uninor
+405|876|Uninor|IPV4|none|||Uninor
+405|877|Uninor|IPV4|none|||Uninor
+405|878|Uninor|IPV4|none|||Uninor
+405|879|Uninor|IPV4|none|||Uninor
+405|880|Uninor|IPV4|none|||Uninor
+405|89|WAP|IPV4|none|wap@wap.mtsindia.in|MTS|MTS WAP
+405|908|spicegprs|IPV4|none|||SPICE
+405|909|spicegprs|IPV4|none|||SPICE
+405|910|spicegprs|IPV4|none|||SPICE
+405|911|spicegprs|IPV4|none|||SPICE
+405|925|Uninor|IPV4|none|||Uninor
+405|926|Uninor|IPV4|none|||Uninor
+405|927|Uninor|IPV4|none|||Uninor
+405|928|Uninor|IPV4|none|||Uninor
+405|929|Uninor|IPV4|none|||Uninor
+410|01|connect.mobilinkworld.com|IPV4|none|||Mobilink
+410|03|ufone.pinternet|IPV4|none|||Ufone
+410|04|zonginternet|IPV4|none|||Zong
+410|06|internet|IPV4|none|Telenor|Telenor|Telenor PK
+410|07|warid|IPV4|none|||Warid PK
+410|08|axis|IPV4|none|axis|123456|Axis
+412|01|internet|IPV4|none|||AWCC
+412|20|internet|IPV4|none|gprs|roshan|Roshan
+412|40|internet.mtn.com.af|IPV4|none|||MTN Internet
+412|50|etisalat.af.web|IPV4|none|||Etisalat
+413|01|mobitel3g|IPV4|none|||Mobitel
+413|02|dialogbb|IPV4|none|||Dialog Mobile Broadband
+413|03|ebb|IPV4|none|||Etisalat
+413|05|airteldata|IPV4|none|||Airtel Postpaid
+413|08|hutch3g|IPV4|none|||Hutch3G
+414|01|mptnet|IPV4|none|mptnet|mptnet|MPT
+415|01|wap.mic1.com.lb|IPV4|none|mic1|mic1|ALFA_WAP
+415|03|gprs.mtctouch.com.lb|IPV4|none|||mtcgprs
+416|01|internet|IPV4|none|||Zain JO Postpaid
+416|03|net|IPV4|none|||Umniah
+416|77|Wap.orange.jo|IPV4|none|wap|wap|Orange WAP
+417|01|net.syriatel.com|IPV4|none|||Syriatel
+417|02|internet|IPV4|none|||MTN Syria
+418|05|net.asiacell.com|IPV4|none|||Asiacell
+418|08|default|IPV4|none|||SanaTel
+418|20|internet|IPV4|none|atheer|atheer|Zain-GPRS
+418|30|internet|IPV4|none|atheer|atheer|Zain-GPRS
+418|40|net.korek.com|IPV4|none|korek|korek|net.korek.com
+418|45|default|IPV4|none|||Mobitel IQ
+418|62|default|IPV4|none|||Itisaluna
+418|66|Newroz|IPV4|none|reber|reber|Newroz
+418|92|default|IPV4|none|||Omnnea
+419|02|pps|IPV4|none|pps|pps|MI
+419|03|action.wataniya.com|IPV4|none|||wataniya
+419|04|viva|IPV4|none|||Viva KW
+420|01|jawalnet.com.sa|IPV4|none|||AL JA WAL
+420|03|web1|IPV4|none|||Mobily
+420|04|zain|IPV4|none|||ZAIN-WAP
+420|20|andglobal.softbank.ne.jp|IPV4|none|andg001softbank|pumbbghkpgyysxa|Softbank(internet)
+421|02|fast-wap|IPV4|none|||MTN WAP
+422|02|taif|IPV4|none|taif|taif|Oman Mobile
+422|03|isp.nawras.com.om|IPV4|none|||Nawras
+424|02|etisalat.ae|IPV4|none|||Etisalat internet
+424|03|du|IPV4|none|||Du internet
+425|01|uwap.orange.co.il|IPV4|none|||3G Portal
+425|02|internetg|IPV4|none|||Cellcom 3G
+425|03|sphone.pelephone.net.il|IPV4|none|pcl@3g|pcl|Sphone Pelephone
+425|05|internet|IPV4|none|||Jawwal Internet
+425|07|net.hotm|IPV4|none|||Hot Mobile
+425|08|internet.golantelecom.net.il|IPV4|none|||Golan Telecom
+425|14|data.youphone.co.il|IPV4|none|||YouPhone 3G
+426|01|internet.batelco.com|IPV4|none|||Batelco Internet
+426|02|wap|IPV4|none|wap|wap|Zain BH WAP
+426|04|viva.bh|IPV4|none|||VIVA GPRS
+427|01|gprs.qtel|IPV4|none|||Qtel gprs
+427|02|web.vodafone.com.qa|IPV4|none|||VFQ Internet
+429|01|ntwap|IPV4|none|||GPRS APN
+429|02|web|IPV4|none|||WEB
+432|11|mcinet|IPV4|none|||IR-MCI
+432|20|rightel|IPV4|none|||Rightel
+432|35|irancell|IPV4|none|||Irancell
+434|04|internet.beeline.uz|IPV4|none|beeline|beeline|Beeline UZ
+434|05|internet|IPV4|none|||Ucell Internet
+434|06|default|IPV4|none|perfectum@perfectum.com|a|Perfectum
+434|07|net.mts.uz|IPV4|none|mts|mts|MTS Internet
+440|10|mopera.net|IPV4|none|||ドコモ(mopera)
+440|11|rakuten.jp|IPV4V6|none|||楽天(rakuten.jp)
+440|20|jpspir|IPV4|none|sirobit|amstkoi|Softbank(jpspir)
+440|51|povo.jp|IPV4V6|none|||povo2.0
+450|05|lte.sktelecom.com|IPV4V6|none|||SKT LTE INTERNET
+450|06|internet.lguplus.co.kr|IPV4V6|none|||LG U+
+450|08|lte.ktfwing.com|IPV4|none|||KT
+450|11|web.sktelecom.com|IPV4|none|||SKT 3G INTERNET
+452|01|m-wap|IPV4|none|mms|mms|Mobifone 3G
+452|02|m3-world|IPV4|none|mms|mms|Vinaphone 3G
+452|04|v-internet|IPV4|none|||Viettel 3G
+452|05|internet|IPV4|none|||Vietnamobile 3G
+452|07|internet|IPV4|none|||BeeLine VN 3G
+452|09|m9-wintel|IPV4|none|||Wintel Internet
+454|00|mobile|IPV4|none|||csl
+454|01|internet|IPV4|none|||New World internet
+454|02|mobile|IPV4|none|||csl
+454|03|mobile.three.com.hk|IPV4|none|||3
+454|04|web-g.three.com.hk|IPV4|none|||3-DB-GPRS
+454|06|SmarTone|IPV4|none|||SmarTone
+454|07|3gnet|IPV4V6|none|||3gnet
+454|08|truphone.com|IPV4|none|||Truphone
+454|09|cmnet|IPV4V6|none|||SCT
+454|10|hkcsl|IPV4|none|||csl
+454|12|cmhk|IPV4V6|none|||CMHK(实测)
+454|13|cmhk|IPV4V6|none|||CMHK(实测)
+454|14|web-g.three.com.hk|IPV4|none|||3-DB-GPRS
+454|15|SmarTone|IPV4|none|||SmarTone HK
+454|16|pccw|IPV4|none|||PCCW-HKT
+454|17|SmarTone|IPV4|none|||SmarTone HK
+454|18|mobile|IPV4|none|||csl
+454|19|pccw|IPV4|none|||PCCW-HKT
+455|00|smartgprs|IPV4|none|||SmarTone Macau
+455|01|ctm-mobile|IPV4|none|||CTM Data
+455|02|ctnet|IPV4V6|none|||中國電信(China Telecom) NET
+455|03|mobile.three.com.mo|IPV4|none|||3MACAU
+455|04|ctm-mobile|IPV4|none|||CTM
+455|07|ctnet|IPV4V6|none|||中國電信(China Telecom) NET
+456|01|postpaid|IPV4|none|mobitel|mobitel|Mobitel KH
+456|02|smart|IPV4|none|||Smart
+456|04|WAP|IPV4|none|||qbmore
+456|05|internet|IPV4|none|||Star-Cell
+456|08|Metfone|IPV4|none|||Metfone GPRS
+456|09|wap.beeline.com.kh|IPV4|none|||beeline GPRS
+456|18|Camshin|IPV4|none|||Camshin
+460|00|cmnet|IPV4V6|none|||中国移动 (China Mobile) NET
+460|01|3gnet|IPV4V6|none|||沃宽带用户连接互联网
+460|02|cmnet|IPV4V6|none|||中国移动 (China Mobile) NET
+460|03|ctnet|IPV4V6|none|ctnet@mycdma.cn|vnet.mobi|中国电信 (China Telecom) GPR
+460|04|cmnet|IPV4V6|none|||中国移动 (China Mobile) NET
+460|06|3gnet|IPV4V6|none|||沃宽带用户连接互联网
+460|07|cmnet|IPV4V6|none|||中国移动 (China Mobile) NET
+460|08|cmnet|IPV4V6|none|||中国移动 (China Mobile) NET
+460|09|3gnet|IPV4V6|none|||沃宽带用户连接互联网
+460|11|ctnet|IPV4V6|none|ctnet@mycdma.cn|vnet.mobi|中国电信 (China Telecom) GPR
+460|12|ctnet|IPV4V6|none|ctnet@mycdma.cn|vnet.mobi|中国电信 (China Telecom) GPR
+460|13|cmnet|IPV4V6|none|||中国移动 (China Mobile) NET
+460|15|cbnet|IPV4V6|none|||CBNET
+460|20|cmnet|IPV4V6|none|||CMCC Internet
+460|99|ctnet|IPV4V6|none|ctnet@mycdma.cn|vnet.mobi|APN_NAME_CTNET
+466|01|internet|IPV4|none|||遠傳網際網路
+466|88|internet|IPV4|none|||KGT
+466|89|internet|IPV4V6|none|||T Star-Internet
+466|92|emome|IPV4|none|||中華電信 (emome)
+466|93|internet|IPV4|none|gprs|gprs|Mobitai
+466|97|twm|IPV4|none|||台灣大哥大TWM
+466|99|internet|IPV4|none|||TransAsia
+470|01|gpinternet|IPV4|none|||GP-INTERNET
+470|02|internet|IPV4|none|||Robi
+470|03|blweb|IPV4|none|||Banglalink
+470|04|wap|IPV4|none|||Tele Talk
+470|07|internet|IPV4|none|||Airtel BD
+502|12|unet|IPV4|none|maxis||Maxis 3g Internet
+502|13|celcom|IPV4|none|||Xpax
+502|153|unifi|IPV4|none|||Unifi
+502|16|3gdgnet|IPV4|none|||DiGi Internet
+502|18|my3g|IPV4|none|||U Mobile Internet
+502|19|celcom3g|IPV4|none|||celcom
+505|01|mdata.net.au|IPV4V6|none|||Belong Internet/MMS
+505|02|preconnect|IPV4|none|||Optus Preconnect
+505|03|live.vodafone.com|IPV4|none|||Vodafone Live!
+505|06|3services|IPV4|none|||3 AU
+505|07|vfinternet.au|IPV4|none|||VF Internet
+505|11|Telstra.wap|IPV4|none|||Telstra Internet
+505|12|3netaccess|IPV4|none|||3Internet
+505|19|data.lycamobile.com.au|IPV4|none|lmau|plus|Lycamobile AU
+505|38|truphone.com|IPV4|none|||Truphone
+505|71|Telstra.wap|IPV4|none|||Telstra Internet
+505|72|Telstra.wap|IPV4|none|||Telstra Internet
+505|88|vfinternet.au|IPV4|none|||VF Internet
+505|90|internet|IPV4|none|||Optus Internet
+510|01|indosatgprs|IPV4|none|indosat|indosat|Indosat 3G
+510|08|axis|IPV4|none|axis|123456|AXIS internet
+510|09|Smartfren4G|IPV4V6|none|smartfren|smartfren|Smartfren4G
+510|10|internet|IPV4|none|wap|wap123|TSEL BROADBAND
+510|11|xlunlimited|IPV4|none|||XL Unlimited
+510|21|www.indosat-m3.net|IPV4|none|gprs|im3|IM3 Internet
+510|28|Smartfren4G|IPV4V6|none|smartfren|smartfren|Smartfren4G
+510|89|3gprs|IPV4|none|3gprs|3gprs|3 GPRS
+515|02|http.globe.com.ph|IPV4|none|||myGlobe Prepaid
+515|03|internet|IPV4|none|||SMART Internet postpaid
+515|05|minternet|IPV4|none|||Sun Internet
+520|00|internet|IPV4|none|true|true|TrueMove-H
+520|01|internet|IPV4|none|||AIS GPRS Internet
+520|03|internet|IPV4|none|||AIS Internet
+520|05|www.dtac.co.th|IPV4|none|||DTAC GPRS WEB
+520|15|internet|IPV4|none|||TOT 3G
+520|18|www.dtac.co.th|IPV4|none|||DTAC GPRS WEB
+520|99|internet|IPV4|none|true|true|True
+525|01|e-ideas|IPV4V6|none|||Singtel (Postpaid)
+525|03|sunsurf|IPV4V6|none|||Sunsurf Mobile
+525|05|giga|IPV4V6|none|||giga
+525|10|tpg|IPV4V6|none|||SIMBA
+528|02|bmobilewap|IPV4|none|||B-Mobile
+528|11|dst.internet|IPV4|none|internet|internet|DSTCom
+530|01|www.vodafone.net.nz|IPV4|none|||Vodafone NZ
+530|02|internet.telecom.co.nz|IPV4|none|||Telecom NZ
+530|03|internet.telecom.co.nz|IPV4|none|||Telecom NZ
+530|05|wap.telecom.co.nz|IPV4|none|||TelecomDefault
+530|24|internet|IPV4|none|||2degrees Internet
+537|03|internet.digicelpng.com|IPV4|none|||Digicel Web
+539|88|web.digicelpacific.com|IPV4|none|||Digicel Web
+541|05|web.digicelpacific.com|IPV4|none|||Digicel Web
+542|01|vfinternet.fj|IPV4|none|||Vodafone FJ
+542|02|web.digicelpacific.com|IPV4|none|||Digicel Web
+546|01|wap|IPV4|none|Wap|Wap123|Wap OPT KNC
+549|00|web.digicelsamoa.ws|IPV4|none|||Digicel Web
+602|01|mobinilweb|IPV4|none|||Mobinil
+602|02|wap.Vodafone.com.eg|IPV4|none|wap|wap|Vodafone live!
+602|03|Etisalat|IPV4|none|||Etisalat internet
+602|12|internet.vodafone.net|IPV4|none|internet|internet|Vodafone GPRS Internet
+603|01|internet|IPV4|none|internet|internet|Mobilis
+603|02|djezzy.internet|IPV4|none|||Djezzy
+603|03|internet|IPV4|none|nedjma|nedjma|Nedjma
+604|00|wap.meditel.ma|IPV4|none|MEDIWAP|MEDIWAP|Imédia
+604|01|wap.iamgprs.ma|IPV4|none|||Mobile Zone
+605|01|weborange|IPV4|none|||weborange
+605|02|wap.tn|IPV4|none|wap@tt1|wap|Tunisia Telecom WAP
+605|03|internet.tunisiana.com|IPV4|none|internet|internet|Tunisiana Wap
+606|00|wap|IPV4|none|||Libyana
+606|01|almadar.net|IPV4|none|||Al-Madar
+607|02|africellnet|IPV4|none|||Africell Gambia
+608|01|wap|IPV4|none|wap|wap|Orange WAP
+610|02|wap|IPV4|none|wap|wap|Orange Wap
+612|03|orangeciwap|IPV4|none|wap|wap|OWORLD
+612|05|web.mtn.ci|IPV4|none|||MTN CI
+614|04|orange.ne|IPV4|none|||Orange Internet
+617|01|Orangeworld|IPV4|none|||Orange World
+619|03|africellnet|IPV4|none|||Africell Sierra Leone
+620|01|WAP|IPV4|none|||MTN INTERNET
+620|02|browse|IPV4|none|||internet
+620|03|web.tigo.com.gh|IPV4|none|||Tigo WEB1
+620|06|wap|IPV4|none|||Zain WAP
+621|20|internet.ng.zain.com|IPV4|none|||Zain NG
+621|25|#777|IPV4|none|wap@wap.com|wap|Visafone
+621|30|web.gprs.mtnnigeria.net|IPV4|none|web|web|MTN NG
+621|50|gloflat|IPV4|none|flat|flat|Glo Mobile Internet
+621|60|etisalat|IPV4|none|||Etisalat NG
+624|01|INTERNET|IPV4|none|guest|guest|MTN CM
+624|02|orangecmgprs|IPV4|none|orange|orange|Orange CM WAP
+625|01|internet-aac|IPV4|none|||CVMóvel Internet
+627|01|orangenet|IPV4|none|net|net|Orange GQ
+630|01|vodanet|IPV4|none|vodalive||Vodacom CD
+631|02|internet.unitel.co.ao|IPV4|none|||Unitel Internet
+631|04|internet.movicel.co.ao|IPV4|none|||Movicel Angola
+634|01|internet|IPV4|none|||Zain Internet
+634|02|internet|IPV4|none|||MTN
+634|07|sudaninet|IPV4|none|sudani|sudani|Sudina ONE
+635|13|web.tigo.rw|IPV4|none|||Tigo Connection
+639|02|safaricom|IPV4|none|||Safaricom Live
+639|03|ke.celtel.com|IPV4|none|wap|wap|Airtel internet
+639|05|internet|IPV4|none|||yu
+639|07|bew.orange.co.ke|IPV4|none|||Orange Ke
+640|04|internet|IPV4|none|||Vodacom Internet
+640|05|internet|IPV4|none|||Airtel Tanzania
+641|01|web.ug.zain.com|IPV4|none|||Airtel UG
+641|10|yellopix.mtn.co.ug|IPV4|none|||MTN UG
+641|11|utweb|IPV4|none|||Uganda Telecom
+641|14|orange.ug|IPV4|none|||ORANGE WAP
+641|22|web.waridtel.co.ug|IPV4|none|||Waridtel UG
+642|02|africellnet|IPV4|none|||Africell Burundi
+645|01|wap|IPV4|none|||Zambia WAP
+645|02|wap|IPV4|none|||MTN WAP
+646|01|wap.mg.airtel.com|IPV4|none|||AirtelWAP
+646|02|orangenet|IPV4|none|||Orangenet
+646|04|internet|IPV4|none|||TELMA GPRS
+647|00|orangerun|IPV4|none|orange|orange|Orange World
+647|02|onlywap|IPV4|none|only|only|Onlyplanet
+647|10|wapsfr|IPV4|none|wap|wap|WAP GPRS SRR
+648|04|econet.net|IPV4|none|||Econet
+650|01|internet|IPV4|none|||TNM
+652|01|internet.mascom|IPV4|none|||Mascom_Internet
+652|02|internet.orange.co.bw|IPV4|none|||Orange WAP BW
+653|10|mymtn.co.sz|IPV4|none|||MTN
+655|01|internet|IPV4|none|||Vlive!
+655|02|internet|IPV4|none|||TelkomSA internet
+655|07|vdata|IPV4|none|||Virgin Mobile SA Interne
+655|10|myMTN|IPV4|none|mtnwap|mtnwap|MTN
+704|02|internet.tigo.gt|IPV4|none|||INTERNET TIGO GT
+704|03|internet.movistar.gt|IPV4|none|movistargt|movistargt|Movistar INTERNET
+704|030|internet.movistar.gt|IPV4|none|movistargt|movistargt|Movistar INTERNET
+706|01|internet.claro.sv|IPV4|none|||Claro SV
+706|02|web|IPV4|none|||Digicel Web
+706|03|internet.tigo.sv|IPV4|none|||INTERNET TIGO SV
+706|030|internet.tigo.sv|IPV4|none|||INTERNET TIGO SV
+706|04|internet.movistar.sv|IPV4|none|movistarsv|movistarsv|Movistar SV
+706|040|internet.movistar.sv|IPV4|none|movistarsv|movistarsv|Movistar SV
+708|02|internet.tigo.hn|IPV4|none|||INTERNET TIGO HN
+708|020|internet.tigo.hn|IPV4|none|||INTERNET TIGO HN
+710|21|internet.ideasalo.ni|IPV4|none|internet|internet|Enitel
+710|30|internet.movistar.ni|IPV4|none|movistarni|movistarni|Movistar INTERNET
+710|300|internet.movistar.ni|IPV4|none|movistarni|movistarni|Movistar INTERNET
+710|73|internet.ideasalo.ni|IPV4|none|internet|internet|Enitel
+710|730|internet.ideasalo.ni|IPV4|none|internet|internet|Enitel
+712|01|kolbi3g|IPV4|none|||Kolbi
+712|02|kolbi3g|IPV4|none|||Kolbi
+712|03|internet.ideasclaro|IPV4|none|||Claro
+712|04|internet.movistar.cr|IPV4|none|movistarcr|movistarcr|Movistar INTERNET
+714|002|internet.movistar.pa|IPV4|none|movistarpa|movistarpa|Movistar INTERNET
+714|01|apn01.cwpanama.com.pa|IPV4|none|||+ movil internet
+714|010|apn01.cwpanama.com.pa|IPV4|none|||+movil internet
+714|02|internet.movistar.pa|IPV4|none|movistarpa|movistarpa|Movistar INTERNET
+714|020|internet.movistar.pa|IPV4|none|movistarpa|movistarpa|Movistar INTERNET
+714|03|wap.claro.com.pa|IPV4|none|CLAROWAP|CLAROWAP|PA WAP CLARO
+714|04|web|IPV4|none|||Digicel Web
+714|040|web|IPV4|none|||Digicel Web
+714|20|internet.movistar.pa|IPV4|none|movistarpa|movistarpa|Movistar INTERNET
+716|06|movistar.pe|IPV4|none|movistar@datos|movistar|Movistar INTERNET
+716|10|claro.pe|IPV4|none|claro|claro|CLARO DATOS
+716|17|entel.pe|IPV4|none|||Entel Internet
+722|007|internet.unifon|IPV4|none|wap|password|Movistar AG
+722|01|internet.movil|IPV4|none|internet|internet|QUAM
+722|07|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|070|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|071|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|072|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|073|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|074|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|075|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|076|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|077|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|078|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|079|wap.gprs.unifon.com.ar|IPV4|none|wap|wap|Movistar WAP
+722|310|igprs.claro.com.ar|IPV4|none|ctigprs|ctigprs999|Claro Internet
+722|34|gprs.personal.com|IPV4|none|||Personal WAP
+722|341|gprs.personal.com|IPV4|none|||Personal WAP
+724|02|timbrasil.br|IPV4V6|none|tim|tim|TIM Connect
+724|03|timbrasil.br|IPV4V6|none|tim|tim|TIM Connect
+724|04|timbrasil.br|IPV4V6|none|tim|tim|TIM Connect
+724|05|java.claro.com.br|IPV4|none|claro|claro|Java Session
+724|06|zap.vivo.com.br|IPV4V6|none|vivo|vivo|Vivo Internet
+724|07|sercomtel.com.br|IPV4|none|sercomtel|sercomtel|SCTL GPRS
+724|10|zap.vivo.com.br|IPV4V6|none|vivo|vivo|Vivo Internet
+724|11|zap.vivo.com.br|IPV4V6|none|vivo|vivo|Vivo Internet
+724|15|sercomtel.com.br|IPV4|none|sercomtel|sercomtel|Sercomtel:Dados
+724|16|gprs.oi.com.br|IPV4V6|none|oi|oi|Oi Internet
+724|17|internet.br|IPV4|none|||Correios Celular
+724|23|zap.vivo.com.br|IPV4V6|none|vivo|vivo|Vivo Internet
+724|24|gprs.oi.com.br|IPV4V6|none|oi|oi|Oi Internet
+724|29|unifique.br|IPV4V6|none|||Unifique
+724|31|gprs.oi.com.br|IPV4V6|none|oi|oi|Oi Internet
+724|32|algar.br|IPV4|none|algar|1212|Algar Telecom Internet
+724|33|algar.br|IPV4|none|algar|1212|Algar Telecom Internet
+724|34|algar.br|IPV4|none|algar|1212|Algar Telecom Internet
+724|39|datacard.nextel3g.net.br|IPV4|none|Nextel3g|nextel|Nextel Internet
+724|54|timbrasil.br|IPV4V6|none|tim|tim|TIM Connect
+730|01|imovil.entelpcs.cl|IPV4|none|entelpcs|entelpcs|Internet Movil
+730|02|wap.tmovil.cl|IPV4|none|wap|wap|Movistar INTERNET
+730|03|bam.clarochile.cl|IPV4|none|clarochile|clarochile|BAM Claro
+730|07|wap.tmovil.cl|IPV4|none|wap|wap|APLICACIONES
+730|09|internet|IPV4|none|||Internet WOM
+730|10|imovil.entelpcs.cl|IPV4|none|entelpcs|entelpcs|Internet Movil
+732|101|internet.comcel.com.co|IPV4|none|COMCELWEB|COMCELWEB|Web Comcel 3GSM
+732|102|internet.movistar.com.co|IPV4|none|movistar|movistar|Movistar CO
+732|103|web.colombiamovil.com.co|IPV4|none|||TIGO WEB
+732|111|web.colombiamovil.com.co|IPV4|none|||TIGO WEB
+732|123|internet.movistar.com.co|IPV4|none|movistar|movistar|Movistar INTERNET
+732|187|internetmovil.etb.net.co|IPV4|none|||ETB 4G
+734|01|internet.digitel.ve|IPV4|none|||Digitel 412
+734|02|internet.digitel.ve|IPV4|none|||Digitel 412
+734|03|internet.digitel.ve|IPV4|none|||Digitel 412
+734|04|internet.movistar.ve|IPV4|none|http://www.movistar.com.ve/||Movistar INTERNET
+734|06|app.movilnet.com.ve|IPV4|none|||Movilnet WAP
+736|01|edge.viva.net.do|IPV4|none|viva|viva|Viva Edge
+736|02|4g.entel|IPV4|none|||ENTEL 4G
+736|03|internet.tigo.bo|IPV4|none|||INTERNET TIGO BO
+738|002|internet.cellinkgy.com|IPV4|none|cellink|cellink|G TT WEB
+738|01|web|IPV4|none|||Digicel Web
+738|02|internet.cellinkgy.com|IPV4|none|cellink|cellink|G TT WEB
+738|020|internet.cellinkgy.com|IPV4|none|cellink|cellink|G TT WEB
+740|00|internet.movistar.com.ec|IPV4|none|movistar|movistar|Movistar INTERNET
+740|01|ba.amx|IPV4|none|||Banda Acha M??vil
+740|010|internet.porta.com.ec|IPV4|none|||Porta EC
+740|02|internet.movistar.com.ec|IPV4|none|movistar|movistar|Movistar INTERNET
+744|01|vox.internet|IPV4|none|||Vox INTERNET
+744|02|igprs.claro.com.py|IPV4|none|ctigprs|ctigprs999|Claro PY
+744|04|internet.tigo.py|IPV4|none|||INTERNET TIGO PY
+744|05|internet|IPV4|none|||Personal Datos Py
+746|03|web|IPV4|none|||Digicel Web
+748|01|gprs.ancel|IPV4|none|||gprsANCEL
+748|07|webapn.movistar.com.uy|IPV4|none|movistar|movistar|Movistar INTERNET
+748|10|igprs.claro.com.uy|IPV4|none|ctigprs|ctigprs999|Claro Internet

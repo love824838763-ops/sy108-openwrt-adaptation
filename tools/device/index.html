@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<title>5G 设备状态</title>
+<style>
+:root{
+  --bg:#0b0f14; --card:#151b23; --card2:#1b232d; --txt:#e6edf3; --dim:#8b949e;
+  --ok:#2ea043; --warn:#d29922; --bad:#da3633; --line:#21262d; --accent:#388bfd;
+}
+@media (prefers-color-scheme: light){
+  :root{ --bg:#eef1f5; --card:#ffffff; --card2:#f6f8fa; --txt:#1f2328; --dim:#636c76;
+         --line:#d8dee4; --ok:#1a7f37; --warn:#9a6700; --bad:#cf222e; --accent:#0969da; }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--txt); min-height:100vh;
+  font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  padding:16px; padding-bottom:32px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:520px;margin:0 auto}
+
+/* ---- 顶栏 ---- */
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;padding:0 2px;
+}
+.topbar .title{font-size:16px;font-weight:700;letter-spacing:.5px}
+.login{
+  display:inline-block;background:var(--accent);color:#fff;text-decoration:none;
+  border-radius:18px;padding:7px 18px;font-size:13px;font-weight:600;
+}
+.login:active{opacity:.7}
+
+/* ---- 顶部状态 ---- */
+.hero{
+  background:var(--card); border:1px solid var(--line); border-radius:16px;
+  padding:24px 20px; text-align:center; margin-bottom:14px; position:relative; overflow:hidden;
+}
+.hero::before{
+  content:""; position:absolute; inset:0; opacity:.08;
+  background:var(--state-color,var(--dim)); transition:background .3s;
+}
+.dot{
+  width:16px;height:16px;border-radius:50%;display:inline-block;margin-right:8px;
+  vertical-align:middle; background:var(--state-color,var(--dim));
+  box-shadow:0 0 0 0 var(--state-color,transparent); animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(46,160,67,.5)}
+  70%{box-shadow:0 0 0 12px rgba(46,160,67,0)}
+  100%{box-shadow:0 0 0 0 rgba(46,160,67,0)}
+}
+.state-text{
+  font-size:26px; font-weight:700; letter-spacing:.5px; position:relative;
+  color:var(--state-color,var(--txt));
+}
+.state-sub{color:var(--dim); font-size:13px; margin-top:8px; position:relative}
+
+/* ---- 卡片 ---- */
+.card{
+  background:var(--card); border:1px solid var(--line); border-radius:14px;
+  padding:16px 18px; margin-bottom:12px;
+}
+.card h2{
+  font-size:12px; font-weight:600; color:var(--dim); text-transform:uppercase;
+  letter-spacing:1.2px; margin-bottom:14px;
+}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:15px}
+.row+.row,.note+.row{border-top:1px solid var(--line)}
+.row .k{color:var(--dim);font-size:13px;flex-shrink:0}
+.row .v{font-variant-numeric:tabular-nums;text-align:right;word-break:break-all;font-weight:500}
+.note{display:block;font-size:11px;color:var(--dim);margin:-4px 0 10px;line-height:1.65}
+.note.tip{background:rgba(210,153,34,.1);border-left:2px solid var(--warn);padding:7px 9px;border-radius:0 6px 6px 0;margin-top:12px}
+.tech{font-size:10px;color:var(--dim);opacity:.75;margin-top:12px;word-break:break-all}
+
+/* ---- 信号格 ---- */
+.bars{display:inline-flex;align-items:flex-end;gap:3px;height:22px;margin-right:8px;vertical-align:middle}
+.bars i{display:block;width:5px;border-radius:2px;background:var(--line);transition:background .3s}
+.bars i:nth-child(1){height:7px}
+.bars i:nth-child(2){height:11px}
+.bars i:nth-child(3){height:15px}
+.bars i:nth-child(4){height:19px}
+.bars i:nth-child(5){height:22px}
+.bars i.on{background:var(--sig-color,var(--ok))}
+.sig-main{font-size:22px;font-weight:700;display:flex;align-items:center;gap:4px}
+.sig-main #sigLevel{font-size:16px;font-weight:600;color:var(--dim)}
+.band-tag{
+  display:inline-block;background:var(--card2);border:1px solid var(--line);
+  border-radius:6px;padding:2px 8px;font-size:13px;font-weight:600;margin-left:6px;
+}
+
+/* ---- 底部 ---- */
+.foot{
+  display:flex;justify-content:space-between;align-items:center;
+  color:var(--dim);font-size:12px;margin-top:18px;padding:0 4px;
+}
+.foot a{color:var(--accent);text-decoration:none;font-weight:500}
+.btn{
+  background:var(--card2);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit;
+}
+.btn:active{opacity:.6}
+.err{
+  background:rgba(218,54,51,.12); border:1px solid var(--bad); color:var(--bad);
+  border-radius:8px; padding:10px 12px; font-size:13px; margin-top:10px; display:none;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <span class="title">5G 通信壳</span>
+    <a class="login" id="loginBtn" href="/cgi-bin/luci/">登录</a>
+  </div>
+
+  <div class="hero" id="hero">
+    <div class="state-text"><span class="dot" id="dot"></span><span id="stateText">检测中…</span></div>
+    <div class="state-sub" id="stateSub">正在读取设备状态</div>
+    <div class="err" id="errBox"></div>
+  </div>
+
+  <div class="card">
+    <h2>运行状态</h2>
+    <div class="row"><span class="k">运行时长</span><span class="v" id="uptime">--</span></div>
+    <div class="note">从上次开机（通电）到现在过了多久</div>
+    <div class="row"><span class="k">设备温度</span><span class="v" id="temp">--</span></div>
+    <div class="note">超过 60°C 可能自动降速保护，保持通风即可</div>
+    <div class="row"><span class="k">可用内存</span><span class="v" id="mem">--</span></div>
+    <div class="note">剩余运行空间，太低会变卡（一般不用管）</div>
+    <div class="row"><span class="k">系统版本</span><span class="v" id="ver">--</span></div>
+    <div class="note">软件版本号，找人帮忙时提供这个</div>
+  </div>
+
+  <div class="card">
+    <h2>网络连接</h2>
+    <div class="row"><span class="k">能不能上网</span><span class="v" id="wanState">--</span></div>
+    <div class="note">当前是否已连接到互联网</div>
+    <div class="row"><span class="k">运营商</span><span class="v" id="carrier">--</span></div>
+    <div class="note">你插的电话卡所属公司（换卡会自动识别配置）</div>
+    <div class="row"><span class="k">本次流量</span><span class="v" id="bootTraffic">--</span></div>
+    <div class="note">这次开机以来用了多少流量</div>
+    <div class="row"><span class="k">累计流量</span><span class="v" id="totalTraffic">--</span></div>
+    <div class="note">总用量，关机重启不清零。储值卡用超套餐会限速，主要看这个</div>
+    <div class="row"><span class="k">上网参数</span><span class="v" id="apn">--</span></div>
+    <div class="note">已按电话卡自动配置好（APN），不用手动改</div>
+    <div class="row"><span class="k">网络地址</span><span class="v" id="ip">--</span></div>
+    <div class="note">运营商分配的上网地址（IP），不用管</div>
+    <div class="row"><span class="k">网址翻译</span><span class="v" id="dns">--</span></div>
+    <div class="note">域名解析服务（DNS），不用管</div>
+  </div>
+
+  <div class="card">
+    <h2>信号与网速</h2>
+    <div class="row"><span class="k">网速体验</span><span class="v" id="speedFeel">--</span></div>
+    <div class="note">根据信号综合估算：「快」适合看视频，「一般」网页聊天够用，「慢」可能会卡</div>
+    <div class="row" style="align-items:center">
+      <span class="k">信号格数</span>
+      <span class="v sig-main">
+        <span class="bars" id="bars"><i></i><i></i><i></i><i></i><i></i></span>
+        <span id="sigLevel">--</span>
+        <span class="band-tag" id="band">--</span>
+      </span>
+    </div>
+    <div class="note">信号强弱一目了然；右边是当前 5G「频道」（频段），系统会自动优选</div>
+    <div class="row"><span class="k">信号强度</span><span class="v" id="rsrp">--</span></div>
+    <div class="note">精确数值（RSRP）：-80 以内很好，-85～-100 一般，-100 以下偏弱</div>
+    <div class="row"><span class="k">信号质量</span><span class="v" id="sinr">--</span></div>
+    <div class="note">抗干扰能力（SINR），直接决定网速：5 以上好，0～5 一般，0 以下较差</div>
+    <div class="note tip">提示：想提速，把设备放窗边、开阔处或高一点的位置。信号持续变差时，系统会自动扫描切换更优频段（约 1-3 分钟，期间可能短暂断网）。</div>
+    <div class="tech" id="techLine">技术详情（可忽略）：--</div>
+  </div>
+
+  <div class="foot">
+    <span id="updated">--</span>
+    <span>
+      <button class="btn" onclick="load()">刷新</button>
+    </span>
+  </div>
+
+</div>
+
+<script>
+var ACT = {0:'未知',2:'3G',7:'4G LTE',11:'5G NR',13:'5G NR'};
+var OPER = {'45412':'CMHK 中国移动香港','45413':'3HK 和记','45400':'csl','45406':'SmarTone','45419':'PCCW'};
+var BASE = (location.host === '192.168.66.1') ? '' : 'http://192.168.66.1';
+document.getElementById('loginBtn').href = BASE + '/cgi-bin/luci/';
+var timer = null;
+var fails = 0;
+
+function fmtUptime(s){
+  s = Math.floor(s||0);
+  var d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60), sec = s%60;
+  if (d>0) return d+' 天 '+h+' 小时';
+  if (h>0) return h+' 小时 '+m+' 分';
+  if (m>0) return m+' 分 '+sec+' 秒';
+  return sec+' 秒';
+}
+
+function fmtBytes(b){
+  b = Number(b)||0;
+  if (b >= 1073741824) return (b/1073741824).toFixed(2)+' GB';
+  if (b >= 1048576) return (b/1048576).toFixed(1)+' MB';
+  if (b >= 1024) return (b/1024).toFixed(0)+' KB';
+  return b+' B';
+}
+
+function fmtTraffic(rx, tx){
+  return '↓ ' + fmtBytes(rx) + ' · ↑ ' + fmtBytes(tx);
+}
+
+function setState(color, text, sub){
+  document.documentElement.style.setProperty('--state-color', color);
+  document.getElementById('stateText').textContent = text;
+  document.getElementById('stateSub').textContent = sub;
+}
+
+function sigLevel(sinr, rsrp){
+  var hasSinr = (sinr !== null && sinr !== undefined && !isNaN(sinr));
+  var hasRsrp = (rsrp !== null && rsrp !== undefined && !isNaN(rsrp));
+
+  var bySinr = 0, byRsrp = 0;
+  if (hasSinr){
+    if (sinr >= 20) bySinr = 5;
+    else if (sinr >= 12) bySinr = 4;
+    else if (sinr >= 5) bySinr = 3;
+    else if (sinr >= 0) bySinr = 2;
+    else bySinr = 1;
+  }
+  if (hasRsrp){
+    if (rsrp >= -80) byRsrp = 5;
+    else if (rsrp >= -90) byRsrp = 4;
+    else if (rsrp >= -100) byRsrp = 3;
+    else if (rsrp >= -110) byRsrp = 2;
+    else byRsrp = 1;
+  }
+
+  var n, basis;
+  if (hasSinr && hasRsrp){
+    n = Math.min(bySinr, byRsrp);
+    basis = (bySinr <= byRsrp) ? 'sinr' : 'rsrp';
+  } else if (hasSinr){
+    n = bySinr; basis = 'sinr';
+  } else if (hasRsrp){
+    n = byRsrp; basis = 'rsrp';
+  } else {
+    n = 0; basis = 'none';
+  }
+
+  var color = n >= 4 ? 'var(--ok)' : (n === 3 ? 'var(--warn)' : (n >= 1 ? 'var(--bad)' : 'var(--dim)'));
+  document.getElementById('bars').style.setProperty('--sig-color', color);
+  var items = document.querySelectorAll('#bars i');
+  for (var i=0;i<items.length;i++){
+    items[i].className = i < n ? 'on' : '';
+  }
+
+  var LABEL = {5:'极佳', 4:'良好', 3:'中等', 2:'偏弱', 1:'很差'};
+  var TIP = {
+    5:'信号极佳，可跑满套餐速率',
+    4:'信号良好，速率正常',
+    3:'信号一般，速率会有折损',
+    2:'信号偏弱，建议靠近窗口或移动位置',
+    1:'信号很差，可能无法稳定连接'
+  };
+  var el = document.getElementById('sigLevel');
+  el.textContent = n ? LABEL[n] : '--';
+  var basisTxt = (basis === 'sinr') ? '依据 SINR ' + sinr.toFixed(1) + ' dB'
+              : (basis === 'rsrp' ? '依据 RSRP ' + rsrp.toFixed(1) + ' dBm（未取到 SINR）' : '暂无信号数据');
+  el.title = basisTxt + (n ? ' · ' + TIP[n] : '');
+  return el.textContent;
+}
+
+function load(){
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', BASE + '/cgi-bin/sy108status?_=' + Date.now(), true);
+  xhr.timeout = 20000;
+  xhr.onload = function(){
+    if (xhr.status !== 200){ fail('设备返回错误 ' + xhr.status); return; }
+    var d;
+    try { d = JSON.parse(xhr.responseText); } catch(e){ fail('数据解析失败'); return; }
+    fails = 0;
+    document.getElementById('errBox').style.display = 'none';
+    render(d);
+  };
+  xhr.onerror = function(){ fail('无法连接到设备'); };
+  xhr.ontimeout = function(){ fail('读取超时'); };
+  xhr.send();
+}
+
+function fail(msg){
+  fails++;
+  setState('var(--bad)', '连接失败', msg);
+  var e = document.getElementById('errBox');
+  e.textContent = msg + (fails > 2 ? '（已连续 ' + fails + ' 次）' : '');
+  e.style.display = 'block';
+  document.getElementById('updated').textContent = '更新失败 · ' + new Date().toLocaleTimeString('zh-CN');
+}
+
+function render(d){
+  var c = d.cell || {}, w = d.wan || {}, s = d.signal || {};
+
+  // ---- 顶部总状态 ----
+  var online = (w.up === true) && (c.state === 'pdp_active');
+  if (d.scan){
+    setState('var(--warn)', '正在自动优化网络', '正在' + (d.scan === '扫描中' ? '扫描并选择最优 5G 频段' : d.scan + ' 频段') + '以改善网速 · 预计 1-3 分钟，期间网络可能短暂中断，请勿断电');
+  } else if (online){
+    setState('var(--ok)', '网络正常', '已连接 · 运行 ' + fmtUptime(w.uptime));
+  } else if (c.state === 'connecting' || c.state === 'registering' || c.state === 'pdp_activating'){
+    setState('var(--warn)', '正在连接…', '蜂窝网络拨号中，请稍候');
+  } else if (c.last_error){
+    setState('var(--bad)', '网络连接失败', String(c.last_error));
+  } else if (c.registered === false){
+    setState('var(--bad)', '未注册网络', '请检查 SIM 卡或信号');
+  } else {
+    setState('var(--warn)', '尚未连接', '状态：' + (c.state || '未知'));
+  }
+
+  // ---- 运行状态 ----
+  document.getElementById('uptime').textContent = fmtUptime(d.uptime);
+  document.getElementById('temp').textContent = (d.temp > 0 ? d.temp + ' °C' : '--');
+  document.getElementById('mem').textContent = (d.mem_total ? d.mem_free + ' / ' + d.mem_total + ' MB 可用' : '--');
+  document.getElementById('ver').textContent = d.version || '--';
+
+  // ---- 网络 ----
+  var wanEl = document.getElementById('wanState');
+  wanEl.textContent = online ? '已连接' : (w.up ? '接口在线' : '未连接');
+  wanEl.style.color = online ? 'var(--ok)' : 'var(--bad)';
+
+  var op = OPER[c.plmn] || (c.plmn && c.plmn !== '--' ? 'PLMN ' + c.plmn : '--');
+  if (c.carrier || c.country) {
+    var parts = [];
+    if (c.carrier) parts.push(c.carrier.replace(/\(.*\)/, ''));
+    if (c.country) parts.push(c.country);
+    op = parts.join(' · ') || op;
+  }
+  document.getElementById('carrier').textContent = op;
+  document.getElementById('ip').textContent = w.ip || '--';
+  document.getElementById('dns').textContent = w.dns || '--';
+
+  var apnTxt = (c.apn || '--');
+  if (c.roaming) apnTxt += '（漫游）';
+  document.getElementById('apn').textContent = apnTxt;
+
+  // ---- 流量 ----
+  var t = d.traffic || {};
+  document.getElementById('bootTraffic').textContent = fmtTraffic(t.boot_rx, t.boot_tx);
+  document.getElementById('totalTraffic').textContent = fmtTraffic(t.rx, t.tx);
+
+  // ---- 信号 ----
+  document.getElementById('band').textContent = s.band || '--';
+  sigLevel(s.sinr, s.rsrp);
+  document.getElementById('rsrp').textContent = (s.rsrp != null ? s.rsrp.toFixed(1) + ' dBm' : '--');
+  document.getElementById('sinr').textContent = (s.sinr != null ? s.sinr.toFixed(1) + ' dB' : '--');
+
+  // 网速体验（普通人视角）
+  var feelTxt = '--', feelColor = 'var(--dim)';
+  if (s.sinr != null || s.rsrp != null){
+    if ((s.sinr != null && s.sinr >= 8) || (s.sinr != null && s.rsrp != null && s.sinr >= 5 && s.rsrp >= -85)){
+      feelTxt = '快 · 适合看视频'; feelColor = 'var(--ok)';
+    } else if ((s.sinr != null && s.sinr >= 0) || (s.rsrp != null && s.rsrp >= -95)){
+      feelTxt = '一般 · 网页聊天够用'; feelColor = 'var(--warn)';
+    } else {
+      feelTxt = '慢 · 可能会卡'; feelColor = 'var(--bad)';
+    }
+  }
+  var feelEl = document.getElementById('speedFeel');
+  feelEl.textContent = feelTxt;
+  feelEl.style.color = feelColor;
+
+  // 技术详情（收成一行小字，可忽略）
+  document.getElementById('techLine').textContent = '技术详情（可忽略）：小区 PCI ' + (s.pci != null ? s.pci : '--') +
+    ' · 信号质量参考 RSRQ ' + (s.rsrq != null ? s.rsrq.toFixed(1) + ' dB' : '--') +
+    ' · 频点 ' + (s.arfcn || '--');
+
+  document.getElementById('updated').textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN');
+}
+
+load();
+timer = setInterval(load, 5000);
+</script>
+</body>
+</html>

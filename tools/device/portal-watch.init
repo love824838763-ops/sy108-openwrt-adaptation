@@ -1,0 +1,22 @@
+#!/bin/sh /etc/rc.common
+# 开机自启：蜂窝断网时弹状态页（captive portal）
+# 同时负责放开 route_localnet（DNAT 到 loopback 的前提，重启后内核会重置）
+START=99
+STOP=98
+
+start() {
+	# route_localnet 必须在 portal 开启前就绪
+	for f in /proc/sys/net/ipv4/conf/all/route_localnet \
+	         /proc/sys/net/ipv4/conf/br-usb/route_localnet \
+	         /proc/sys/net/ipv4/conf/uncm0/route_localnet; do
+		[ -w "$f" ] && echo 1 > "$f" 2>/dev/null
+	done
+	setsid /usr/bin/portal-watch </dev/null >/dev/null 2>&1 &
+	return 0
+}
+
+stop() {
+	killall portal-watch 2>/dev/null
+	rm -f /tmp/dnsmasq.cfg01411c.d/portal.conf /run/portal.active
+	return 0
+}
