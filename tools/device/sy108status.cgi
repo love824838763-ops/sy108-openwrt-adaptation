@@ -1,7 +1,8 @@
 #!/bin/sh
 # sy108status - 免登录状态接口（只读）
-# 返回 JSON：运行状态 / 网络连接 / 频段信号
+# 返回 JSON：运行状态 / 网络连接 / 频段信号 / 实时速率 / 上行功率估算 / 能耗估算
 # 信号数据缓存 30 秒，避免每次刷新都触发 modem AT 查询
+# 所有功率与能耗数值均为模型估算，设备无电流采样硬件，非实测值
 
 echo "Content-Type: application/json"
 echo "Access-Control-Allow-Origin: *"
@@ -45,6 +46,7 @@ RSRP=$(jsonfilter -e '@.cells[@.serving=true].rsrp' <"$CACHE" 2>/dev/null)
 RSRQ=$(jsonfilter -e '@.cells[@.serving=true].rsrq' <"$CACHE" 2>/dev/null)
 SINR=$(jsonfilter -e '@.cells[@.serving=true].sinr' <"$CACHE" 2>/dev/null)
 ARFCN=$(jsonfilter -e '@.cells[@.serving=true].arfcn' <"$CACHE" 2>/dev/null)
+BW=$(jsonfilter -e '@.cells[@.serving=true].bandwidth_mhz' <"$CACHE" 2>/dev/null)
 
 [ -z "$BAND" ] && BAND="--"
 [ -z "$PCI" ] && PCI="null"
@@ -52,6 +54,7 @@ ARFCN=$(jsonfilter -e '@.cells[@.serving=true].arfcn' <"$CACHE" 2>/dev/null)
 [ -z "$RSRQ" ] && RSRQ="null"
 [ -z "$SINR" ] && SINR="null"
 [ -z "$ARFCN" ] && ARFCN="null"
+[ -z "$BW" ] || [ "$BW" = "null" ] && BW="null"
 
 # ---------- 2. 系统 ----------
 UP=$(cut -d. -f1 /proc/uptime)
@@ -77,6 +80,9 @@ ACT=$(echo "$CS" | jsonfilter -e '@.registration.act' 2>/dev/null)
 ICCID=$(echo "$CS" | jsonfilter -e '@.iccid' 2>/dev/null)
 IMSI=$(echo "$CS" | jsonfilter -e '@.imsi' 2>/dev/null)
 ATTACHED=$(echo "$CS" | jsonfilter -e '@.attached' 2>/dev/null)
+SIMST=$(echo "$CS" | jsonfilter -e '@.sim.state' 2>/dev/null)
+AMBR_DL=$(echo "$CS" | jsonfilter -e '@.qos.ambr_downlink_kbps' 2>/dev/null)
+AMBR_UL=$(echo "$CS" | jsonfilter -e '@.qos.ambr_uplink_kbps' 2>/dev/null)
 
 [ -z "$STATE" ] && STATE="unknown"
 [ -z "$ERR" ] && ERR_JSON=null || ERR_JSON="\"$ERR\""
@@ -88,6 +94,11 @@ ATTACHED=$(echo "$CS" | jsonfilter -e '@.attached' 2>/dev/null)
 [ -z "$ICCID" ] && ICCID=""
 [ -z "$IMSI" ] && IMSI=""
 [ -z "$ATTACHED" ] && ATTACHED="0"
+[ -z "$SIMST" ] && SIMST="UNKNOWN"
+[ -z "$AMBR_DL" ] && AMBR_DL="0"
+[ -z "$AMBR_UL" ] && AMBR_UL="0"
+AMBR_DL_MBPS=$((AMBR_DL / 1000))
+AMBR_UL_MBPS=$((AMBR_UL / 1000))
 
 # ---- SIM 识别（国家/运营商，来自 apn-auto 数据库） ----
 COUNTRY=""
@@ -115,14 +126,12 @@ WUPT=$(echo "$WS" | jsonfilter -e '@.uptime' 2>/dev/null)
 [ -z "$WUPT" ] && WUPT="0"
 
 # ---------- 5. 流量统计（跨重启累计，抗断电/并发）----------
-# 设备无内置电池、拔 USB 即断电 => 状态文件必须原子写 + 回绕立即持久化
 WW=wwan0
 CUR_RX=$(cat /sys/class/net/$WW/statistics/rx_bytes 2>/dev/null || echo 0)
 CUR_TX=$(cat /sys/class/net/$WW/statistics/tx_bytes 2>/dev/null || echo 0)
 PERSIST=/root/traffic.state
 LIVE=/tmp/traffic.live
 
-# 并发锁：uhttpd 可能同时运行多个 CGI 实例（多标签页）
 LOCKDIR=/tmp/traffic.lock
 ACQ=0
 if mkdir "$LOCKDIR" 2>/dev/null; then
@@ -142,21 +151,18 @@ if [ -f "$LIVE" ]; then
 elif [ -f "$PERSIST" ]; then
 	. "$PERSIST"
 fi
-# 状态文件损坏防护（断电可能截断文件）
 for _v in BASE_RX BASE_TX LAST_RX LAST_TX; do
 	eval "_t=\$$_v"
 	case "$_t" in ''|*[!0-9]*) eval "$_v=0" ;; esac
 done
 PLAST_RX=$LAST_RX; PLAST_TX=$LAST_TX
 
-# 回绕/重启检测：计数器回退 => 上一轮末值封存进基数
 WRAPPED=0
 if [ "$CUR_RX" -lt "$LAST_RX" ]; then BASE_RX=$((BASE_RX + LAST_RX)); WRAPPED=1; fi
 if [ "$CUR_TX" -lt "$LAST_TX" ]; then BASE_TX=$((BASE_TX + LAST_TX)); WRAPPED=1; fi
 TOTAL_RX=$((BASE_RX + CUR_RX))
 TOTAL_TX=$((BASE_TX + CUR_TX))
 
-# 持久化：回绕立即写（防再次断电丢失）；增量>2MB 写；每 5 分钟兜底写；tmp+mv 原子替换
 NOW300=$((NOW / 300))
 D_RX=$((CUR_RX - PLAST_RX)); [ "$D_RX" -lt 0 ] && D_RX=0
 D_TX=$((CUR_TX - PLAST_TX)); [ "$D_TX" -lt 0 ] && D_TX=0
@@ -167,19 +173,103 @@ fi
 echo "BASE_RX=$BASE_RX BASE_TX=$BASE_TX LAST_RX=$CUR_RX LAST_TX=$CUR_TX SAVED=$SAVED" > "$LIVE"
 [ "$ACQ" = "1" ] && rmdir "$LOCKDIR" 2>/dev/null
 
-# ---------- 6. 频段扫描状态（band-auto 写入的阶段标记）----------
+# ---------- 6. 实时速率（相邻两次采样的字节差 / 时间差）----------
+RSTATE=/tmp/sy108_rate.state
+PRX=0; PTX=0; PTS=0
+[ -f "$RSTATE" ] && . "$RSTATE"
+case "$PRX$PTX$PTS" in *[!0-9]*) PRX=0; PTX=0; PTS=0 ;; esac
+DT=$((NOW - PTS))
+[ "$PTS" -eq 0 ] && DT=0
+if [ "$DT" -gt 0 ] && [ "$DT" -lt 300 ] && [ "$CUR_RX" -ge "$PRX" ] && [ "$CUR_TX" -ge "$PTX" ]; then
+	DOWN_BPS=$(( (CUR_RX - PRX) * 8 / DT ))
+	UP_BPS=$(( (CUR_TX - PTX) * 8 / DT ))
+else
+	DOWN_BPS=0; UP_BPS=0
+fi
+echo "PRX=$CUR_RX PTX=$CUR_TX PTS=$NOW" > "$RSTATE"
+
+# ---------- 7. 频段扫描状态 ----------
 SCAN=""
 if [ -f /tmp/band-auto.scan ] && find /tmp/band-auto.scan -mmin -15 2>/dev/null | grep -q .; then
 	SCAN=$(tr -d '"' < /tmp/band-auto.scan 2>/dev/null)
 fi
+BANDMODE=$(cat /etc/bandlock.mode 2>/dev/null)
+[ -z "$BANDMODE" ] && BANDMODE="auto"
 
-# ---------- 7. 输出 ----------
+# ---------- 8. 上行发射功率估算（非实测）----------
+# 依据 3GPP 开环功控：PL ≈ 参考信号功率 - RSRP；
+# P_est ≈ P0 + α·PL + 带宽/MCS 修正，此处用线性近似 (-75 + 0.8*PL) dBm。
+# 设备未暴露 PUSCH / PHR 实测接口，AT 工程模式矩阵亦无可解析功率字段。
+RSRP_INT=""
+case "$RSRP" in
+	-[0-9]*|[0-9]*) RSRP_INT=$(echo "$RSRP" | cut -d. -f1) ;;
+esac
+CAP=23
+case "$BAND" in n78|n79|n41|n77) CAP_HPUE=26 ;; *) CAP_HPUE=23 ;; esac
+if [ -n "$RSRP_INT" ]; then
+	PL=$((20 - RSRP_INT))
+	[ "$PL" -lt 40 ] && PL=40
+	[ "$PL" -gt 160 ] && PL=160
+	EST=$(( (-7500 + 80 * PL) / 100 ))
+	[ "$EST" -lt 0 ] && EST=0
+	[ "$EST" -gt "$CAP" ] && EST=$CAP
+	LOW=$((EST - 4)); [ "$LOW" -lt 0 ] && LOW=0
+	HIGH=$((EST + 4)); [ "$HIGH" -gt "$CAP" ] && HIGH=$CAP
+	HEADROOM=$((CAP - EST))
+	POWER_JSON="\"tx_est_dbm\":$EST,\"tx_low_dbm\":$LOW,\"tx_high_dbm\":$HIGH,\"headroom_db\":$HEADROOM,\"cap_dbm\":$CAP,\"hpue_cap_dbm\":$CAP_HPUE,\"pl_db\":$PL,\"class\":\"PC3 (23 dBm)\",\"measured\":false,\"method\":\"3GPP open-loop estimate from RSRP\""
+else
+	EST=0; PL=0
+	POWER_JSON="\"tx_est_dbm\":null,\"tx_low_dbm\":null,\"tx_high_dbm\":null,\"headroom_db\":null,\"cap_dbm\":$CAP,\"hpue_cap_dbm\":$CAP_HPUE,\"pl_db\":null,\"class\":\"PC3 (23 dBm)\",\"measured\":false,\"method\":\"3GPP open-loop estimate from RSRP\""
+fi
+
+# ---------- 9. 能耗估算（模型 + 时间积分，非实测）----------
+# 公开规格参考（UDX710 USB 供电设备）：空闲 0.75 W、工作电流 760 mA ≈ 3.8 W @5V、
+# 峰值电流 3 A；同类 5G CPE 满载实测约 6.8 W。
+# 模型：基础 1.10 W + 数据链路 0.50 W + 吞吐加成(≤1.20 W) + PA 加成(≤0.80 W) + 扫描 0.60 W
+BASECW=110
+LINKCW=0
+[ "$STATE" = "pdp_active" ] && LINKCW=50
+RATE_TOTAL=$((DOWN_BPS + UP_BPS))
+TRAFCW=$(( RATE_TOTAL / 1000 * 120 / 100000 ))
+[ "$TRAFCW" -gt 120 ] && TRAFCW=120
+if [ "$EST" -le 5 ]; then TXCW=5
+elif [ "$EST" -le 10 ]; then TXCW=10
+elif [ "$EST" -le 15 ]; then TXCW=20
+elif [ "$EST" -le 20 ]; then TXCW=45
+else TXCW=80
+fi
+SCANCW=0
+[ -n "$SCAN" ] && SCANCW=60
+PWCW=$((BASECW + LINKCW + TRAFCW + TXCW + SCANCW))
+
+# 能量积分：用上一次采样功率代表这段区间，Wh×1000 (mWh) 存整数
+ESTATE=/root/energy.state
+ETMP=/root/energy.state.tmp
+ELTS=0; ELASTCW=$PWCW; ETOTAL=0; EBOOT=0; EBOOTUP=0
+[ -f "$ESTATE" ] && . "$ESTATE"
+for _v in ELTS ELASTCW ETOTAL EBOOT EBOOTUP; do
+	eval "_t=\$$_v"
+	case "$_t" in ''|*[!0-9]*) eval "$_v=0" ;; esac
+done
+[ "$EBOOTUP" -gt "$UP" ] && EBOOT=0
+EDT=$((NOW - ELTS)); [ "$ELTS" -eq 0 ] && EDT=0
+[ "$EDT" -lt 0 ] && EDT=0; [ "$EDT" -gt 3600 ] && EDT=3600
+EADD=$(( ELASTCW * EDT / 360 ))
+ETOTAL=$((ETOTAL + EADD))
+EBOOT=$((EBOOT + EADD))
+echo "ELTS=$NOW ELASTCW=$PWCW ETOTAL=$ETOTAL EBOOT=$EBOOT EBOOTUP=$UP" > "$ETMP" 2>/dev/null && mv "$ETMP" "$ESTATE" 2>/dev/null
+
+# ---------- 10. 输出 ----------
 cat <<EOF
-{"uptime":$UP,"temp":$TEMP,"mem_total":$MEMT,"mem_free":$MEMF,"load":"$LOAD","version":"$VER","scan":"$SCAN",
+{"uptime":$UP,"temp":$TEMP,"mem_total":$MEMT,"mem_free":$MEMF,"load":"$LOAD","version":"$VER","scan":"$SCAN","band_mode":"$BANDMODE",
 "cell":{"state":"$STATE","last_error":$ERR_JSON,"apn":"$APN","registered":$REG,"roaming":$ROAM,
-"plmn":"$PLMN","act":$ACT,"iccid":"$ICCID","attached":$ATTACHED,"country":"$COUNTRY","carrier":"$CARRIER"},
-"wan":{"up":$WUP,"ip":"$WIP","dns":"$WDNS","uptime":$WUPT},
-"signal":{"band":"$BAND","pci":$PCI,"rsrp":$RSRP,"rsrq":$RSRQ,"sinr":$SINR,"arfcn":$ARFCN},
+"plmn":"$PLMN","act":$ACT,"iccid":"$ICCID","attached":$ATTACHED,"sim":"$SIMST","country":"$COUNTRY","carrier":"$CARRIER"},
+"wan":{"up":$WUP,"ip":"$WIP","dns":"$WDNS","uptime":$WUPT,"iface":"wwan0"},
+"signal":{"band":"$BAND","pci":$PCI,"rsrp":$RSRP,"rsrq":$RSRQ,"sinr":$SINR,"arfcn":$ARFCN,"bandwidth_mhz":$BW},
 "traffic":{"rx":$TOTAL_RX,"tx":$TOTAL_TX,"boot_rx":$CUR_RX,"boot_tx":$CUR_TX},
+"rate":{"down_bps":$DOWN_BPS,"up_bps":$UP_BPS,"interval_s":$DT},
+"qos":{"ambr_down_mbps":$AMBR_DL_MBPS,"ambr_up_mbps":$AMBR_UL_MBPS},
+"power":{$POWER_JSON},
+"energy":{"watt_cw":$PWCW,"total_mwh":$ETOTAL,"boot_mwh":$EBOOT,"tariff_cny_per_kwh":60,"measured":false,"model":"idle 0.75W / active 3.8W UDX710 reference"},
 "ts":$NOW}
 EOF

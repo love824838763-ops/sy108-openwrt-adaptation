@@ -1,386 +1,701 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="auto">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b0f14">
-<title>5G 设备状态</title>
+<meta name="theme-color" content="#f4f6fb">
+<meta name="color-scheme" content="light dark">
+<title>5G 通信壳 · 设备状态</title>
 <style>
 :root{
-  --bg:#0b0f14; --card:#151b23; --card2:#1b232d; --txt:#e6edf3; --dim:#8b949e;
-  --ok:#2ea043; --warn:#d29922; --bad:#da3633; --line:#21262d; --accent:#388bfd;
+  --bg:#f4f6fb; --surface:#fff; --surface-2:#f7f9fc; --border:#e5eaf2;
+  --text:#162030; --text-2:#5a687c; --text-3:#93a0b2;
+  --accent:#4f6bed; --accent-2:#7c8ff5; --accent-soft:#eef1ff;
+  --ok:#15a34a; --ok-soft:#e8f7ee;
+  --warn:#d98405; --warn-soft:#fff4e2;
+  --bad:#dc3f3c; --bad-soft:#fdecec;
+  --state:#93a0b2; --state-soft:#f0f3f8;
+  --shadow:0 1px 2px rgba(18,30,55,.04),0 10px 28px rgba(18,30,55,.06);
+  --radius:18px; --radius-sm:11px;
 }
-@media (prefers-color-scheme: light){
-  :root{ --bg:#eef1f5; --card:#ffffff; --card2:#f6f8fa; --txt:#1f2328; --dim:#636c76;
-         --line:#d8dee4; --ok:#1a7f37; --warn:#9a6700; --bad:#cf222e; --accent:#0969da; }
+html[data-theme="dark"]{
+  --bg:#0c1119; --surface:#151c27; --surface-2:#1b2431; --border:#263141;
+  --text:#e9eef7; --text-2:#a3b0c2; --text-3:#71809a;
+  --accent:#7c91ff; --accent-2:#5d73e8; --accent-soft:#1e2740;
+  --ok:#3ecf72; --ok-soft:#152c21;
+  --warn:#f0b04a; --warn-soft:#332713;
+  --bad:#ff6b68; --bad-soft:#331b1c;
+  --state:#71809a; --state-soft:#1b2431;
+  --shadow:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.22);
+}
+@media (prefers-color-scheme:dark){
+  html[data-theme="auto"]{
+    --bg:#0c1119; --surface:#151c27; --surface-2:#1b2431; --border:#263141;
+    --text:#e9eef7; --text-2:#a3b0c2; --text-3:#71809a;
+    --accent:#7c91ff; --accent-2:#5d73e8; --accent-soft:#1e2740;
+    --ok:#3ecf72; --ok-soft:#152c21;
+    --warn:#f0b04a; --warn-soft:#332713;
+    --bad:#ff6b68; --bad-soft:#331b1c;
+    --state:#71809a; --state-soft:#1b2431;
+    --shadow:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.22);
+  }
 }
 *{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
 body{
-  background:var(--bg); color:var(--txt); min-height:100vh;
-  font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
-  padding:16px; padding-bottom:32px;
-  -webkit-font-smoothing:antialiased;
+  background:var(--bg); color:var(--text); min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:520px;margin:0 auto}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.app{max-width:600px;margin:0 auto;padding:18px 15px 44px}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 
-/* ---- 顶栏 ---- */
-.topbar{
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:12px;padding:0 2px;
+/* ---------- 顶栏 ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.mark{
+  width:38px;height:38px;border-radius:13px;flex:none;position:relative;
+  background:linear-gradient(140deg,var(--accent),var(--accent-2));
+  box-shadow:0 5px 14px rgba(79,107,237,.28);
 }
-.topbar .title{font-size:16px;font-weight:700;letter-spacing:.5px}
+.mark::before,.mark::after{content:"";position:absolute;border:2px solid rgba(255,255,255,.9);border-radius:50%}
+.mark::before{inset:11px}
+.mark::after{inset:5px;border-color:rgba(255,255,255,.35);border-left-color:transparent;border-bottom-color:transparent;transform:rotate(-35deg)}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.brand-sub{font-size:11px;color:var(--text-3);letter-spacing:.4px}
+.top-actions{display:flex;align-items:center;gap:8px;flex:none}
+.icon-btn{
+  width:34px;height:34px;display:grid;place-items:center;border-radius:11px;
+  border:1px solid var(--border);background:var(--surface);color:var(--text-2);
+  font-size:13px;transition:.18s;
+}
+.icon-btn:hover{color:var(--accent);border-color:var(--accent)}
 .login{
-  display:inline-block;background:var(--accent);color:#fff;text-decoration:none;
-  border-radius:18px;padding:7px 18px;font-size:13px;font-weight:600;
+  display:inline-flex;align-items:center;gap:5px;text-decoration:none;white-space:nowrap;
+  background:var(--accent);color:#fff;border-radius:11px;padding:8px 14px;
+  font-size:12.5px;font-weight:600;transition:.18s;box-shadow:0 4px 12px rgba(79,107,237,.22);
 }
-.login:active{opacity:.7}
+.login:hover{filter:brightness(1.07)}
+.login:active{transform:translateY(1px)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* ---- 顶部状态 ---- */
+/* ---------- 主状态卡 ---------- */
 .hero{
-  background:var(--card); border:1px solid var(--line); border-radius:16px;
-  padding:24px 20px; text-align:center; margin-bottom:14px; position:relative; overflow:hidden;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 20px 18px;box-shadow:var(--shadow);margin-bottom:14px;
+  position:relative;overflow:hidden;
 }
 .hero::before{
-  content:""; position:absolute; inset:0; opacity:.08;
-  background:var(--state-color,var(--dim)); transition:background .3s;
+  content:"";position:absolute;inset:0 0 auto 0;height:3px;
+  background:linear-gradient(90deg,var(--state),transparent 78%);opacity:.9;
 }
-.dot{
-  width:16px;height:16px;border-radius:50%;display:inline-block;margin-right:8px;
-  vertical-align:middle; background:var(--state-color,var(--dim));
-  box-shadow:0 0 0 0 var(--state-color,transparent); animation:pulse 2s infinite;
+.hero::after{
+  content:"";position:absolute;right:-60px;top:-90px;width:230px;height:230px;border-radius:50%;
+  background:var(--state-soft);opacity:.75;pointer-events:none;
 }
-@keyframes pulse{
-  0%{box-shadow:0 0 0 0 rgba(46,160,67,.5)}
-  70%{box-shadow:0 0 0 12px rgba(46,160,67,0)}
-  100%{box-shadow:0 0 0 0 rgba(46,160,67,0)}
+.hero>*{position:relative}
+.hero-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.state-badge{display:inline-flex;align-items:center;gap:9px;font-size:21px;font-weight:750;letter-spacing:.2px;color:var(--state)}
+.pulse{
+  width:11px;height:11px;border-radius:50%;background:var(--state);flex:none;position:relative;
 }
-.state-text{
-  font-size:26px; font-weight:700; letter-spacing:.5px; position:relative;
-  color:var(--state-color,var(--txt));
+.pulse::after{
+  content:"";position:absolute;inset:0;border-radius:50%;background:var(--state);
+  animation:ring 2.1s ease-out infinite;
 }
-.state-sub{color:var(--dim); font-size:13px; margin-top:8px; position:relative}
+@keyframes ring{0%{transform:scale(1);opacity:.55}100%{transform:scale(3.1);opacity:0}}
+.hero-clock{font-size:11.5px;color:var(--text-3);white-space:nowrap}
+.hero-sub{font-size:12.5px;color:var(--text-2);margin-top:7px;min-height:19px;line-height:1.5}
+.hero-metrics{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:17px;
+}
+.metric{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+  padding:9px 8px;min-width:0;
+}
+.metric .mk{font-size:10.5px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.metric .mv{font-size:14px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.banner{
+  display:none;margin-top:14px;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.55;
+  background:var(--warn-soft);color:var(--warn);border:1px solid rgba(217,132,5,.22);
+}
+.banner.show{display:block}
+.banner strong{font-weight:700}
+.err{background:var(--bad-soft);color:var(--bad)}
+.err.show{display:block}
 
-/* ---- 卡片 ---- */
+/* ---------- 选项卡 ---------- */
+.tabs{
+  display:flex;gap:5px;background:var(--surface);border:1px solid var(--border);
+  border-radius:13px;padding:4px;margin-bottom:14px;box-shadow:var(--shadow);
+  overflow-x:auto;scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:1 0 auto;min-width:72px;border:0;background:transparent;color:var(--text-2);
+  padding:8px 10px;border-radius:9px;font-size:12.5px;font-weight:600;white-space:nowrap;transition:.18s;
+}
+.tab:hover{color:var(--accent)}
+.tab.active{background:var(--accent-soft);color:var(--accent)}
+.panel{display:none;animation:fade .22s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- 卡片 ---------- */
 .card{
-  background:var(--card); border:1px solid var(--line); border-radius:14px;
-  padding:16px 18px; margin-bottom:12px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);
 }
-.card h2{
-  font-size:12px; font-weight:600; color:var(--dim); text-transform:uppercase;
-  letter-spacing:1.2px; margin-bottom:14px;
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}
+.card h2{font-size:13px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
+.card h2::before{content:"";width:3px;height:13px;border-radius:2px;background:var(--accent)}
+.card-note{font-size:11px;color:var(--text-3)}
+.kv{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:8px 0;font-size:13.5px}
+.kv+.kv{border-top:1px solid var(--border)}
+.kv .k{color:var(--text-2);flex:none;font-size:12.5px}
+.kv .v{text-align:right;word-break:break-all;font-weight:600}
+.hint{font-size:11px;color:var(--text-3);line-height:1.6;margin:-3px 0 7px}
+.hint.tip{
+  background:var(--accent-soft);color:var(--accent);border-radius:9px;
+  padding:9px 11px;margin:11px 0 0;font-size:11.5px;
 }
-.row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;font-size:15px}
-.row+.row,.note+.row{border-top:1px solid var(--line)}
-.row .k{color:var(--dim);font-size:13px;flex-shrink:0}
-.row .v{font-variant-numeric:tabular-nums;text-align:right;word-break:break-all;font-weight:500}
-.note{display:block;font-size:11px;color:var(--dim);margin:-4px 0 10px;line-height:1.65}
-.note.tip{background:rgba(210,153,34,.1);border-left:2px solid var(--warn);padding:7px 9px;border-radius:0 6px 6px 0;margin-top:12px}
-.tech{font-size:10px;color:var(--dim);opacity:.75;margin-top:12px;word-break:break-all}
+.chip{
+  display:inline-block;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:8px;padding:2px 9px;font-size:12px;font-weight:700;color:var(--text);
+}
+.chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.chip.warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.bad{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.acc{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.muted{color:var(--text-3)!important;font-weight:500!important}
 
-/* ---- 信号格 ---- */
-.bars{display:inline-flex;align-items:flex-end;gap:3px;height:22px;margin-right:8px;vertical-align:middle}
-.bars i{display:block;width:5px;border-radius:2px;background:var(--line);transition:background .3s}
-.bars i:nth-child(1){height:7px}
-.bars i:nth-child(2){height:11px}
-.bars i:nth-child(3){height:15px}
-.bars i:nth-child(4){height:19px}
-.bars i:nth-child(5){height:22px}
-.bars i.on{background:var(--sig-color,var(--ok))}
-.sig-main{font-size:22px;font-weight:700;display:flex;align-items:center;gap:4px}
-.sig-main #sigLevel{font-size:16px;font-weight:600;color:var(--dim)}
-.band-tag{
-  display:inline-block;background:var(--card2);border:1px solid var(--line);
-  border-radius:6px;padding:2px 8px;font-size:13px;font-weight:600;margin-left:6px;
-}
+/* ---------- 信号 ---------- */
+.bars{display:inline-flex;align-items:flex-end;gap:3px;height:26px;vertical-align:middle;margin-right:4px}
+.bars i{display:block;width:6px;border-radius:2px;background:var(--border);transition:background .3s}
+.bars i:nth-child(1){height:8px}.bars i:nth-child(2){height:12px}
+.bars i:nth-child(3){height:17px}.bars i:nth-child(4){height:22px}.bars i:nth-child(5){height:26px}
+.bars i.on{background:var(--sig,var(--ok))}
+.sig-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.sig-big{font-size:19px;font-weight:750}
+.meter-wrap{margin:11px 0 3px}
+.meter-label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-2);margin-bottom:5px}
+.meter-label b{color:var(--text);font-weight:700}
+.meter{height:7px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);overflow:hidden}
+.meter span{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .45s ease,background .3s}
+.meter-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mini{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 11px}
+.mini .mk{font-size:10.5px;color:var(--text-3)}
+.mini .mv{font-size:16px;font-weight:750;margin-top:2px}
+details.tech{margin-top:12px;border-top:1px solid var(--border);padding-top:11px}
+details.tech summary{font-size:11.5px;color:var(--text-3);cursor:pointer;list-style:none}
+details.tech summary::-webkit-details-marker{display:none}
+details.tech summary::before{content:"▸ ";color:var(--accent)}
+details.tech[open] summary::before{content:"▾ "}
+details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:8px;word-break:break-all}
 
-/* ---- 底部 ---- */
+/* ---------- 功率 ---------- */
+.power-hero{
+  display:flex;align-items:center;gap:14px;background:var(--surface-2);
+  border:1px solid var(--border);border-radius:13px;padding:13px 14px;margin-bottom:12px;
+}
+.power-num{font-size:29px;font-weight:750;line-height:1;letter-spacing:-.5px}
+.power-unit{font-size:13px;color:var(--text-2);font-weight:600}
+.power-side{flex:1;min-width:0}
+.estimate-tag{
+  display:inline-block;background:var(--warn-soft);color:var(--warn);
+  border-radius:6px;padding:1px 7px;font-size:10px;font-weight:700;margin-bottom:5px;
+}
+.gauge{height:9px;border-radius:99px;background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden;margin:13px 0 5px}
+.gauge .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ok),var(--warn));transition:width .45s ease}
+.gauge .band{position:absolute;top:0;bottom:0;background:rgba(79,107,237,.16);border-left:1px solid var(--accent);border-right:1px solid var(--accent)}
+.gauge-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--text-3)}
+.disclaimer{font-size:11px;line-height:1.65;color:var(--text-3);background:var(--surface-2);border-left:2px solid var(--border);padding:9px 11px;border-radius:0 9px 9px 0;margin-top:12px}
+
+/* ---------- 底部 ---------- */
 .foot{
-  display:flex;justify-content:space-between;align-items:center;
-  color:var(--dim);font-size:12px;margin-top:18px;padding:0 4px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:16px;padding:0 3px;font-size:11.5px;color:var(--text-3);
 }
-.foot a{color:var(--accent);text-decoration:none;font-weight:500}
+.foot-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--ok);display:inline-block}
+.dot-live.paused{background:var(--text-3)}
 .btn{
-  background:var(--card2);border:1px solid var(--line);color:var(--txt);
-  border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit;
+  border:1px solid var(--border);background:var(--surface);color:var(--text-2);
+  border-radius:9px;padding:6px 12px;font-size:11.5px;font-weight:600;transition:.18s;
 }
-.btn:active{opacity:.6}
-.err{
-  background:rgba(218,54,51,.12); border:1px solid var(--bad); color:var(--bad);
-  border-radius:8px; padding:10px 12px; font-size:13px; margin-top:10px; display:none;
+.btn:hover{color:var(--accent);border-color:var(--accent)}
+.btn:active{transform:translateY(1px)}
+.skeleton{color:var(--text-3)}
+@media (max-width:370px){
+  .hero-metrics{grid-template-columns:repeat(2,1fr)}
+  .app{padding:14px 11px 36px}
+  .card{padding:14px}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app">
 
-  <div class="topbar">
-    <span class="title">5G 通信壳</span>
-    <a class="login" id="loginBtn" href="/cgi-bin/luci/">登录</a>
-  </div>
-
-  <div class="hero" id="hero">
-    <div class="state-text"><span class="dot" id="dot"></span><span id="stateText">检测中…</span></div>
-    <div class="state-sub" id="stateSub">正在读取设备状态</div>
-    <div class="err" id="errBox"></div>
-  </div>
-
-  <div class="card">
-    <h2>运行状态</h2>
-    <div class="row"><span class="k">运行时长</span><span class="v" id="uptime">--</span></div>
-    <div class="note">从上次开机（通电）到现在过了多久</div>
-    <div class="row"><span class="k">设备温度</span><span class="v" id="temp">--</span></div>
-    <div class="note">超过 60°C 可能自动降速保护，保持通风即可</div>
-    <div class="row"><span class="k">可用内存</span><span class="v" id="mem">--</span></div>
-    <div class="note">剩余运行空间，太低会变卡（一般不用管）</div>
-    <div class="row"><span class="k">系统版本</span><span class="v" id="ver">--</span></div>
-    <div class="note">软件版本号，找人帮忙时提供这个</div>
-  </div>
-
-  <div class="card">
-    <h2>网络连接</h2>
-    <div class="row"><span class="k">能不能上网</span><span class="v" id="wanState">--</span></div>
-    <div class="note">当前是否已连接到互联网</div>
-    <div class="row"><span class="k">运营商</span><span class="v" id="carrier">--</span></div>
-    <div class="note">你插的电话卡所属公司（换卡会自动识别配置）</div>
-    <div class="row"><span class="k">本次流量</span><span class="v" id="bootTraffic">--</span></div>
-    <div class="note">这次开机以来用了多少流量</div>
-    <div class="row"><span class="k">累计流量</span><span class="v" id="totalTraffic">--</span></div>
-    <div class="note">总用量，关机重启不清零。储值卡用超套餐会限速，主要看这个</div>
-    <div class="row"><span class="k">上网参数</span><span class="v" id="apn">--</span></div>
-    <div class="note">已按电话卡自动配置好（APN），不用手动改</div>
-    <div class="row"><span class="k">网络地址</span><span class="v" id="ip">--</span></div>
-    <div class="note">运营商分配的上网地址（IP），不用管</div>
-    <div class="row"><span class="k">网址翻译</span><span class="v" id="dns">--</span></div>
-    <div class="note">域名解析服务（DNS），不用管</div>
-  </div>
-
-  <div class="card">
-    <h2>信号与网速</h2>
-    <div class="row"><span class="k">网速体验</span><span class="v" id="speedFeel">--</span></div>
-    <div class="note">根据信号综合估算：「快」适合看视频，「一般」网页聊天够用，「慢」可能会卡</div>
-    <div class="row" style="align-items:center">
-      <span class="k">信号格数</span>
-      <span class="v sig-main">
-        <span class="bars" id="bars"><i></i><i></i><i></i><i></i><i></i></span>
-        <span id="sigLevel">--</span>
-        <span class="band-tag" id="band">--</span>
-      </span>
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div>
+        <div class="brand-name">5G 通信壳</div>
+        <div class="brand-sub">运行状态 · 免登录</div>
+      </div>
     </div>
-    <div class="note">信号强弱一目了然；右边是当前 5G「频道」（频段），系统会自动优选</div>
-    <div class="row"><span class="k">信号强度</span><span class="v" id="rsrp">--</span></div>
-    <div class="note">精确数值（RSRP）：-80 以内很好，-85～-100 一般，-100 以下偏弱</div>
-    <div class="row"><span class="k">信号质量</span><span class="v" id="sinr">--</span></div>
-    <div class="note">抗干扰能力（SINR），直接决定网速：5 以上好，0～5 一般，0 以下较差</div>
-    <div class="note tip">提示：想提速，把设备放窗边、开阔处或高一点的位置。信号持续变差时，系统会自动扫描切换更优频段（约 1-3 分钟，期间可能短暂断网）。</div>
-    <div class="tech" id="techLine">技术详情（可忽略）：--</div>
-  </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn" title="切换深浅色" aria-label="切换深浅色">◐</button>
+      <a class="login" id="loginBtn" href="/cgi-bin/luci/">管理登录</a>
+    </div>
+  </header>
 
-  <div class="foot">
-    <span id="updated">--</span>
-    <span>
-      <button class="btn" onclick="load()">刷新</button>
-    </span>
-  </div>
+  <section class="hero" id="hero" aria-live="polite">
+    <div class="hero-top">
+      <div class="state-badge"><span class="pulse" aria-hidden="true"></span><span id="stateText">检测中…</span></div>
+      <div class="hero-clock num" id="heroClock">--</div>
+    </div>
+    <div class="hero-sub" id="stateSub">正在读取设备状态…</div>
+    <div class="hero-metrics">
+      <div class="metric"><div class="mk">信号</div><div class="mv num" id="mSignal">--</div></div>
+      <div class="metric"><div class="mk">实时下载</div><div class="mv num" id="mDown">--</div></div>
+      <div class="metric"><div class="mk">当前频段</div><div class="mv num" id="mBand">--</div></div>
+      <div class="metric"><div class="mk">温度</div><div class="mv num" id="mTemp">--</div></div>
+    </div>
+    <div class="banner" id="scanBanner"></div>
+    <div class="banner err" id="errBox"></div>
+  </section>
 
+  <nav class="tabs" id="tabs" role="tablist" aria-label="状态分类">
+    <button class="tab active" data-tab="overview" role="tab" aria-selected="true">概览</button>
+    <button class="tab" data-tab="signal" role="tab" aria-selected="false">信号质量</button>
+    <button class="tab" data-tab="power" role="tab" aria-selected="false">上行 / 功率</button>
+    <button class="tab" data-tab="device" role="tab" aria-selected="false">设备与流量</button>
+  </nav>
+
+  <!-- 概览 -->
+  <section class="panel active" id="panel-overview" role="tabpanel">
+    <div class="card">
+      <div class="card-head"><h2>网络连接</h2><span class="card-note" id="ovReg">--</span></div>
+      <div class="kv"><span class="k">能不能上网</span><span class="v" id="ovWan">--</span></div>
+      <div class="hint">显示蜂窝数据通道是否已建立</div>
+      <div class="kv"><span class="k">运营商</span><span class="v" id="ovCarrier">--</span></div>
+      <div class="hint">按电话卡自动识别，换卡无需手动设置</div>
+      <div class="kv"><span class="k">驻留频段</span><span class="v"><span class="chip acc num" id="ovBand">--</span></span></div>
+      <div class="hint">系统会自动挑选更合适的频段，无需手动锁定</div>
+      <div class="kv"><span class="k">上网参数</span><span class="v num" id="ovApn">--</span></div>
+      <div class="kv"><span class="k">网络地址</span><span class="v num" id="ovIp">--</span></div>
+      <div class="kv"><span class="k">域名解析</span><span class="v num" id="ovDns">--</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>此刻的网速</h2><span class="card-note">最近一次刷新区间</span></div>
+      <div class="grid2">
+        <div class="mini"><div class="mk">↓ 下载</div><div class="mv num" id="ovDown">--</div></div>
+        <div class="mini"><div class="mk">↑ 上传</div><div class="mv num" id="ovUp">--</div></div>
+      </div>
+      <div class="hint tip">这个数字是设备与互联网之间的实时吞吐。想更快：把设备移到窗边、远离金属机箱，或轻轻换个朝向。</div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>流量用量</h2><span class="card-note">↓ 下载 · ↑ 上传</span></div>
+      <div class="kv"><span class="k">本次开机</span><span class="v num" id="ovBootTraffic">--</span></div>
+      <div class="kv"><span class="k">累计总量</span><span class="v num" id="ovTotalTraffic">--</span></div>
+      <div class="hint">累计值关机不清零。储值卡超过套餐流量后可能限速，主要看这个。</div>
+    </div>
+  </section>
+
+  <!-- 信号质量 -->
+  <section class="panel" id="panel-signal" role="tabpanel">
+    <div class="card">
+      <div class="card-head"><h2>信号强弱</h2><span class="card-note" id="sgBandTag">--</span></div>
+      <div class="sig-row">
+        <span class="bars" id="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="sig-big" id="sgLevel">--</span>
+      </div>
+      <div class="hint" id="sgHint">信号强弱一目了然，格数由信号强度与质量综合判断。</div>
+
+      <div class="meter-wrap">
+        <div class="meter-label"><span>信号强度 RSRP</span><b class="num" id="sgRsrpVal">--</b></div>
+        <div class="meter"><span id="sgRsrpBar" style="width:0%"></span></div>
+        <div class="meter-scale"><span>-120 弱</span><span>-100</span><span>-80 强</span></div>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-label"><span>信号质量 SINR</span><b class="num" id="sgSinrVal">--</b></div>
+        <div class="meter"><span id="sgSinrBar" style="width:0%"></span></div>
+        <div class="meter-scale"><span>-5 差</span><span>10</span><span>30 好</span></div>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-label"><span>参考质量 RSRQ</span><b class="num" id="sgRsrqVal">--</b></div>
+        <div class="meter"><span id="sgRsrqBar" style="width:0%"></span></div>
+        <div class="meter-scale"><span>-20 差</span><span>-12</span><span>-5 好</span></div>
+      </div>
+      <div class="kv" style="margin-top:12px"><span class="k">网速体验</span><span class="v"><span class="chip" id="sgFeel">--</span></span></div>
+      <div class="hint tip">SINR（抗干扰能力）比格数更影响网速。数值忽高忽低通常是同频干扰或遮挡，优先调整摆放位置。</div>
+      <details class="tech">
+        <summary>技术详情（可忽略）</summary>
+        <div id="sgTech">--</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 上行 / 功率 -->
+  <section class="panel" id="panel-power" role="tabpanel">
+    <div class="card">
+      <div class="card-head"><h2>上行发射状态</h2><span class="card-note">只读监测</span></div>
+      <div class="power-hero">
+        <div>
+          <div class="power-num num" id="pwEst">--</div>
+          <div class="power-unit">dBm <span class="muted">估算</span></div>
+        </div>
+        <div class="power-side">
+          <div class="estimate-tag">按信号推算，非基带实测</div>
+          <div style="font-size:12px;color:var(--text-2)" id="pwStatus">等待数据…</div>
+          <div style="font-size:11px;color:var(--text-3)" class="num" id="pwRange">--</div>
+        </div>
+      </div>
+      <div class="gauge"><span class="fill" id="pwFill" style="width:0%"></span><span class="band" id="pwBand" style="left:0%;width:0%"></span></div>
+      <div class="gauge-scale"><span>0 dBm</span><span id="pwCap">上限 23 dBm</span></div>
+      <div class="kv" style="margin-top:12px"><span class="k">剩余功率余量</span><span class="v num" id="pwHeadroom">--</span></div>
+      <div class="hint">余量越小，说明设备越接近满功率发射，供电与发热压力越大。</div>
+      <div class="kv"><span class="k">实测上行速率</span><span class="v num" id="pwUpRate">--</span></div>
+      <div class="kv"><span class="k">签约上行上限</span><span class="v num" id="pwAmbrUp">--</span></div>
+      <div class="kv"><span class="k">估算路径损耗</span><span class="v num" id="pwPl">--</span></div>
+      <div class="kv"><span class="k">终端功率等级</span><span class="v num" id="pwClass">--</span></div>
+      <div class="disclaimer">
+        设备固件<strong>没有提供</strong>基带实测发射功率（PUSCH / PHR）接口，AT 工程模式也未返回可解析的功率字段。
+        此处数值按 3GPP 开环功控模型，由 RSRP 推算路径损耗后估算，仅用于观察趋势。
+        实际上行功率由基站通过 TPC 命令闭环控制，终端不能自行调高；擅自改动校准数据会影响合规与稳定性。
+      </div>
+      <details class="tech">
+        <summary>估算方法说明</summary>
+        <div id="pwTech">路径损耗 PL ≈ 参考信号功率 − RSRP；估算发射功率 ≈ P0 + α·PL + 带宽与 MCS 修正，并限幅在终端功率等级上限内。因基站实际下发的 P0 / α / TPC 未知，结果为区间估算，不能作为测量值使用。</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- 设备与流量 -->
+  <section class="panel" id="panel-device" role="tabpanel">
+    <div class="card">
+      <div class="card-head"><h2>设备状态</h2><span class="card-note">实时</span></div>
+      <div class="kv"><span class="k">运行时长</span><span class="v num" id="dvUptime">--</span></div>
+      <div class="hint">从上次通电开机到现在</div>
+      <div class="kv"><span class="k">设备温度</span><span class="v num" id="dvTemp">--</span></div>
+      <div class="hint">超过 60°C 可能触发降速保护，保持通风即可</div>
+      <div class="kv"><span class="k">可用内存</span><span class="v num" id="dvMem">--</span></div>
+      <div class="kv"><span class="k">系统负载</span><span class="v num" id="dvLoad">--</span></div>
+      <div class="kv"><span class="k">系统版本</span><span class="v num" id="dvVer">--</span></div>
+      <div class="hint">需要协助时提供这个版本号</div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>连接信息</h2><span class="card-note">只读</span></div>
+      <div class="kv"><span class="k">SIM 卡状态</span><span class="v" id="dvSim">--</span></div>
+      <div class="kv"><span class="k">网络制式</span><span class="v num" id="dvAct">--</span></div>
+      <div class="kv"><span class="k">漫游状态</span><span class="v" id="dvRoam">--</span></div>
+      <div class="kv"><span class="k">数据通道</span><span class="v num" id="dvIface">--</span></div>
+      <div class="kv"><span class="k">连接已持续</span><span class="v num" id="dvWanUp">--</span></div>
+      <div class="kv"><span class="k">自动选频</span><span class="v num" id="dvBandMode">--</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>耗电估算</h2><span class="card-note">模型推算，非实测</span></div>
+      <div class="power-hero">
+        <div>
+          <div class="power-num num" id="enWatt">--</div>
+          <div class="power-unit">W <span class="muted">当前估算</span></div>
+        </div>
+        <div class="power-side">
+          <div class="estimate-tag">设备无电流采样硬件</div>
+          <div style="font-size:12px;color:var(--text-2)" id="enLevel">等待数据…</div>
+          <div style="font-size:11px;color:var(--text-3)" class="num" id="enRange">常见范围约 1 ~ 4 W</div>
+        </div>
+      </div>
+      <div class="kv"><span class="k">本次开机耗电</span><span class="v num" id="enBoot">--</span></div>
+      <div class="kv"><span class="k">累计耗电</span><span class="v num" id="enTotal">--</span></div>
+      <div class="kv"><span class="k">折合电费</span><span class="v num" id="enCost">--</span></div>
+      <div class="hint">按 0.60 元 / 度估算，仅供量级参考。</div>
+      <div class="disclaimer">
+        设备 <code>/sys/class/power_supply</code> 为空，PMIC 与 MCU 的 ADC 通道在满载前后读数无明显变化，
+        <strong>没有可用于计量的电流传感器</strong>，因此无法给出精确瓦时数。
+        此处按公开规格（UDX710 空闲 0.75 W、工作约 3.8 W @5V、峰值 3 A）结合实时速率、
+        估算发射功率与扫描状态建模，并对时间积分。若要精确测量，需在 USB 供电线上串接电流表硬件。
+      </div>
+      <details class="tech">
+        <summary>估算模型说明</summary>
+        <div>基础 1.10 W ＋ 数据链路 0.50 W ＋ 吞吐加成（速率折算，≤1.20 W）＋ 功放加成（按估算发射功率分档，≤0.80 W）＋ 扫描 0.60 W。每次刷新用相邻两次采样的功率对时间积分，页面关闭期间按最后一次功率续算。</div>
+      </details>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="foot-left">
+      <span class="dot-live" id="liveDot"></span>
+      <span id="updated">正在连接设备…</span>
+      <span id="autoHint">每 5 秒自动刷新</span>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn" id="autoBtn">暂停</button>
+      <button class="btn" id="refreshBtn">刷新</button>
+    </div>
+  </footer>
 </div>
 
 <script>
-var ACT = {0:'未知',2:'3G',7:'4G LTE',11:'5G NR',13:'5G NR'};
-var OPER = {'45412':'CMHK 中国移动香港','45413':'3HK 和记','45400':'csl','45406':'SmarTone','45419':'PCCW'};
 var BASE = (location.host === '192.168.66.1') ? '' : 'http://192.168.66.1';
 document.getElementById('loginBtn').href = BASE + '/cgi-bin/luci/';
-var timer = null;
-var fails = 0;
+
+var ACT = {0:'未知',2:'3G',7:'4G LTE',11:'5G NR',13:'5G NR'};
+var OPER = {'45412':'CMHK 中国移动香港','45413':'3HK 和记','45400':'csl','45406':'SmarTone','45419':'PCCW'};
+var timer = null, fails = 0, autoOn = true;
+
+function $(id){ return document.getElementById(id); }
+function set(id, v){ var e=$(id); if(e) e.textContent = (v===undefined||v===null) ? '--' : v; }
+function num(v){ return (v===null||v===undefined||isNaN(Number(v))) ? null : Number(v); }
+function fx(v,n){ v=num(v); return v===null ? null : v.toFixed(n===undefined?1:n); }
 
 function fmtUptime(s){
-  s = Math.floor(s||0);
-  var d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60), sec = s%60;
-  if (d>0) return d+' 天 '+h+' 小时';
-  if (h>0) return h+' 小时 '+m+' 分';
-  if (m>0) return m+' 分 '+sec+' 秒';
-  return sec+' 秒';
+  s = Math.floor(num(s)||0);
+  var d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60), q=s%60;
+  if(d>0) return d+' 天 '+h+' 小时';
+  if(h>0) return h+' 小时 '+m+' 分';
+  if(m>0) return m+' 分 '+q+' 秒';
+  return q+' 秒';
 }
-
 function fmtBytes(b){
   b = Number(b)||0;
-  if (b >= 1073741824) return (b/1073741824).toFixed(2)+' GB';
-  if (b >= 1048576) return (b/1048576).toFixed(1)+' MB';
-  if (b >= 1024) return (b/1024).toFixed(0)+' KB';
+  if(b>=1073741824) return (b/1073741824).toFixed(2)+' GB';
+  if(b>=1048576) return (b/1048576).toFixed(1)+' MB';
+  if(b>=1024) return (b/1024).toFixed(0)+' KB';
   return b+' B';
 }
+function fmtTraffic(rx,tx){ return '↓ '+fmtBytes(rx)+' · ↑ '+fmtBytes(tx); }
+function fmtBps(v){
+  v = Number(v)||0;
+  if(v>=1000000) return (v/1000000).toFixed(1)+' Mbps';
+  if(v>=1000) return (v/1000).toFixed(0)+' Kbps';
+  return v+' bps';
+}
+function setChip(id, txt, cls){
+  var e=$(id); if(!e) return;
+  e.textContent = txt; e.className = 'chip' + (cls ? ' '+cls : '');
+}
+function meter(barId, val, lo, hi, colorFn){
+  var bar=$(barId); if(!bar) return;
+  var v=num(val);
+  if(v===null){ bar.style.width='0%'; return; }
+  var p=Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100));
+  bar.style.width=p.toFixed(1)+'%';
+  bar.style.background=(colorFn?colorFn(v):'var(--accent)');
+}
+function sigColor(n){ return n>=4?'var(--ok)':(n===3?'var(--warn)':(n>=1?'var(--bad)':'var(--text-3)')) }
 
-function fmtTraffic(rx, tx){
-  return '↓ ' + fmtBytes(rx) + ' · ↑ ' + fmtBytes(tx);
+function sigLevel(sinr, rsrp){
+  var hs=(sinr!==null&&!isNaN(sinr)), hr=(rsrp!==null&&!isNaN(rsrp));
+  var a=0,b=0;
+  if(hs){ a = sinr>=20?5:sinr>=12?4:sinr>=5?3:sinr>=0?2:1; }
+  if(hr){ b = rsrp>=-80?5:rsrp>=-90?4:rsrp>=-100?3:rsrp>=-110?2:1; }
+  var n = (hs&&hr) ? Math.min(a,b) : (hs?a:(hr?b:0));
+  var items=document.querySelectorAll('#bars i');
+  for(var i=0;i<items.length;i++) items[i].className = i<n?'on':'';
+  $('bars').style.setProperty('--sig',sigColor(n));
+  var LABEL={5:'极佳',4:'良好',3:'中等',2:'偏弱',1:'很差'};
+  var TIP={5:'信号极佳，可跑满套餐速率',4:'信号良好，速率正常',3:'信号一般，速率会有折损',2:'信号偏弱，建议靠近窗口或移动位置',1:'信号很差，可能无法稳定连接'};
+  set('sgLevel', n?LABEL[n]:'--');
+  set('sgHint', n?TIP[n]:'暂无信号数据，可能未插卡或正在搜网。');
+  return n?LABEL[n]:'--';
 }
 
 function setState(color, text, sub){
-  document.documentElement.style.setProperty('--state-color', color);
-  document.getElementById('stateText').textContent = text;
-  document.getElementById('stateSub').textContent = sub;
+  document.documentElement.style.setProperty('--state', color);
+  var soft = color==='var(--ok)'?'var(--ok-soft)':(color==='var(--warn)'?'var(--warn-soft)':(color==='var(--bad)'?'var(--bad-soft)':'var(--surface-2)'));
+  document.documentElement.style.setProperty('--state-soft', soft);
+  set('stateText',text); set('stateSub',sub);
 }
 
-function sigLevel(sinr, rsrp){
-  var hasSinr = (sinr !== null && sinr !== undefined && !isNaN(sinr));
-  var hasRsrp = (rsrp !== null && rsrp !== undefined && !isNaN(rsrp));
+function render(d){
+  var c=d.cell||{}, w=d.wan||{}, s=d.signal||{}, t=d.traffic||{}, r=d.rate||{}, p=d.power||{}, q=d.qos||{};
+  var online = (w.up===true) && (c.state==='pdp_active');
 
-  var bySinr = 0, byRsrp = 0;
-  if (hasSinr){
-    if (sinr >= 20) bySinr = 5;
-    else if (sinr >= 12) bySinr = 4;
-    else if (sinr >= 5) bySinr = 3;
-    else if (sinr >= 0) bySinr = 2;
-    else bySinr = 1;
-  }
-  if (hasRsrp){
-    if (rsrp >= -80) byRsrp = 5;
-    else if (rsrp >= -90) byRsrp = 4;
-    else if (rsrp >= -100) byRsrp = 3;
-    else if (rsrp >= -110) byRsrp = 2;
-    else byRsrp = 1;
-  }
-
-  var n, basis;
-  if (hasSinr && hasRsrp){
-    n = Math.min(bySinr, byRsrp);
-    basis = (bySinr <= byRsrp) ? 'sinr' : 'rsrp';
-  } else if (hasSinr){
-    n = bySinr; basis = 'sinr';
-  } else if (hasRsrp){
-    n = byRsrp; basis = 'rsrp';
+  if(d.scan){
+    setState('var(--warn)','正在自动优化网络','系统正在扫描更优频段，约 1-3 分钟，期间网络可能短暂中断，请勿断电');
+    $('scanBanner').className='banner show';
+    $('scanBanner').innerHTML='<strong>自动选频中</strong> · '+String(d.scan).replace(/</g,'&lt;')+'。期间出现短暂断网属于正常现象，完成后会自动恢复。';
   } else {
-    n = 0; basis = 'none';
+    $('scanBanner').className='banner';
+    if(online) setState('var(--ok)','网络正常','已连接互联网 · 数据通道运行 '+fmtUptime(w.uptime));
+    else if(c.state==='connecting'||c.state==='registering'||c.state==='pdp_activating') setState('var(--warn)','正在连接…','蜂窝网络拨号中，请稍候');
+    else if(c.last_error) setState('var(--bad)','网络连接失败',String(c.last_error));
+    else if(c.state==='waiting_sim'||c.sim==='NOT_READY') setState('var(--warn)','未检测到电话卡','请确认卡已插好；插入后需重启设备才会被识别');
+    else if(c.registered===false) setState('var(--bad)','未注册网络','请检查电话卡与信号');
+    else setState('var(--warn)','尚未连接','状态：'+(c.state||'未知'));
   }
 
-  var color = n >= 4 ? 'var(--ok)' : (n === 3 ? 'var(--warn)' : (n >= 1 ? 'var(--bad)' : 'var(--dim)'));
-  document.getElementById('bars').style.setProperty('--sig-color', color);
-  var items = document.querySelectorAll('#bars i');
-  for (var i=0;i<items.length;i++){
-    items[i].className = i < n ? 'on' : '';
+  // 顶部四个关键指标
+  var sl = sigLevel(num(s.sinr),num(s.rsrp));
+  set('mSignal', sl);
+  set('mDown', r.down_bps!==undefined ? fmtBps(r.down_bps) : '--');
+  set('mBand', s.band||'--');
+  set('mTemp', d.temp>0 ? d.temp+'°C' : '--');
+  set('heroClock', online ? '已运行 '+fmtUptime(d.uptime) : '--');
+
+  // 概览
+  var wanEl=$('ovWan');
+  wanEl.textContent = online?'已连接':(w.up?'接口在线':'未连接');
+  wanEl.style.color = online?'var(--ok)':'var(--bad)';
+  set('ovReg', c.registered===true ? '已注册' : '未注册');
+  var op = OPER[c.plmn] || (c.plmn && c.plmn!=='--' ? 'PLMN '+c.plmn : '--');
+  if(c.carrier||c.country){ var parts=[]; if(c.carrier) parts.push(String(c.carrier).replace(/\(.*\)/,'')); if(c.country) parts.push(c.country); op=parts.join(' · ')||op; }
+  set('ovCarrier',op);
+  set('ovBand', s.band||'--');
+  set('ovApn', c.apn||'--');
+  set('ovIp', w.ip||'--');
+  set('ovDns', w.dns||'--');
+  set('ovDown', r.down_bps!==undefined ? fmtBps(r.down_bps) : '--');
+  set('ovUp', r.up_bps!==undefined ? fmtBps(r.up_bps) : '--');
+  set('ovBootTraffic', fmtTraffic(t.boot_rx,t.boot_tx));
+  set('ovTotalTraffic', fmtTraffic(t.rx,t.tx));
+
+  // 信号
+  set('sgBandTag', s.band||'--');
+  var rv=fx(s.rsrp), sv=fx(s.sinr), qv=fx(s.rsrq);
+  set('sgRsrpVal', rv!==null?rv+' dBm':'--');
+  set('sgSinrVal', sv!==null?sv+' dB':'--');
+  set('sgRsrqVal', qv!==null?qv+' dB':'--');
+  meter('sgRsrpBar',s.rsrp,-120,-70,function(v){return v>=-90?'var(--ok)':(v>=-105?'var(--warn)':'var(--bad)')});
+  meter('sgSinrBar',s.sinr,-5,30,function(v){return v>=8?'var(--ok)':(v>=0?'var(--warn)':'var(--bad)')});
+  meter('sgRsrqBar',s.rsrq,-20,-5,function(v){return v>=-12?'var(--ok)':(v>=-16?'var(--warn)':'var(--bad)')});
+  var feel='--',fc='';
+  if(s.sinr!=null||s.rsrp!=null){
+    if((s.sinr!=null&&s.sinr>=8)||(s.sinr!=null&&s.rsrp!=null&&s.sinr>=5&&s.rsrp>=-85)){ feel='快 · 适合看视频';fc='ok'; }
+    else if((s.sinr!=null&&s.sinr>=0)||(s.rsrp!=null&&s.rsrp>=-95)){ feel='一般 · 网页聊天够用';fc='warn'; }
+    else { feel='慢 · 可能会卡';fc='bad'; }
+  }
+  setChip('sgFeel',feel,fc);
+  set('sgTech','小区 PCI '+(s.pci!=null?s.pci:'--')+' · 频点 ARFCN '+(s.arfcn!=null?s.arfcn:'--')+
+    ' · 带宽 '+(s.bandwidth_mhz!=null?s.bandwidth_mhz+' MHz':'未知')+' · PLMN '+(c.plmn||'--')+
+    ' · 采样时间 '+new Date().toLocaleTimeString('zh-CN'));
+
+  // 上行 / 功率
+  var est=num(p.tx_est_dbm), cap=num(p.cap_dbm)||23;
+  set('pwEst', est!==null?est.toFixed(0):'--');
+  set('pwCap','上限 '+cap+' dBm');
+  if(est!==null){
+    var lo=num(p.tx_low_dbm), hi=num(p.tx_high_dbm);
+    set('pwRange','估算区间 '+(lo!==null?lo.toFixed(0):'--')+' ~ '+(hi!==null?hi.toFixed(0):'--')+' dBm');
+    var ratio=Math.max(0,Math.min(100,est/cap*100));
+    $('pwFill').style.width=ratio.toFixed(1)+'%';
+    var blo=Math.max(0,Math.min(100,(lo!==null?lo:est)/cap*100));
+    var bhi=Math.max(0,Math.min(100,(hi!==null?hi:est)/cap*100));
+    $('pwBand').style.left=blo.toFixed(1)+'%';
+    $('pwBand').style.width=Math.max(1,bhi-blo).toFixed(1)+'%';
+    var hr=num(p.headroom_db);
+    var st = hr===null?'--':(hr>=14?'发射压力低':(hr>=6?'发射压力中等':'接近满功率发射'));
+    set('pwStatus',st);
+    set('pwHeadroom', hr!==null?hr.toFixed(0)+' dB':'--');
+  } else {
+    set('pwRange','暂无足够信号数据'); set('pwStatus','等待信号采样'); set('pwHeadroom','--');
+  }
+  set('pwUpRate', r.up_bps!==undefined?fmtBps(r.up_bps):'--');
+  set('pwAmbrUp', q.ambr_up_mbps!=null ? (q.ambr_up_mbps>=1000?(q.ambr_up_mbps/1000).toFixed(1)+' Gbps':q.ambr_up_mbps+' Mbps') : '--');
+  set('pwPl', p.pl_db!=null?p.pl_db+' dB':'--');
+  set('pwClass', p.class||'--');
+
+  // 设备
+  set('dvUptime',fmtUptime(d.uptime));
+  set('dvTemp', d.temp>0?d.temp+' °C':'--');
+  set('dvMem', d.mem_total?d.mem_free+' / '+d.mem_total+' MB':'--');
+  set('dvLoad', d.load||'--');
+  set('dvVer', d.version||'--');
+  var simTxt = c.sim==='READY'?'已就绪':(c.sim==='NOT_READY'?'未就绪':'--');
+  set('dvSim',simTxt);
+  set('dvAct', ACT[c.act]||('制式 '+c.act));
+  set('dvRoam', c.roaming?'漫游中':'非漫游');
+  set('dvIface', w.iface||'wwan0');
+  set('dvWanUp', w.uptime?fmtUptime(w.uptime):'--');
+  set('dvBandMode', d.band_mode||'自动');
+
+  // 耗电估算
+  var en=d.energy||{}, cw=num(en.watt_cw);
+  if(cw!==null){
+    set('enWatt',(cw/100).toFixed(2));
+    set('enLevel', cw<160?'轻载待机':(cw<260?'正常联网':(cw<360?'高速传输':'高负载')));
+    var tot=num(en.total_mwh)||0, boot=num(en.boot_mwh)||0;
+    set('enBoot',(boot/1000).toFixed(2)+' Wh');
+    set('enTotal',(tot/1000).toFixed(2)+' Wh');
+    set('enCost','约 ¥'+(tot/1000000*0.6).toFixed(4));
   }
 
-  var LABEL = {5:'极佳', 4:'良好', 3:'中等', 2:'偏弱', 1:'很差'};
-  var TIP = {
-    5:'信号极佳，可跑满套餐速率',
-    4:'信号良好，速率正常',
-    3:'信号一般，速率会有折损',
-    2:'信号偏弱，建议靠近窗口或移动位置',
-    1:'信号很差，可能无法稳定连接'
-  };
-  var el = document.getElementById('sigLevel');
-  el.textContent = n ? LABEL[n] : '--';
-  var basisTxt = (basis === 'sinr') ? '依据 SINR ' + sinr.toFixed(1) + ' dB'
-              : (basis === 'rsrp' ? '依据 RSRP ' + rsrp.toFixed(1) + ' dBm（未取到 SINR）' : '暂无信号数据');
-  el.title = basisTxt + (n ? ' · ' + TIP[n] : '');
-  return el.textContent;
-}
-
-function load(){
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', BASE + '/cgi-bin/sy108status?_=' + Date.now(), true);
-  xhr.timeout = 20000;
-  xhr.onload = function(){
-    if (xhr.status !== 200){ fail('设备返回错误 ' + xhr.status); return; }
-    var d;
-    try { d = JSON.parse(xhr.responseText); } catch(e){ fail('数据解析失败'); return; }
-    fails = 0;
-    document.getElementById('errBox').style.display = 'none';
-    render(d);
-  };
-  xhr.onerror = function(){ fail('无法连接到设备'); };
-  xhr.ontimeout = function(){ fail('读取超时'); };
-  xhr.send();
+  set('updated','更新于 '+new Date().toLocaleTimeString('zh-CN'));
+  $('errBox').className='banner err';
 }
 
 function fail(msg){
   fails++;
-  setState('var(--bad)', '连接失败', msg);
-  var e = document.getElementById('errBox');
-  e.textContent = msg + (fails > 2 ? '（已连续 ' + fails + ' 次）' : '');
-  e.style.display = 'block';
-  document.getElementById('updated').textContent = '更新失败 · ' + new Date().toLocaleTimeString('zh-CN');
+  setState('var(--bad)','连接失败',msg);
+  var e=$('errBox');
+  e.textContent=msg+(fails>2?'（已连续 '+fails+' 次）':'');
+  e.className='banner err show';
+  set('updated','更新失败 · '+new Date().toLocaleTimeString('zh-CN'));
 }
 
-function render(d){
-  var c = d.cell || {}, w = d.wan || {}, s = d.signal || {};
-
-  // ---- 顶部总状态 ----
-  var online = (w.up === true) && (c.state === 'pdp_active');
-  if (d.scan){
-    setState('var(--warn)', '正在自动优化网络', '正在' + (d.scan === '扫描中' ? '扫描并选择最优 5G 频段' : d.scan + ' 频段') + '以改善网速 · 预计 1-3 分钟，期间网络可能短暂中断，请勿断电');
-  } else if (online){
-    setState('var(--ok)', '网络正常', '已连接 · 运行 ' + fmtUptime(w.uptime));
-  } else if (c.state === 'connecting' || c.state === 'registering' || c.state === 'pdp_activating'){
-    setState('var(--warn)', '正在连接…', '蜂窝网络拨号中，请稍候');
-  } else if (c.last_error){
-    setState('var(--bad)', '网络连接失败', String(c.last_error));
-  } else if (c.registered === false){
-    setState('var(--bad)', '未注册网络', '请检查 SIM 卡或信号');
-  } else {
-    setState('var(--warn)', '尚未连接', '状态：' + (c.state || '未知'));
-  }
-
-  // ---- 运行状态 ----
-  document.getElementById('uptime').textContent = fmtUptime(d.uptime);
-  document.getElementById('temp').textContent = (d.temp > 0 ? d.temp + ' °C' : '--');
-  document.getElementById('mem').textContent = (d.mem_total ? d.mem_free + ' / ' + d.mem_total + ' MB 可用' : '--');
-  document.getElementById('ver').textContent = d.version || '--';
-
-  // ---- 网络 ----
-  var wanEl = document.getElementById('wanState');
-  wanEl.textContent = online ? '已连接' : (w.up ? '接口在线' : '未连接');
-  wanEl.style.color = online ? 'var(--ok)' : 'var(--bad)';
-
-  var op = OPER[c.plmn] || (c.plmn && c.plmn !== '--' ? 'PLMN ' + c.plmn : '--');
-  if (c.carrier || c.country) {
-    var parts = [];
-    if (c.carrier) parts.push(c.carrier.replace(/\(.*\)/, ''));
-    if (c.country) parts.push(c.country);
-    op = parts.join(' · ') || op;
-  }
-  document.getElementById('carrier').textContent = op;
-  document.getElementById('ip').textContent = w.ip || '--';
-  document.getElementById('dns').textContent = w.dns || '--';
-
-  var apnTxt = (c.apn || '--');
-  if (c.roaming) apnTxt += '（漫游）';
-  document.getElementById('apn').textContent = apnTxt;
-
-  // ---- 流量 ----
-  var t = d.traffic || {};
-  document.getElementById('bootTraffic').textContent = fmtTraffic(t.boot_rx, t.boot_tx);
-  document.getElementById('totalTraffic').textContent = fmtTraffic(t.rx, t.tx);
-
-  // ---- 信号 ----
-  document.getElementById('band').textContent = s.band || '--';
-  sigLevel(s.sinr, s.rsrp);
-  document.getElementById('rsrp').textContent = (s.rsrp != null ? s.rsrp.toFixed(1) + ' dBm' : '--');
-  document.getElementById('sinr').textContent = (s.sinr != null ? s.sinr.toFixed(1) + ' dB' : '--');
-
-  // 网速体验（普通人视角）
-  var feelTxt = '--', feelColor = 'var(--dim)';
-  if (s.sinr != null || s.rsrp != null){
-    if ((s.sinr != null && s.sinr >= 8) || (s.sinr != null && s.rsrp != null && s.sinr >= 5 && s.rsrp >= -85)){
-      feelTxt = '快 · 适合看视频'; feelColor = 'var(--ok)';
-    } else if ((s.sinr != null && s.sinr >= 0) || (s.rsrp != null && s.rsrp >= -95)){
-      feelTxt = '一般 · 网页聊天够用'; feelColor = 'var(--warn)';
-    } else {
-      feelTxt = '慢 · 可能会卡'; feelColor = 'var(--bad)';
-    }
-  }
-  var feelEl = document.getElementById('speedFeel');
-  feelEl.textContent = feelTxt;
-  feelEl.style.color = feelColor;
-
-  // 技术详情（收成一行小字，可忽略）
-  document.getElementById('techLine').textContent = '技术详情（可忽略）：小区 PCI ' + (s.pci != null ? s.pci : '--') +
-    ' · 信号质量参考 RSRQ ' + (s.rsrq != null ? s.rsrq.toFixed(1) + ' dB' : '--') +
-    ' · 频点 ' + (s.arfcn || '--');
-
-  document.getElementById('updated').textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN');
+function load(){
+  var x=new XMLHttpRequest();
+  x.open('GET', BASE+'/cgi-bin/sy108status?_='+Date.now(), true);
+  x.timeout=20000;
+  x.onload=function(){
+    if(x.status!==200){ fail('设备返回错误 '+x.status); return; }
+    var d; try{ d=JSON.parse(x.responseText); }catch(e){ fail('数据解析失败'); return; }
+    fails=0; render(d);
+  };
+  x.onerror=function(){ fail('无法连接到设备'); };
+  x.ontimeout=function(){ fail('读取超时'); };
+  x.send();
 }
 
+// 选项卡
+var tabEls=document.querySelectorAll('.tab');
+function activate(name){
+  for(var i=0;i<tabEls.length;i++){
+    var on=tabEls[i].getAttribute('data-tab')===name;
+    tabEls[i].className=on?'tab active':'tab';
+    tabEls[i].setAttribute('aria-selected',on?'true':'false');
+  }
+  var ps=document.querySelectorAll('.panel');
+  for(var j=0;j<ps.length;j++) ps[j].className = (ps[j].id==='panel-'+name)?'panel active':'panel';
+  try{ localStorage.setItem('sy108-tab',name); }catch(e){}
+}
+for(var i=0;i<tabEls.length;i++){
+  tabEls[i].addEventListener('click',function(){ activate(this.getAttribute('data-tab')); });
+}
+try{ var saved=localStorage.getItem('sy108-tab'); if(saved) activate(saved); }catch(e){}
+
+// 主题
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  try{ localStorage.setItem('sy108-theme',t); }catch(e){}
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute('content', t==='dark'?'#0c1119':(t==='light'?'#f4f6fb':'#f4f6fb'));
+}
+try{ var th=localStorage.getItem('sy108-theme'); if(th) applyTheme(th); }catch(e){}
+$('themeBtn').addEventListener('click',function(){
+  var cur=document.documentElement.getAttribute('data-theme')||'auto';
+  applyTheme(cur==='auto'?'light':(cur==='light'?'dark':'auto'));
+});
+
+// 刷新控制
+function restart(){ if(timer) clearInterval(timer); timer=autoOn?setInterval(load,5000):null; }
+$('refreshBtn').addEventListener('click',load);
+$('autoBtn').addEventListener('click',function(){
+  autoOn=!autoOn;
+  this.textContent=autoOn?'暂停':'继续';
+  $('liveDot').className=autoOn?'dot-live':'dot-live paused';
+  $('autoHint').textContent=autoOn?'每 5 秒自动刷新':'已暂停自动刷新';
+  restart();
+});
+restart();
 load();
-timer = setInterval(load, 5000);
 </script>
 </body>
 </html>

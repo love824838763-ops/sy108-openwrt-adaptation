@@ -1,0 +1,24 @@
+/* --- SY108 consistency overlay for the upstream UDX signal dashboard --- */
+/* Loaded via an extra <link> in signal.html; does not modify the original file. */
+@media (prefers-color-scheme: light){
+  :root{
+    color-scheme:light;
+    --bg:#f4f6fb; --panel:#ffffff; --panel-2:#f7f9fc;
+    --line:#e5eaf2; --line-soft:#eef2f8;
+    --fg:#162030; --fg-dim:#5a687c; --fg-faint:#93a0b2;
+    --accent:#4f6bed; --good:#15a34a; --warn:#d98405; --bad:#dc3f3c;
+  }
+  html,body{background:var(--bg);color:var(--fg)}
+}
+.panel,.card,.box,.table{border-radius:16px}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c8d2e4;border-radius:9px}
+.sy108-back{
+  position:fixed;right:16px;bottom:16px;z-index:9999;
+  display:inline-flex;align-items:center;gap:6px;
+  background:#4f6bed;color:#fff!important;text-decoration:none;
+  border-radius:11px;padding:9px 14px;font-size:12.5px;font-weight:600;
+  box-shadow:0 6px 18px rgba(79,107,237,.28);
+}
+.sy108-back:hover{filter:brightness(1.08)}

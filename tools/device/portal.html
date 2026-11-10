@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f6fb">
+<meta name="color-scheme" content="light dark">
+<title>网络暂时断开 · 5G 通信壳</title>
+<style>
+:root{
+  --bg:#f4f6fb; --surface:#fff; --surface-2:#f7f9fc; --border:#e5eaf2;
+  --text:#162030; --text-2:#5a687c; --text-3:#93a0b2;
+  --accent:#4f6bed; --accent-soft:#eef1ff;
+  --ok:#15a34a; --ok-soft:#e8f7ee;
+  --warn:#d98405; --warn-soft:#fff4e2;
+  --bad:#dc3f3c; --bad-soft:#fdecec;
+  --shadow:0 1px 2px rgba(18,30,55,.04),0 10px 28px rgba(18,30,55,.06);
+}
+html[data-theme="dark"]{
+  --bg:#0c1119; --surface:#151c27; --surface-2:#1b2431; --border:#263141;
+  --text:#e9eef7; --text-2:#a3b0c2; --text-3:#71809a;
+  --accent:#7c91ff; --accent-soft:#1e2740;
+  --ok:#3ecf72; --ok-soft:#152c21;
+  --warn:#f0b04a; --warn-soft:#332713;
+  --bad:#ff6b68; --bad-soft:#331b1c;
+  --shadow:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.22);
+}
+@media (prefers-color-scheme:dark){
+  html[data-theme="auto"]{
+    --bg:#0c1119; --surface:#151c27; --surface-2:#1b2431; --border:#263141;
+    --text:#e9eef7; --text-2:#a3b0c2; --text-3:#71809a;
+    --accent:#7c91ff; --accent-soft:#1e2740;
+    --ok:#3ecf72; --ok-soft:#152c21;
+    --warn:#f0b04a; --warn-soft:#332713;
+    --bad:#ff6b68; --bad-soft:#331b1c;
+    --shadow:0 1px 2px rgba(0,0,0,.2),0 10px 28px rgba(0,0,0,.22);
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--text);min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+button{font:inherit;cursor:pointer}
+a{text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:480px;margin:0 auto;padding:20px 15px 38px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:9px}
+.mark{width:32px;height:32px;border-radius:11px;background:linear-gradient(140deg,var(--accent),#95a4f8);position:relative}
+.mark::before{content:"";position:absolute;inset:9px;border:2px solid rgba(255,255,255,.9);border-radius:50%}
+.brand-name{font-size:14px;font-weight:700}
+.brand-sub{font-size:10.5px;color:var(--text-3)}
+.link{font-size:12px;color:var(--accent);font-weight:600;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:7px 12px}
+.hero{
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:26px 22px;text-align:center;box-shadow:var(--shadow);margin-bottom:14px;position:relative;overflow:hidden;
+}
+.hero::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--tone,var(--warn)),transparent 80%)}
+.icon{
+  width:74px;height:74px;border-radius:50%;margin:2px auto 16px;display:grid;place-items:center;
+  background:var(--tone-soft,var(--warn-soft));color:var(--tone,var(--warn));position:relative;
+}
+.icon svg{width:36px;height:36px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.icon::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:1px solid var(--tone,var(--warn));opacity:.18;animation:ring 2.4s ease-out infinite}
+@keyframes ring{0%{transform:scale(.85);opacity:.3}100%{transform:scale(1.35);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.state{font-size:22px;font-weight:750;color:var(--tone,var(--warn));letter-spacing:.2px}
+.sub{font-size:13px;color:var(--text-2);margin-top:9px;line-height:1.65}
+.pill{
+  display:inline-block;margin-top:14px;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:99px;padding:5px 13px;font-size:11.5px;color:var(--text-3);
+}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card h2{font-size:12.5px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h2::before{content:"";width:3px;height:12px;border-radius:2px;background:var(--accent)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:13px}
+.kv+.kv{border-top:1px solid var(--border)}
+.kv .k{color:var(--text-2);font-size:12.5px;flex:none}
+.kv .v{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;word-break:break-all}
+.hint{font-size:11.5px;color:var(--text-3);line-height:1.7;margin-top:10px}
+.steps{margin:0;padding-left:19px;font-size:12.5px;color:var(--text-2);line-height:1.9}
+.steps li::marker{color:var(--accent);font-weight:700}
+.actions{display:flex;gap:9px;margin-top:4px}
+.btn{
+  flex:1;border:1px solid var(--border);background:var(--surface);color:var(--text-2);
+  border-radius:11px;padding:11px 10px;font-size:12.5px;font-weight:600;transition:.18s;text-align:center;
+}
+.btn:hover{color:var(--accent);border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(79,107,237,.22)}
+.btn.primary:hover{filter:brightness(1.07);color:#fff}
+.foot{text-align:center;font-size:11px;color:var(--text-3);margin-top:16px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div><div class="brand-name">5G 通信壳</div><div class="brand-sub">网络状态提醒</div></div>
+    </div>
+    <a class="link" id="themeBtn" href="#" title="切换深浅色">◐</a>
+  </header>
+
+  <section class="hero" id="hero" aria-live="polite">
+    <div class="icon" id="iconBox" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M2 8.8a15.7 15.7 0 0 1 20 0"/><path d="M5 12.3a11.2 11.2 0 0 1 14 0"/><path d="M8.5 15.8a6.5 6.5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/><path d="M3 3l18 18" stroke-width="2.2"/></svg>
+    </div>
+    <div class="state" id="stateText">网络暂时断开</div>
+    <div class="sub" id="stateSub">正在检查设备状态，请稍候…</div>
+    <div class="pill" id="checkTip">每 5 秒自动检测一次</div>
+  </section>
+
+  <div class="card">
+    <h2>可以按顺序试一下</h2>
+    <ol class="steps">
+      <li>确认设备已插好电话卡，且供电没有松动</li>
+      <li>把设备移到窗边或开阔处，避开金属遮挡</li>
+      <li>等待 1-3 分钟；期间系统可能正在自动选频</li>
+      <li>仍未恢复再重启设备（拔插一次 USB）</li>
+    </ol>
+    <div class="hint">大多数短暂断网会在几分钟内自行恢复，不需要改动任何设置。</div>
+  </div>
+
+  <div class="card">
+    <h2>设备当前读数</h2>
+    <div class="kv"><span class="k">数据通道</span><span class="v" id="kWan">--</span></div>
+    <div class="kv"><span class="k">运行状态</span><span class="v" id="kState">--</span></div>
+    <div class="kv"><span class="k">运行时长</span><span class="v" id="kUptime">--</span></div>
+    <div class="kv"><span class="k">设备温度</span><span class="v" id="kTemp">--</span></div>
+    <div class="kv"><span class="k">信号 / 频段</span><span class="v" id="kSignal">--</span></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="retryBtn">重新检测</button>
+    <a class="btn primary" id="statusBtn" href="http://192.168.66.1/">完整状态页</a>
+  </div>
+  <div class="foot">恢复上网后此页面会提示，可直接关闭本窗口</div>
+</div>
+
+<script>
+var BASE='http://192.168.66.1';
+var fails=0, checks=0;
+function $(id){return document.getElementById(id)}
+function set(id,v){$(id).textContent=(v===undefined||v===null)?'--':v}
+function fmtUptime(s){
+  s=Math.floor(Number(s)||0);
+  var d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),q=s%60;
+  if(d>0)return d+' 天 '+h+' 小时';
+  if(h>0)return h+' 小时 '+m+' 分';
+  if(m>0)return m+' 分 '+q+' 秒';
+  return q+' 秒';
+}
+function tone(kind){
+  var map={
+    ok:['var(--ok)','var(--ok-soft)'],
+    warn:['var(--warn)','var(--warn-soft)'],
+    bad:['var(--bad)','var(--bad-soft)']
+  };
+  var c=map[kind]||map.warn;
+  document.documentElement.style.setProperty('--tone',c[0]);
+  document.documentElement.style.setProperty('--tone-soft',c[1]);
+}
+function setState(kind,text,sub,checked){
+  tone(kind);
+  set('stateText',text);
+  set('stateSub',sub);
+  set('checkTip',checked||'每 5 秒自动检测一次');
+  $('statusBtn').textContent = kind==='ok' ? '打开状态页' : '完整状态页';
+}
+function check(){
+  var x=new XMLHttpRequest();
+  x.open('GET',BASE+'/cgi-bin/sy108status?_='+Date.now(),true);
+  x.timeout=9000;
+  x.onload=function(){
+    if(x.status!==200){ offline('设备返回错误 '+x.status); return; }
+    var d; try{d=JSON.parse(x.responseText)}catch(e){ offline('状态数据暂时无法读取'); return; }
+    fails=0; checks++;
+    var c=d.cell||{},w=d.wan||{},s=d.signal||{};
+    set('kWan',w.up===true?'接口在线':'未建立');
+    set('kState',c.state||'--');
+    set('kUptime',fmtUptime(d.uptime));
+    set('kTemp',d.temp>0?d.temp+' °C':'--');
+    set('kSignal',(s.rsrp!=null?s.rsrp.toFixed(0)+' dBm':'--')+' / '+(s.band||'--'));
+    var online=(w.up===true&&c.state==='pdp_active');
+    if(d.scan){
+      setState('warn','正在自动优化网络','系统正在扫描更优 5G 频段，约 1-3 分钟，期间网络可能短暂中断，请勿断电。','扫描进行中 · 已检测 '+checks+' 次');
+    } else if(online){
+      setState('ok','网络已恢复','设备已重新连上互联网，可以关闭本窗口继续使用了。','已恢复 · 自动检测 '+checks+' 次');
+    } else if(c.state==='waiting_sim'||c.sim==='NOT_READY'){
+      setState('bad','未检测到电话卡','请确认卡已插好、方向正确；插入后需要重启设备才会被识别。','已检测 '+checks+' 次');
+    } else if(c.last_error){
+      setState('bad','连接失败',String(c.last_error),'已检测 '+checks+' 次');
+    } else if(c.registered===false){
+      setState('bad','未注册到网络','请检查电话卡状态，或把设备移到信号更好的位置。','已检测 '+checks+' 次');
+    } else {
+      setState('warn','正在重新连接','设备正在拨号或搜索网络，请稍候。','已检测 '+checks+' 次');
+    }
+  };
+  x.onerror=function(){offline('暂时无法连接设备')};
+  x.ontimeout=function(){offline('检测超时')};
+  x.send();
+}
+function offline(msg){
+  fails++;
+  setState('bad','无法读取设备状态',msg+(fails>2?'（已连续 '+fails+' 次）':''),'请确认设备已通电并连接');
+}
+$('retryBtn').addEventListener('click',check);
+$('themeBtn').addEventListener('click',function(e){
+  e.preventDefault();
+  var cur=document.documentElement.getAttribute('data-theme')||'auto';
+  var next=cur==='auto'?'light':(cur==='light'?'dark':'auto');
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('sy108-theme',next)}catch(err){}
+});
+try{var th=localStorage.getItem('sy108-theme');if(th)document.documentElement.setAttribute('data-theme',th)}catch(e){}
+check();
+setInterval(check,5000);
+</script>
+</body>
+</html>

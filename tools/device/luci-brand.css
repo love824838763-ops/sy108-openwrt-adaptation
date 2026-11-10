@@ -1,0 +1,14 @@
+/* --- SY108 UI consistency overlay (appended, safe to remove) --- */
+html body{
+  font-family:"Geist Variable",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif!important;
+}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c8d2e4;border-radius:9px}
+[data-darkmode=true] ::-webkit-scrollbar-thumb{background:#34435e}
+.cbi-section,.cbi-tblsection,.table,.card,.ifacebox,.node-status{border-radius:14px}
+a,button,input,select{transition:color .16s,border-color .16s,background-color .16s}
+.login-brand::after{
+  content:"5G 通信壳 · 设备状态";
+  font-size:11px;color:var(--text-tertiary);letter-spacing:.4px;margin-top:6px;
+}

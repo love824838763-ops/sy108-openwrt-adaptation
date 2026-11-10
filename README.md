@@ -39,7 +39,7 @@ English summary: Adaptation notes and auxiliary tools for running OpenWrt on the
 - **原厂系统**：Linux 4.14.98（厂商内核）+ ofono + 自研 8080 Web 后台，USB 仅 RNDIS（只有 Windows 能用）——详见 [docs/compatibility.md](docs/compatibility.md)（原厂系统详解 + 全部已知不兼容点）
 - **目标**：刷入 OpenWrt 后作为 USB NCM 网卡 + 便携路由器使用，Windows/macOS/iPadOS/Android 免驱
 - **实测环境**：中国香港 CMHK 实体 SIM（本仓库的蜂窝参数以该卡为准，作者原版仅实测过中国联通）
-- **状态页**：`http://192.168.66.1/`（免登录，中文白话界面）
+- **状态页**：`http://192.168.66.1/`（免登录，中文白话界面；含信号质量、实时速率、上行发射状态与耗电估算，均为只读监测，详见 [IMPROVEMENTS.md](IMPROVEMENTS.md) C2 节）
 
 ## 风险提示与免责声明
 
