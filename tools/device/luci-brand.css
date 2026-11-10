@@ -1,4 +1,4 @@
-/* --- SY108 UI consistency overlay (appended, safe to remove) --- */
+/* --- SY108 UI consistency overlay (appended 2026-11-11, safe to remove) --- */
 html body{
   font-family:"Geist Variable",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif!important;
 }
@@ -8,7 +8,34 @@ html body{
 [data-darkmode=true] ::-webkit-scrollbar-thumb{background:#34435e}
 .cbi-section,.cbi-tblsection,.table,.card,.ifacebox,.node-status{border-radius:14px}
 a,button,input,select{transition:color .16s,border-color .16s,background-color .16s}
-.login-brand::after{
-  content:"5G 通信壳 · 设备状态";
-  font-size:11px;color:var(--text-tertiary);letter-spacing:.4px;margin-top:6px;
+
+/* 品牌主色：与免登录状态页的 --accent(#4f6bed) 对齐。
+   主题原本用纯黑(浅色)/纯白(深色)作主色，按钮与状态页风格割裂。 */
+:root{
+  --primary:#4f6bed; --primary-hover:#3f57d4; --primary-foreground:#fff;
+  --ring:#4f6bed;
 }
+[data-darkmode=true]{
+  --primary:#5b74f0; --primary-hover:#4a61dd; --primary-foreground:#fff;
+  --ring:#8b9bff;
+}
+
+/* 登录页品牌区：模板结构是 logo + <h1 class="login-hostname">主机名</h1>。
+   主机名(sy108)对用户没有意义，把文案换进 h1 自身（font-size:0 隐藏原文本，
+   ::before 承载新文案），这样顺序仍是 logo → 标题 → 副标题，不需要改模板。 */
+.login-hostname{
+  font-size:0!important;line-height:0!important;margin:0!important;color:transparent!important;
+}
+.login-hostname::before{
+  content:"5G 通信壳";
+  display:block;font-size:18px;line-height:1.4;font-weight:700;letter-spacing:.3px;
+  color:var(--foreground);margin-top:2px;
+}
+.login-brand::after{
+  content:"管理后台 · sy108";
+  font-size:11px;color:var(--text-tertiary);letter-spacing:.4px;margin-top:4px;
+}
+body.lang_en .login-hostname::before{content:"5G Communication Shell";font-size:15px}
+body.lang_en .login-brand::after{content:"Admin panel · sy108"}
+/* 顶栏图标放大到 24px：20px 时内圈白环只有 1px，缩成一个纯色方块认不出图形 */
+#sidebar .sidebar-logo{width:24px!important;height:24px!important}

@@ -187,6 +187,28 @@
 | -3 / -115 | 1 | 很差 | 慢 | 可能无法稳定连接 |
 | null / null | 0 | -- | -- | 暂无数据 |
 
+### C6. LuCI 后台品牌化（2026-11-11 凌晨第三轮）
+
+免登录状态页是蓝紫配色 + 圆角方块标识，而 LuCI 后台（Outline 主题）是红色 OpenWrt 小恶魔 + 纯黑按钮，
+两者观感割裂。本轮只做**静态资源与设计令牌**层面的统一，不动模板、不动 ACL、不动服务：
+
+- **图标**：按状态页 `.mark` 的几何参数（38px、圆角 13px、`linear-gradient(140deg,#4f6bed,#7c8ff5)`、
+  2px 白内环 + 上右 2px 白弧）渲染成 256px PNG 与 SVG，替换主题的 `logo.png` / `favicon.svg`。
+  登录页与后台顶栏引用同一张图，一处替换两处生效。
+- **主色令牌**：主题原本 `--primary:#0d0d0d`（深色下 `#ededed`），按钮是纯黑/纯白。
+  改为 `--primary:#4f6bed`、`--primary-hover:#3f57d4`、`--ring:#4f6bed`，
+  深色下 `#5b74f0` 配白字，登录按钮与输入框焦点环跟状态页同色。
+- **登录页标题**：模板里是 `<h1 class="login-hostname">sy108</h1>`，主机名对用户没有意义。
+  用 `font-size:0` 隐藏原文本、`::before` 注入「5G 通信壳」，副标题「管理后台 · sy108」；
+  英文环境（`body.lang_en`）为 "5G Communication Shell / Admin panel · sy108"。不需要改模板。
+- **顶栏图标 20px → 24px**：20px 时 2px 白环只剩 1px，缩成一个纯色方块，认不出图形。
+- **交付脚本 `luci-theme-apply.sh`**：幂等（从标记行截断后再追加），原件备份到
+  `/root/ui-backup-<日期>/luci/`，自检只读静态资源 HTTP 码（`/cgi-bin/luci/` 对无 Host 的
+  curl 一律 403，不能作判据）。
+
+验证边界：登录页做了浅色/深色 × 中文/英文四组截图；后台内页的内容由主题懒加载视图渲染，
+无头浏览器停在「正在载入视图」，因此内页只做了颜色令牌与图标级改动，未碰布局。
+
 ## D. 工程与救砖
 
 - **无按键救砖手册** + SPD/FDL 工具链整理（`unisoc-reboot autodloader` 会擦 SPL、PowerShell `-shl` 导致 CRC 算 0 等坑位记录，见 `docs/project-report.md`）。
