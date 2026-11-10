@@ -1,23 +1,28 @@
 /* =============================================================
- * luci-guard.js — LuCI 分级安全守卫（SY108 二次适配）
+ * luci-guard.js v2 — LuCI 分级安全守卫（SY108 二次适配）
  *
- * 目标：替代原先「一刀切全只读」的 rpcd ACL 锁。
- *   - 普通设置（语言 / 主题 / LED / 状态查看等）：完全不拦截、不询问
- *   - 危险操作确认：把浏览器原生 confirm() 升级成红色确认弹窗，
- *     旁边写明「不能怎么设置」与「设置后会导致什么」
- *   - 恢复出厂等最高危操作：额外要求输入确认词
- *   - 每个管理页常驻一条可折叠的安全旁注（按页面分类显示）
+ * 设计目标（v2 修订）：
+ *   1. 只拦「真会锁死 / 变砖 / 丢配置」的动作，不再按页面一刀切：
+ *      - 恢复出厂（需输入 RESET）
+ *      - 刷写固件（需输入 FLASH）
+ *      - 重启设备
+ *      - 改动 USB 管理接口 usbmgmt（192.168.66.1）
+ *      - 停用 / 禁用 udx-cellular 服务
+ *      - 改动 dropbear / SSH 密钥 / uhttpd 这类远程管理入口
+ *      其余保存（DHCP、无线、端口转发、防火墙规则、密码等）一律静默放行。
+ *   2. 点击级拦截优先：确认通过后放行同一次点击，不再「重放按钮」，
+ *      避免刷机页丢文件、重置页重复弹窗。
+ *   3. confirm() 覆盖只做兜底：仅匹配恢复出厂 / 刷机 / 重启三类文案；
+ *      刚在点击级确认过的同类动作 4 秒内不再二次询问。
+ *   4. 弹窗只做一层：ESC / 遮罩 / 关闭按钮均可取消，焦点锁定在弹窗内，
+ *      取消后把焦点还给原按钮。
  *
- * 设计原则：不改动 LuCI / 上游业务代码，不拦截正常保存流程。
- * 只覆盖 window.confirm，用户确认后重新触发原点击，让上游逻辑原样执行。
- *
- * 部署：由主题 footer.ut 追加一行 <script defer src="..."> 引入。
+ * 不改动 LuCI / 上游业务代码。部署：主题 footer.ut 追加 <script defer>。
  * ============================================================= */
 (function () {
   'use strict';
 
-  var path = location.pathname;
-  if (!/\/cgi-bin\/luci\//.test(path) && !/\/luci\//.test(path)) return;
+  if (!/\/cgi-bin\/luci\//.test(location.pathname) && !/\/luci\//.test(location.pathname)) return;
 
   /* ---------------- 语言（与状态页共用 cookie） ---------------- */
   function ck(n) {
@@ -33,365 +38,595 @@
   }
   function T(zh, en) { return LANG === 'en' ? en : zh; }
 
-  /* ---------------- 危险等级规则 ----------------
-   * re     : 匹配 window.confirm 的提示文案（上游多为英文）
-   * paths  : 匹配 LuCI 管理页路径，用于旁注条分类
-   * word   : 有值时要求输入该确认词（仅最高危）
-   * forbid : 「不能怎么设置」
-   * effect : 「设置后会导致什么」
+  /* ---------------- 页面判定 ----------------
+   * Outline 主题在 <body data-page="admin-system-reboot"> 上给了稳定标识，
+   * 优先用它；拿不到再退回路径匹配（兼容 Aurora 与旧版）。
    */
-  var RULES = [
-    {
-      id: 'reset', level: 'critical', word: 'RESET',
-      re: /clear the openwrt configuration|firstboot|factory reset|恢复出厂|清除配置|erase all settings|remove any installed packages|login password will be reset/i,
-      paths: /maintenance|system\/flash|system\/reboot/,
+  function pageId() {
+    var p = (document.body && document.body.getAttribute('data-page')) || '';
+    if (p) return p;
+    var m = location.pathname.match(/\/admin\/(.+?)\/?$/);
+    return m ? 'admin-' + m[1].replace(/\//g, '-') : '';
+  }
+
+  /* ---------------- 危险动作定义 ---------------- */
+  var RULES = {
+    reset: {
+      id: 'reset', level: 'critical', word: 'RESET', ack: true,
       title: T('恢复出厂设置', 'Factory reset'),
+      tag: T('不可撤销', 'IRREVERSIBLE'),
       forbid: T(
-        '不要在设备正在给电脑供网、或刚刷完机还没验证 USB 与 SIM 时执行；不要用「不保留配置」的固件升级来代替它。',
-        'Do not run this while the device is providing the PC’s internet link, or before USB/SIM have been verified after a flash. Do not substitute a firmware upgrade with "do not keep settings".'),
+        '不要在设备正给电脑供网、或刚刷完机还没验证 USB 与 SIM 时执行；也不要用「不保留配置」的固件升级来代替它。',
+        'Do not run this while the device is providing the PC’s internet link, or right after a flash before USB and SIM are verified. Do not substitute a firmware upgrade with "do not keep settings".'),
       effect: T(
-        '清除全部 OpenWrt 配置并重启：APN 自动识别、智能选频、免登录状态页、断网提示、本分级提醒、累计流量与耗电记录都会丢失；登录密码重置为 admin。SSH 主机密钥与产线校准 NV 保留。设备约 1–3 分钟不可用，恢复后需重新插卡并重启一次才会识别 SIM。',
-        'All OpenWrt configuration is cleared and the device reboots. Automatic APN, smart band selection, the unauthenticated status page, offline notice, these guardrails and accumulated traffic/energy counters are all lost; the login password returns to admin. SSH host keys and factory calibration NV are kept. Expect 1–3 minutes of downtime, and a reboot after re-inserting the SIM before it is detected.')
+        '清空全部 OpenWrt 配置并重启：自动 APN、智能选频、免登录状态页、断网提示、本分级提醒、累计流量与耗电记录都会消失；登录密码重置为 admin。SSH 主机密钥与产线校准 NV 保留。设备约 1–3 分钟不可用，恢复后需重新插卡并重启一次才会识别 SIM。',
+        'All OpenWrt configuration is wiped and the device reboots. Automatic APN, smart band selection, the sign-in-free status page, offline notice, these guardrails and accumulated traffic/energy counters are lost; the login password returns to admin. SSH host keys and factory calibration NV are kept. Expect 1–3 minutes offline, and one reboot after re-inserting the SIM before it is detected.'),
+      ok: T('确认恢复出厂', 'Reset device')
     },
-    {
-      id: 'sysupgrade', level: 'critical', word: 'FLASH',
-      re: /sysupgrade|flash.*firmware|upgrade.*firmware|do not keep.*settings|不保留配置|刷.*固件|固件升级/i,
-      paths: /maintenance|system\/flash/,
-      title: T('刷写 / 升级固件', 'Flash / upgrade firmware'),
+    flash: {
+      id: 'flash', level: 'critical', word: 'FLASH', ack: true,
+      title: T('刷写固件', 'Flash firmware'),
+      tag: T('可能导致变砖', 'CAN BRICK'),
       forbid: T(
-        '不要刷入其它机型的分区 XML 或固件（例如 R106 版本）：trustos 尺寸不同，ubipac 偏移会差约 1.75 MiB；不要勾选「不保留配置」而不做备份。',
-        'Never flash partition XML or firmware from another model (e.g. the R106 variant): trustos size differs and the ubipac offset shifts by about 1.75 MiB. Do not choose "do not keep settings" without a backup.'),
+        '不要刷入其它机型的分区 XML 或固件（例如 R106 版）：trustos 尺寸不同，ubipac 偏移会差约 1.75 MiB；不要在没有完整镜像备份时勾选「不保留配置」。',
+        'Never flash partition XML or images from another model (e.g. the R106 variant): trustos size differs and the ubipac offset shifts by ~1.75 MiB. Never pick "do not keep settings" without a full image backup.'),
       effect: T(
-        '写错分区会直接变砖，且 splloader 在 mtd0 上没有备份分区；恢复需要 FDL/救砖工具与完整镜像。刷机还会覆盖本次适配的所有脚本与页面。',
-        'A wrong partition image bricks the device, and splloader on mtd0 has no backup partition. Recovery then requires FDL tooling and full dumps. Flashing also overwrites every script and page from this adaptation.')
+        '分区写错会直接变砖，splloader 在 mtd0 上没有备份分区，只能靠 FDL 与完整镜像救回。刷机还会覆盖本次适配的全部脚本与页面。',
+        'A wrong partition image bricks the device; splloader on mtd0 has no backup partition and recovery needs FDL tooling plus full dumps. Flashing also overwrites every script and page of this adaptation.'),
+      ok: T('确认刷写', 'Flash now')
     },
-    {
+    reboot: {
       id: 'reboot', level: 'danger',
-      re: /perform reboot|reboots the operating system|reboot\?|are you sure.*reboot|立即重启|确认重启/i,
-      paths: /maintenance|system\/reboot/,
       title: T('重启设备', 'Reboot device'),
+      tag: T('会短暂断网', 'BRIEF OUTAGE'),
       forbid: T(
-        '不要在频段扫描、APN 切换或固件写入过程中重启；不要用 stop udx-cellular 来「重连」（会触发 PMIC 看门狗硬重启）。',
-        'Do not reboot during a band scan, APN switch or firmware write. Never use "stop udx-cellular" to reconnect — it triggers a PMIC watchdog hard reset.'),
+        '不要在频段扫描、APN 切换或固件写入过程中重启；不要用 stop udx-cellular 当作「重连」（会触发 PMIC 看门狗硬重启）。',
+        'Do not reboot during a band scan, APN switch or firmware write. Never use "stop udx-cellular" as a reconnect — it triggers a PMIC watchdog hard reset.'),
       effect: T(
-        'USB 网络与状态页会中断约 1–2 分钟。若开机时 /etc/bandlock.mode 残留了无覆盖的频段，会被锁死在没信号的频段上；当前版本已修复此问题。插卡后若一直搜不到网络，需重启一次让基带重新枚举 SIM。',
-        'USB networking and the status page drop for about 1–2 minutes. If /etc/bandlock.mode is left on an uncovered band, the device would be locked to a dead band at boot (fixed in the current build). After inserting a SIM, one reboot is needed for the modem to enumerate it.')
+        'USB 网络与状态页中断约 1–2 分钟；若有未保存的改动会丢失。插卡后若一直搜不到网，重启一次可让基带重新枚举 SIM。',
+        'USB networking and the status page drop for about 1–2 minutes; unsaved changes are lost. If the modem cannot find the network after inserting a SIM, one reboot makes it re-enumerate the SIM.'),
+      ok: T('确认重启', 'Reboot')
     },
-    {
-      id: 'network', level: 'danger',
-      re: /interface|firewall|dropbear|ssh key|network setting|网络设置|接口|防火墙/i,
-      paths: /admin\/network|admin\/system\/(startup|crontab|dropbear|password|uhttpd|sshkeys)|admin\/services|admin\/firewall/,
-      title: T('网络 / 系统关键设置', 'Network / critical system settings'),
+    usbmgmt: {
+      id: 'usbmgmt', level: 'danger',
+      title: T('改动 USB 管理接口', 'Change USB management interface'),
+      tag: T('可能失去管理入口', 'MAY LOSE ACCESS'),
       forbid: T(
-        '不要改动 USB 网卡（usb0 / 192.168.66.1）的 IP、网关或禁用该接口；不要关闭 dropbear 的 SSH；不要修改 /mnt/data/mode.cfg 里的 USB 复合模式；不要停用 udx-cellular 服务。',
-        'Do not change or disable the USB interface (usb0 / 192.168.66.1); do not turn off dropbear SSH; do not edit the USB composite mode in /mnt/data/mode.cfg; do not stop the udx-cellular service.'),
+        '不要改 usbmgmt 的 IP（192.168.66.1）、不要改它的协议类型、不要禁用该接口；也不要动 /mnt/data/mode.cfg 里的 USB 复合模式。',
+        'Do not change the usbmgmt IP (192.168.66.1), its protocol, or disable the interface. Do not touch the USB composite mode in /mnt/data/mode.cfg either.'),
       effect: T(
-        '改错 USB 网络会立刻失去网页与 SSH 管理能力，只能靠串口/FDL 救砖；停用蜂窝服务会触发 PMIC 看门狗硬重启；改 USB 模式可能让所有设备都识别不到网卡。',
-        'A wrong USB network setting immediately removes both web and SSH access, leaving only serial/FDL recovery. Stopping the cellular service triggers a PMIC watchdog hard reset. Changing the USB mode can make the NIC disappear on every host.')
+        '改错会立刻失去网页与 SSH 管理入口，只能靠串口或 FDL 救砖。若确实要改，请先确认 USB 口与线缆可用，并准备好救砖镜像。',
+        'A wrong value immediately removes both web and SSH access, leaving only serial or FDL recovery. If you really need to change it, verify the USB port and cable first and have the recovery images ready.'),
+      ok: T('我了解风险，继续', 'I understand, continue')
     },
-    {
-      id: 'generic-delete', level: 'danger',
-      /* re 置空：泛指的 delete/remove 太容易误伤普通操作，
-         这类沿用 LuCI 原生确认，不额外弹红色窗（不严重的不要询问）。 */
-      re: null,
-      title: T('删除 / 丢弃更改', 'Delete / discard changes'),
-      forbid: T('不要在有未备份配置时批量删除。', 'Do not bulk-delete before backing up the configuration.'),
-      effect: T('被删除的配置无法从网页撤销，需要 SSH 或恢复出厂才能找回。', 'Deleted settings cannot be undone from the web UI; SSH access or a factory reset is required.')
+    cellular: {
+      id: 'cellular', level: 'danger',
+      title: T('停用蜂窝服务', 'Stop the cellular service'),
+      tag: T('会触发硬重启', 'HARD RESET RISK'),
+      forbid: T(
+        '不要停用或禁用 udx-cellular；要重连网络请用 apn-auto apply 或重启设备。',
+        'Do not stop or disable udx-cellular. To reconnect, use apn-auto apply or reboot the device.'),
+      effect: T(
+        '停用该服务会触发 PMIC 看门狗硬重启，设备在重启完成前不可访问；正在进行的下载与配置写入也会中断。',
+        'Stopping it triggers a PMIC watchdog hard reset and the device is unreachable until it finishes rebooting; ongoing downloads and config writes are interrupted.'),
+      ok: T('我了解风险，继续', 'I understand, continue')
+    },
+    ssh: {
+      id: 'ssh', level: 'danger',
+      title: T('改动远程管理入口', 'Change remote management access'),
+      tag: T('可能锁死自己', 'MAY LOCK YOU OUT'),
+      forbid: T(
+        '不要关闭 dropbear、不要删掉唯一可用的 SSH 公钥、不要把 uhttpd 的监听端口改到未知端口。',
+        'Do not disable dropbear, do not remove the only working SSH key, and do not move uhttpd to an unknown port.'),
+      effect: T(
+        '改错后网页与 SSH 可能同时进不去，只能靠串口或 FDL 恢复；已登录的会话也会在下次重连时失效。',
+        'A wrong change can lock you out of both the web UI and SSH, leaving serial or FDL recovery; existing sessions also fail on the next reconnect.'),
+      ok: T('我了解风险，继续', 'I understand, continue')
     }
+  };
+
+  var SAVE_RE = /save|apply|保存|应用|提交|write|写入/i;
+  var BTN_SEL = 'button, a, input[type="submit"], input[type="button"], .cbi-button, [role="button"]';
+
+  function btnText(el) {
+    if (!el) return '';
+    return ((el.textContent || '') + ' ' + (el.value || '') + ' ' + (el.getAttribute('title') || '') + ' ' +
+      (el.getAttribute('aria-label') || '')).replace(/\s+/g, ' ').trim().slice(0, 160);
+  }
+
+  /* 编辑框里出现 192.168.66.x 或 usbmgmt 才算「正在改管理接口」 */
+  function mgmtEditing() {
+    var nodes = document.querySelectorAll('#modal_overlay input, .modal input, .cbi-input-text, input[type="text"]');
+    var n = Math.min(nodes.length, 200);
+    for (var i = 0; i < n; i++) {
+      var v = nodes[i].value || '';
+      if (v === 'usbmgmt' || /^192\.168\.66\./.test(v)) return true;
+    }
+    var m = document.querySelector('#modal_overlay, .modal');
+    return !!(m && /usbmgmt|192\.168\.66\./.test(m.textContent || ''));
+  }
+
+  function rowOrPageHas(el, word) {
+    var n = el, i = 0;
+    while (n && n !== document.body && i++ < 7) {
+      if ((n.textContent || '').toLowerCase().indexOf(word) >= 0) return true;
+      n = n.parentElement;
+    }
+    return (document.body.textContent || '').toLowerCase().indexOf(word) >= 0;
+  }
+
+  /* ---------------- 点击该交给哪条规则 ---------------- */
+  function ruleForClick(el) {
+    var p = pageId(), t = btnText(el);
+
+    if (p === 'admin-system-maintenance') {
+      if (/firstboot|factory|erase|reset|恢复出厂|清除配置/i.test(t)) return RULES.reset;
+      if (/reboot|重启/i.test(t)) return RULES.reboot;
+      return null;
+    }
+    if (p === 'admin-system-flash') {
+      if (/flash|upgrade|刷写|升级/i.test(t)) return RULES.flash;
+      return null;
+    }
+    if (p === 'admin-system-reboot') {
+      if (/reboot|restart|重启/i.test(t)) return RULES.reboot;
+      return null;
+    }
+    if (p === 'admin-network-network') {
+      if (!SAVE_RE.test(t)) return null;
+      return mgmtEditing() ? RULES.usbmgmt : null;   /* 其它接口：静默 */
+    }
+    if (p === 'admin-system-startup') {
+      var stop = /stop|disable|禁用|停用|restart|重启/i.test(t);
+      if (!SAVE_RE.test(t) && !stop) return null;
+      return rowOrPageHas(el, 'udx-cellular') ? RULES.cellular : null;
+    }
+    if (p === 'admin-system-dropbear' || p === 'admin-system-sshkeys' || p === 'admin-system-uhttpd') {
+      if (!SAVE_RE.test(t) && !/delete|remove|删除/i.test(t)) return null;
+      return RULES.ssh;
+    }
+    return null;
+  }
+
+  /* ---------------- confirm() 兜底匹配（只认三类） ---------------- */
+  var CONFIRM_RULES = [
+    { r: /erase all settings|clear the openwrt configuration|factory reset|firstboot|login password will be reset|恢复出厂/i, id: 'reset' },
+    { r: /sysupgrade|flash (?:image|firmware)|firmware upgrade|do not keep.*settings|刷写固件/i, id: 'flash' },
+    { r: /perform reboot|reboots the operating system|reboot (?:the )?(?:device|system)|确认重启/i, id: 'reboot' }
   ];
-
-  function matchConfirm(msg) {
+  function ruleForConfirm(msg) {
     var s = String(msg || '');
-    for (var i = 0; i < RULES.length; i++) {
-      if (RULES[i].re && RULES[i].re.test(s)) return RULES[i];
-    }
-    return null;
-  }
-  function matchPath(p) {
-    for (var i = 0; i < RULES.length; i++) {
-      if (RULES[i].paths && RULES[i].paths.test(p)) return RULES[i];
+    for (var i = 0; i < CONFIRM_RULES.length; i++) {
+      if (CONFIRM_RULES[i].r.test(s)) return RULES[CONFIRM_RULES[i].id];
     }
     return null;
   }
 
-  /* ---------------- 样式（自注入，避免额外请求） ---------------- */
+  /* ---------------- 样式 ---------------- */
   var CSS = [
-    '.sy108-guard-mask{position:fixed;inset:0;z-index:100000;background:rgba(10,14,22,.58);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(3px)}',
-    '.sy108-guard-box{width:100%;max-width:520px;background:#fff;color:#162030;border-radius:16px;box-shadow:0 22px 60px rgba(0,0,0,.35);overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}',
-    '.sy108-guard-hd{background:#dc3f3c;color:#fff;padding:15px 19px;display:flex;align-items:center;gap:10px;font-size:16px;font-weight:750}',
-    '.sy108-guard-hd .ic{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:17px;flex:none}',
-    '.sy108-guard-bd{padding:18px 19px 6px;max-height:62vh;overflow:auto}',
-    '.sy108-guard-sec{margin-bottom:15px}',
-    '.sy108-guard-sec h4{font-size:12px;font-weight:750;margin:0 0 6px;letter-spacing:.3px}',
-    '.sy108-guard-sec p{font-size:13px;line-height:1.72;margin:0;color:#42506a}',
-    '.sy108-guard-sec.forbid{border-left:3px solid #dc3f3c;background:#fdecec;padding:10px 12px;border-radius:0 9px 9px 0}',
-    '.sy108-guard-sec.forbid h4{color:#b52f2c}',
-    '.sy108-guard-sec.effect{border-left:3px solid #d98405;background:#fff4e2;padding:10px 12px;border-radius:0 9px 9px 0}',
-    '.sy108-guard-sec.effect h4{color:#a5640a}',
-    '.sy108-guard-sec.q{background:#f4f6fb;border:1px solid #e5eaf2;border-radius:10px;padding:11px 12px}',
-    '.sy108-guard-sec.q label{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.6;cursor:pointer;color:#42506a}',
-    '.sy108-guard-sec.q input[type=checkbox]{margin-top:3px;flex:none;width:15px;height:15px}',
-    '.sy108-guard-sec.q input[type=text]{width:100%;margin-top:9px;border:1px solid #e5eaf2;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box}',
-    '.sy108-guard-ft{display:flex;gap:9px;padding:13px 19px 18px;border-top:1px solid #eef2f8}',
-    '.sy108-guard-ft button{flex:1;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:650;cursor:pointer;border:1px solid #e5eaf2;background:#fff;color:#5a687c;font-family:inherit}',
-    '.sy108-guard-ft button.ok{background:#dc3f3c;color:#fff;border-color:transparent}',
-    '.sy108-guard-ft button.ok:disabled{opacity:.45;cursor:not-allowed}',
-    '.sy108-guard-bar{margin:0 0 14px;border:1px solid #f2c9c8;background:#fff8f8;border-radius:12px;padding:11px 14px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:12.5px;color:#42506a}',
-    '.sy108-guard-bar summary{cursor:pointer;font-weight:700;color:#b52f2c;list-style:none;display:flex;align-items:center;gap:7px;flex-wrap:wrap}',
-    '.sy108-guard-bar summary::-webkit-details-marker{display:none}',
-    '.sy108-guard-bar .tag{background:#fdecec;color:#b52f2c;border-radius:6px;padding:1px 7px;font-size:10.5px;font-weight:700}',
-    '.sy108-guard-bar dl{margin:11px 0 0;line-height:1.7}',
-    '.sy108-guard-bar dt{font-weight:700;color:#a5640a;margin-top:8px;font-size:12px}',
-    '.sy108-guard-bar dd{margin:2px 0 0;font-size:12px;color:#5a687c}',
-    '.sy108-guard-bar .reset-link{display:inline-block;margin-top:10px;color:#dc3f3c;font-weight:650;text-decoration:underline;text-underline-offset:2px}',
-    '.sy108-guard-lang{position:fixed;right:14px;bottom:14px;z-index:99998;border:1px solid #e5eaf2;background:#fff;color:#5a687c;border-radius:10px;padding:7px 11px;font-size:12px;font-weight:650;cursor:pointer;box-shadow:0 4px 14px rgba(18,30,55,.1)}',
-    '@media (prefers-color-scheme:dark){.sy108-guard-box{background:#151c27;color:#e9eef7}.sy108-guard-ft{border-color:#263141}.sy108-guard-ft button{background:#1b2431;border-color:#263141;color:#a3b0c2}.sy108-guard-sec p{color:#a3b0c2}.sy108-guard-sec.q{background:#1b2431;border-color:#263141}.sy108-guard-sec.q label{color:#a3b0c2}.sy108-guard-sec.q input[type=text]{background:#0c1119;border-color:#263141;color:#e9eef7}.sy108-guard-bar{background:#24191b;border-color:#4a292a;color:#a3b0c2}.sy108-guard-bar dd{color:#a3b0c2}.sy108-guard-lang{background:#1b2431;border-color:#263141;color:#a3b0c2}}'
-  ].join('\n');
+    '.sy108-g-mask{position:fixed;inset:0;z-index:100000;background:rgba(8,12,20,.55);display:flex;align-items:center;justify-content:center;padding:16px;',
+    'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}',
+    '.sy108-g-box{width:100%;max-width:500px;max-height:88vh;display:flex;flex-direction:column;background:#fff;color:#16202f;border-radius:14px;',
+    'border:1px solid #e3e9f2;box-shadow:0 18px 48px rgba(8,12,20,.32);overflow:hidden;animation:sy108g .16s ease-out}',
+    '@keyframes sy108g{from{opacity:0;transform:translateY(6px) scale(.99)}to{opacity:1;transform:none}}',
+    '.sy108-g-hd{display:flex;align-items:flex-start;gap:11px;padding:15px 16px 13px;border-bottom:1px solid #eef2f8;',
+    'border-top:3px solid var(--g-accent,#d33c39)}',
+    '.sy108-g-ic{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;font-size:17px;font-weight:800;',
+    'background:var(--g-soft,#fdeceb);color:var(--g-accent,#d33c39)}',
+    '.sy108-g-tt{flex:1;min-width:0}',
+    '.sy108-g-t{font-size:15.5px;font-weight:750;line-height:1.35;margin:0}',
+    '.sy108-g-meta{margin-top:5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}',
+    '.sy108-g-tag{font-size:10.5px;font-weight:750;letter-spacing:.3px;padding:2px 7px;border-radius:5px;',
+    'background:var(--g-soft,#fdeceb);color:var(--g-accent,#d33c39)}',
+    '.sy108-g-lv{font-size:11px;color:#7c8798}',
+    '.sy108-g-x{flex:none;width:26px;height:26px;border:0;background:transparent;color:#95a1b2;font-size:19px;line-height:1;',
+    'cursor:pointer;border-radius:7px}',
+    '.sy108-g-x:hover{background:#f1f4f9;color:#5a687c}',
+    '.sy108-g-bd{padding:14px 16px 4px;overflow:auto;flex:1}',
+    '.sy108-g-sec{margin-bottom:12px;border-radius:9px;padding:10px 12px;border-left:3px solid transparent}',
+    '.sy108-g-sec.forbid{background:#fdf0ef;border-left-color:#d33c39}',
+    '.sy108-g-sec.effect{background:#fff6e8;border-left-color:#cf8306}',
+    '.sy108-g-sec h4{margin:0 0 5px;font-size:11.5px;font-weight:750;letter-spacing:.2px;display:flex;align-items:center;gap:6px}',
+    '.sy108-g-sec.forbid h4{color:#a82b28}',
+    '.sy108-g-sec.effect h4{color:#94590a}',
+    '.sy108-g-sec p{margin:0;font-size:12.5px;line-height:1.7;color:#48566d}',
+    '.sy108-g-ack{background:#f5f7fb;border:1px solid #e3e9f2;border-radius:9px;padding:10px 12px}',
+    '.sy108-g-ack label{display:flex;gap:8px;font-size:12.5px;line-height:1.6;color:#48566d;cursor:pointer;align-items:flex-start}',
+    '.sy108-g-ack input[type=checkbox]{width:15px;height:15px;margin:2px 0 0;flex:none}',
+    '.sy108-g-ack input[type=text]{width:100%;box-sizing:border-box;margin-top:9px;padding:8px 10px;font-size:13px;',
+    'border:1px solid #dbe2ec;border-radius:8px;font-family:inherit;letter-spacing:1px}',
+    '.sy108-g-ack input[type=text]:focus{outline:2px solid rgba(211,60,57,.25);border-color:#d33c39}',
+    '.sy108-g-hint{margin-top:7px;font-size:11.5px;color:#8a96a7}',
+    '.sy108-g-ft{display:flex;gap:9px;padding:12px 16px 15px;border-top:1px solid #eef2f8;background:#fcfdff}',
+    '.sy108-g-ft button{flex:1;border-radius:9px;padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer;',
+    'border:1px solid #dbe2ec;background:#fff;color:#54617a;font-family:inherit}',
+    '.sy108-g-ft button:hover{background:#f4f7fc}',
+    '.sy108-g-ft button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(96,128,190,.35)}',
+    '.sy108-g-x:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(96,128,190,.3)}',
+    '.sy108-g-ft button.ok{background:var(--g-accent,#d33c39);color:#fff;border-color:transparent}',
+    '.sy108-g-ft button.ok:hover{filter:brightness(1.06)}',
+    '.sy108-g-ft button.ok:focus-visible{box-shadow:0 0 0 3px rgba(211,60,57,.3)}',
+    '.sy108-g-ft button.ok:disabled{background:#e9edf4;color:#a6b0c0;border-color:#e9edf4;opacity:1;filter:none;cursor:not-allowed}',
+    '.sy108-g-bar{margin:0 0 14px;border:1px solid #f0dfc2;background:#fffcf4;border-radius:10px;padding:9px 13px;',
+    'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:12.5px;color:#5c6678}',
+    '.sy108-g-bar summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:650;color:#8a5b12}',
+    '.sy108-g-bar summary::-webkit-details-marker{display:none}',
+    '.sy108-g-bar .tag{background:#fbeccd;color:#8a5b12;border-radius:5px;padding:1px 6px;font-size:10.5px;font-weight:750}',
+    '.sy108-g-bar .caret{color:#b99a63;font-size:11px;transition:transform .15s}',
+    '.sy108-g-bar[open] .caret{transform:rotate(90deg)}',
+    '.sy108-g-bar .more{color:#a08a63;font-weight:500}',
+    '.sy108-g-bar[open] .more{display:none}',
+    '.sy108-g-bar dl{margin:9px 0 0;line-height:1.65}',
+    '.sy108-g-bar dt{font-weight:750;color:#8a5b12;font-size:11.5px;margin-top:7px}',
+    '.sy108-g-bar dd{margin:2px 0 0;font-size:12px;color:#5c6678}',
+    '.sy108-g-bar-ft{display:flex;justify-content:flex-end;margin-top:11px}',
+    '.sy108-g-ackbtn{border:1px solid #e2d2ae;background:#fdf6e6;color:#8a5b12;border-radius:7px;padding:5px 13px;',
+    'font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}',
+    '.sy108-g-ackbtn:hover{background:#fbeccd}',
+    '.sy108-g-ackbtn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(96,128,190,.3)}',
+    '.sy108-g-lang{position:fixed;left:14px;bottom:14px;z-index:9998;border:1px solid #dbe2ec;background:#fff;color:#66738a;',
+    'border-radius:9px;padding:6px 10px;font-size:11.5px;font-weight:700;cursor:pointer;opacity:.85}',
+    '.sy108-g-lang:hover{opacity:1}',
+    ':root[data-darkmode="true"] .sy108-g-box{background:#161d28;color:#e8eef8;border-color:#2a3546}',
+    ':root[data-darkmode="true"] .sy108-g-hd{border-bottom-color:#242f3e}',
+    ':root[data-darkmode="true"] .sy108-g-x{color:#7d8ba0}',
+    ':root[data-darkmode="true"] .sy108-g-x:hover{background:#212b3a;color:#c9d4e4}',
+    ':root[data-darkmode="true"] .sy108-g-sec.forbid{background:#2a1c1e}',
+    ':root[data-darkmode="true"] .sy108-g-sec.effect{background:#2a2318}',
+    ':root[data-darkmode="true"] .sy108-g-sec p{color:#b3c0d3}',
+    ':root[data-darkmode="true"] .sy108-g-ack{background:#1c2534;border-color:#2a3546}',
+    ':root[data-darkmode="true"] .sy108-g-ack label{color:#b3c0d3}',
+    ':root[data-darkmode="true"] .sy108-g-ack input[type=text]{background:#101823;border-color:#2f3b4d;color:#e8eef8}',
+    ':root[data-darkmode="true"] .sy108-g-ft{background:#131a24;border-top-color:#242f3e}',
+    ':root[data-darkmode="true"] .sy108-g-ft button{background:#1e2836;border-color:#2f3b4d;color:#a9b7ca}',
+    ':root[data-darkmode="true"] .sy108-g-ft button:hover{background:#25313f}',
+    ':root[data-darkmode="true"] .sy108-g-ft button.ok:disabled{background:#232d3c;color:#6d7b8f;border-color:#232d3c}',
+    ':root[data-darkmode="true"] .sy108-g-bar{background:#241f16;border-color:#453a24;color:#b0bccd}',
+    ':root[data-darkmode="true"] .sy108-g-bar dd{color:#b0bccd}',
+    ':root[data-darkmode="true"] .sy108-g-ackbtn{background:#33291a;border-color:#4a3c24;color:#dfb87c}',
+    ':root[data-darkmode="true"] .sy108-g-ackbtn:hover{background:#3d301d}',
+    ':root[data-darkmode="true"] .sy108-g-lang{background:#1e2836;border-color:#2f3b4d;color:#a9b7ca}',
+    '@media (prefers-color-scheme:dark){:root:not([data-darkmode]) .sy108-g-box{background:#161d28;color:#e8eef8;border-color:#2a3546}}',
+    '@media (max-width:520px){.sy108-g-box{max-height:92vh}.sy108-g-ft{flex-direction:column-reverse}}'
+  ].join('');
+
   var st = document.createElement('style');
   st.setAttribute('data-sy108-guard', '1');
   st.textContent = CSS;
   (document.head || document.documentElement).appendChild(st);
 
-  /* ---------------- 红色确认弹窗 ---------------- */
-  function closeModal(mask) { if (mask && mask.parentNode) mask.parentNode.removeChild(mask); }
+  /* ---------------- 弹窗 ---------------- */
+  var openMask = null, lastFocus = null;
+
+  function closeModal() {
+    if (!openMask) return;
+    var m = openMask;
+    openMask = null;
+    if (m._esc) document.removeEventListener('keydown', m._esc, true);
+    if (m.parentNode) m.parentNode.removeChild(m);
+    if (lastFocus && lastFocus.focus && document.contains(lastFocus)) {
+      try { lastFocus.focus(); } catch (e) {}
+    }
+    lastFocus = null;
+  }
+
+  function el(tag, cls, text) {
+    var d = document.createElement(tag);
+    if (cls) d.className = cls;
+    if (text != null) d.textContent = text;
+    return d;
+  }
 
   function showDanger(rule, onOk) {
-    if (document.querySelector('.sy108-guard-mask')) return;
-    var mask = document.createElement('div');
-    mask.className = 'sy108-guard-mask';
-    var box = document.createElement('div');
-    box.className = 'sy108-guard-box';
+    if (openMask) return;                       /* 已有弹窗：忽略重复触发 */
+    lastFocus = document.activeElement;
+
+    var mask = el('div', 'sy108-g-mask');
+    var box = el('div', 'sy108-g-box');
     box.setAttribute('role', 'dialog');
     box.setAttribute('aria-modal', 'true');
+    box.style.setProperty('--g-accent', rule.level === 'critical' ? '#d33c39' : '#c97611');
+    box.style.setProperty('--g-soft', rule.level === 'critical' ? '#fdeceb' : '#fdf1e0');
 
-    function sec(cls, head, body) {
-      var d = document.createElement('div');
-      d.className = 'sy108-guard-sec ' + cls;
-      var h = document.createElement('h4'); h.textContent = head;
-      var p = document.createElement('p'); p.textContent = body;
-      d.appendChild(h); d.appendChild(p);
-      return d;
-    }
-
-    var hd = document.createElement('div');
-    hd.className = 'sy108-guard-hd';
-    var ic = document.createElement('span'); ic.className = 'ic'; ic.textContent = '!';
-    hd.appendChild(ic);
-    hd.appendChild(document.createTextNode(T('⚠ 危险操作确认：', '⚠ Dangerous action: ') + rule.title));
+    /* 头部 */
+    var hd = el('div', 'sy108-g-hd');
+    hd.appendChild(el('span', 'sy108-g-ic', '!'));
+    var tt = el('div', 'sy108-g-tt');
+    var t = el('h3', 'sy108-g-t', rule.title);
+    t.id = 'sy108-g-title';
+    tt.appendChild(t);
+    var meta = el('div', 'sy108-g-meta');
+    meta.appendChild(el('span', 'sy108-g-tag', rule.tag));
+    meta.appendChild(el('span', 'sy108-g-lv',
+      rule.level === 'critical' ? T('最高危险 · 需二次确认', 'Critical · double confirmation') :
+        T('高风险 · 请确认', 'High risk · please confirm')));
+    tt.appendChild(meta);
+    hd.appendChild(tt);
+    var x = el('button', 'sy108-g-x', '×');
+    x.type = 'button';
+    x.setAttribute('aria-label', T('关闭', 'Close'));
+    hd.appendChild(x);
     box.appendChild(hd);
 
-    var bd = document.createElement('div');
-    bd.className = 'sy108-guard-bd';
-    bd.appendChild(sec('forbid', T('不能怎么设置', 'What NOT to do'), rule.forbid));
-    bd.appendChild(sec('effect', T('设置后会导致什么', 'What will happen'), rule.effect));
+    /* 正文 */
+    var bd = el('div', 'sy108-g-bd');
+    bd.id = 'sy108-g-desc';
 
-    var q = document.createElement('div'); q.className = 'sy108-guard-sec q';
+    var s1 = el('div', 'sy108-g-sec forbid');
+    s1.appendChild(el('h4', null, '✕ ' + T('不能怎么设置', 'What NOT to do')));
+    s1.appendChild(el('p', null, rule.forbid));
+    bd.appendChild(s1);
+
+    var s2 = el('div', 'sy108-g-sec effect');
+    s2.appendChild(el('h4', null, '! ' + T('设置后会导致什么', 'What will happen')));
+    s2.appendChild(el('p', null, rule.effect));
+    bd.appendChild(s2);
+
     var okBtn, chk = null, inp = null;
-    var lab = document.createElement('label');
-    chk = document.createElement('input'); chk.type = 'checkbox';
-    lab.appendChild(chk);
-    lab.appendChild(document.createTextNode(' ' + T(
-      '我已读完以上说明，知道后果并愿意继续。',
-      'I have read the notes above, understand the consequences and want to proceed.')));
-    q.appendChild(lab);
-
-    if (rule.word) {
-      var tip = document.createElement('div');
-      tip.style.cssText = 'font-size:11.5px;color:#93a0b2;margin-top:8px';
-      tip.textContent = T('请输入 ' + rule.word + ' 以确认：', 'Type ' + rule.word + ' to confirm:');
-      q.appendChild(tip);
-      inp = document.createElement('input');
-      inp.type = 'text'; inp.autocomplete = 'off'; inp.spellcheck = false;
-      inp.placeholder = rule.word;
-      q.appendChild(inp);
+    if (rule.ack) {
+      var ack = el('div', 'sy108-g-sec sy108-g-ack');
+      var lab = el('label');
+      chk = el('input');
+      chk.type = 'checkbox';
+      lab.appendChild(chk);
+      lab.appendChild(document.createTextNode(T(
+        ' 我已读完以上说明，知道后果并愿意继续。',
+        ' I have read the notes above, understand the consequences and want to proceed.')));
+      ack.appendChild(lab);
+      if (rule.word) {
+        ack.appendChild(el('div', 'sy108-g-hint', T('请在下方输入 ' + rule.word + ' 确认：', 'Type ' + rule.word + ' below to confirm:')));
+        inp = el('input');
+        inp.type = 'text';
+        inp.autocomplete = 'off';
+        inp.spellcheck = false;
+        inp.placeholder = rule.word;
+        inp.setAttribute('aria-label', T('确认词', 'Confirmation word'));
+        ack.appendChild(inp);
+      }
+      bd.appendChild(ack);
     }
-    bd.appendChild(q);
     box.appendChild(bd);
 
-    var ft = document.createElement('div'); ft.className = 'sy108-guard-ft';
-    var cancel = document.createElement('button');
-    cancel.type = 'button'; cancel.textContent = T('取消（不做改动）', 'Cancel (no changes)');
-    okBtn = document.createElement('button');
-    okBtn.type = 'button'; okBtn.className = 'ok';
-    okBtn.textContent = T('确认继续', 'Confirm and continue');
-    okBtn.disabled = true;
-    ft.appendChild(cancel); ft.appendChild(okBtn);
+    /* 底部 */
+    var ft = el('div', 'sy108-g-ft');
+    var cancel = el('button', null, T('取消，不做改动', 'Cancel, change nothing'));
+    cancel.type = 'button';
+    okBtn = el('button', 'ok', rule.ok || T('确认继续', 'Confirm'));
+    okBtn.type = 'button';
+    okBtn.disabled = !!rule.ack;
+    ft.appendChild(cancel);
+    ft.appendChild(okBtn);
     box.appendChild(ft);
+
     mask.appendChild(box);
     document.body.appendChild(mask);
+    openMask = mask;
 
     function validate() {
-      okBtn.disabled = !(chk.checked && (!rule.word || (inp && inp.value.trim() === rule.word)));
+      if (!rule.ack) { okBtn.disabled = false; return; }
+      okBtn.disabled = !(chk && chk.checked && (!rule.word || (inp && inp.value.trim().toUpperCase() === rule.word)));
     }
     if (chk) chk.addEventListener('change', validate);
     if (inp) inp.addEventListener('input', validate);
-    cancel.addEventListener('click', function () { closeModal(mask); });
-    mask.addEventListener('click', function (e) { if (e.target === mask) closeModal(mask); });
-    document.addEventListener('keydown', function esc(e) {
-      if (e.key === 'Escape') { closeModal(mask); document.removeEventListener('keydown', esc); }
-    });
+    validate();
+
+    cancel.addEventListener('click', closeModal);
+    x.addEventListener('click', closeModal);
+    mask.addEventListener('click', function (e) { if (e.target === mask) closeModal(); });
+
     okBtn.addEventListener('click', function () {
       if (okBtn.disabled) return;
-      closeModal(mask);
-      try { onOk(); } catch (e) { /* 上游逻辑自行处理异常 */ }
+      closeModal();
+      try { onOk(); } catch (e) {}
     });
-    (inp || chk).focus();
+
+    /* 焦点锁在弹窗内 */
+    mask._esc = function (e) {
+      if (!openMask) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeModal(); return; }
+      if (e.key !== 'Tab') return;
+      var f = box.querySelectorAll('button, input, a[href]');
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', mask._esc, true);
+
+    (inp || chk || cancel).focus();
   }
 
-  /* ---------------- 覆盖 window.confirm ----------------
-   * 原生 confirm 是同步的：先返回 false 阻止本次操作，
-   * 用户确认后重新触发同一个点击，第二次放行并让上游逻辑原样执行。
-   * 若 confirm 并非来自可重试的点击（例如异步回调），绝不猜测按钮，
-   * 改为「15 秒内再点一次同一按钮即放行」的手动重试，避免误触发别的操作。
-   */
-  var nativeConfirm = window.confirm;
-  var bypass = false, bypassUntil = 0, lastEl = null, lastClickTs = 0;
-  var BTN_SEL = 'button, a, input[type="submit"], input[type="button"], .cbi-button, [role="button"]';
-
-  function toast(msg) {
-    var id = 'sy108-guard-toast';
-    var old = document.getElementById(id);
-    if (old && old.parentNode) old.parentNode.removeChild(old);
-    var d = document.createElement('div');
-    d.id = id;
-    d.setAttribute('data-sy108-skip', '1');
-    d.style.cssText = 'position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:100001;' +
-      'background:#162030;color:#fff;border-radius:10px;padding:10px 16px;font-size:12.5px;' +
-      'box-shadow:0 8px 24px rgba(0,0,0,.28);max-width:90vw;text-align:center';
-    d.textContent = msg;
-    document.body.appendChild(d);
-    window.setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 6000);
-  }
+  /* ---------------- 点击级拦截（主路径） ---------------- */
+  /* 确认通过后标记该按钮，下一次点击直接放行，不重放、不二次弹窗 */
+  var recent = null;      /* { id, ts } */
 
   document.addEventListener('click', function (e) {
-    var el = e.target;
-    lastEl = (el && el.closest) ? el.closest(BTN_SEL) : null;
-    lastClickTs = Date.now();
+    var el2 = e.target && e.target.closest ? e.target.closest(BTN_SEL) : null;
+    if (!el2 || el2.getAttribute('data-sy108-skip') === '1') return;
+
+    var rule = ruleForClick(el2);
+    if (!rule) return;                                   /* 普通动作：放行 */
+
+    if (el2.__sy108Pass === rule.id) {                   /* 已确认：放行本次 */
+      el2.__sy108Pass = null;
+      return;
+    }
+    if (recent && recent.id === rule.id && Date.now() - recent.ts < 2500) {
+      recent = null;                                     /* 刚确认过同类：放行 */
+      return;
+    }
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    showDanger(rule, function () {
+      recent = { id: rule.id, ts: Date.now() };
+      el2.__sy108Pass = rule.id;
+      el2.click();
+    });
   }, true);
 
-  window.confirm = function (msg) {
-    var rule = matchConfirm(msg);
-    if (!rule) return nativeConfirm.call(window, msg);   // 普通确认：保持原生、不打扰
-    if (bypass) { bypass = false; return true; }         // 同一点击事件二次进入：放行
-    if (Date.now() < bypassUntil) { bypassUntil = 0; return true; }  // 手动重试窗口
+  /* ---------------- confirm() 兜底（不重放则提示重点一次） ---------------- */
+  var nativeConfirm = window.confirm;
+  var retryRule = null, retryUntil = 0;
+  var lastClickEl = null, lastClickTs = 0;
 
-    // 只重试「最近一次点击、且仍在文档中」的按钮；异步来源一律不猜测
-    var canRetry = lastEl && lastEl.isConnected !== false &&
-                   (Date.now() - lastClickTs) < 15000 && typeof lastEl.click === 'function';
-    var retry = canRetry ? lastEl : null;
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest(BTN_SEL) : null;
+    if (b) { lastClickEl = b; lastClickTs = Date.now(); }
+  }, true);
+
+  function toast(msg) {
+    var id = 'sy108-g-toast';
+    var old = document.getElementById(id);
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    var d = el('div', null, msg);
+    d.id = id;
+    d.setAttribute('data-sy108-skip', '1');
+    d.style.cssText = 'position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:100001;' +
+      'background:#16202f;color:#fff;border-radius:9px;padding:10px 15px;font-size:12.5px;max-width:88vw;' +
+      'text-align:center;box-shadow:0 8px 22px rgba(0,0,0,.26)';
+    document.body.appendChild(d);
+    window.setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 6500);
+  }
+
+  window.confirm = function (msg) {
+    var rule = ruleForConfirm(msg);
+    if (!rule) return nativeConfirm ? nativeConfirm.call(window, msg) : true;
+
+    if (recent && recent.id === rule.id && Date.now() - recent.ts < 4000) {
+      recent = null;                                     /* 点击级刚确认过 */
+      return true;
+    }
+    if (retryRule === rule.id && Date.now() < retryUntil) {
+      retryRule = null;
+      return true;                                       /* 15 秒内重点同一动作 */
+    }
+
+    var target = (lastClickEl && document.contains(lastClickEl) &&
+      (Date.now() - lastClickTs) < 15000 && typeof lastClickEl.click === 'function') ? lastClickEl : null;
+
     showDanger(rule, function () {
-      if (retry) {
-        bypass = true;
-        retry.click();
+      if (target) {
+        recent = { id: rule.id, ts: Date.now() };
+        target.__sy108Pass = rule.id;
+        target.click();
       } else {
-        bypassUntil = Date.now() + 15000;
-        toast(T('请再点一次刚才的按钮，以继续本次操作。',
-                'Please click the same button once more to continue.'));
+        retryRule = rule.id;
+        retryUntil = Date.now() + 15000;
+        toast(T('请在 15 秒内再点一次刚才的按钮，以继续本次操作。',
+          'Click the same button again within 15 seconds to continue.'));
       }
     });
     return false;
   };
 
-  /* ---------------- 高危页面的「保存并应用」 ----------------
-   * 这类按钮不调用 confirm，需单独在捕获阶段拦截；普通页面一律静默放行。
-   */
-  var DANGER_PATHS = /admin\/network|admin\/firewall|admin\/system\/(startup|crontab|dropbear|password|uhttpd|sshkeys)|admin\/services/;
-  document.addEventListener('click', function (e) {
-    if (!DANGER_PATHS.test(location.pathname + location.hash)) return;
-    var el = e.target && e.target.closest ? e.target.closest(BTN_SEL) : null;
-    if (!el) return;
-    if (el.__sy108Allowed) { el.__sy108Allowed = false; return; }  // 确认后的第二次点击：放行
-    var txt = ((el.textContent || el.value || '') + '').trim();
-    if (!/save|apply|保存|应用|提交|submit|write|写入/i.test(txt)) return;
-    var rule = matchPath(location.pathname + location.hash) || RULES[3];
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    showDanger(rule, function () {
-      el.__sy108Allowed = true;
-      el.click();
-    });
-  }, true);
+  /* ---------------- 常驻旁注（只在这些页面出现，中性提示，不喧宾夺主） ---------------- */
+  var NOTE = {
+    'admin-system-maintenance': ['reset', 'reboot'],
+    'admin-system-flash': ['flash'],
+    'admin-system-reboot': ['reboot'],
+    'admin-network-network': ['usbmgmt'],
+    'admin-system-startup': ['cellular'],
+    'admin-system-dropbear': ['ssh'],
+    'admin-system-sshkeys': ['ssh'],
+    'admin-system-uhttpd': ['ssh']
+  };
+  var barEl = null, barKey = null;
 
-  /* ---------------- 表单提交（补充拦截） ---------------- */
-  document.addEventListener('submit', function (e) {
-    var f = e.target;
-    if (!f || f.__sy108Allowed) { if (f) f.__sy108Allowed = false; return; }
-    var rule = matchConfirm((f.getAttribute('onsubmit') || '') + ' ' + (f.textContent || '').slice(0, 200));
-    if (!rule) return;                                   // 普通设置：静默放行
-    e.preventDefault(); e.stopImmediatePropagation();
-    showDanger(rule, function () {
-      f.__sy108Allowed = true;
-      if (typeof f.submit === 'function') f.submit();
-    });
-  }, true);
+  /* 是否已「知道了」：按页面记在 localStorage，取不到就退回 cookie */
+  function ackKey(p) { return 'sy108-guard-ack:' + p; }
+  function isAcked(p) {
+    try { if (localStorage.getItem(ackKey(p)) === '1') return true; } catch (e) {}
+    return ('; ' + document.cookie).indexOf('; ' + ackKey(p) + '=1') >= 0;
+  }
+  function setAcked(p) {
+    try { localStorage.setItem(ackKey(p), '1'); } catch (e) {}
+    try { document.cookie = ackKey(p) + '=1;path=/;max-age=31536000;SameSite=Lax'; } catch (e) {}
+  }
 
-  /* ---------------- 常驻安全旁注条 ---------------- */
-  function buildBar(rule) {
+  function buildBar(ids, page) {
     var d = document.createElement('details');
-    d.className = 'sy108-guard-bar';
-    d.setAttribute('data-sy108-guard', '1');
+    d.className = 'sy108-g-bar';
+    d.open = !isAcked(page);          /* 第一次进页面：默认展开 */
+
     var s = document.createElement('summary');
-    var tag = document.createElement('span'); tag.className = 'tag';
-    tag.textContent = T('危险设置提醒', 'DANGER NOTES');
-    s.appendChild(tag);
-    s.appendChild(document.createTextNode(T(
-      '本页涉及高风险设置 · 点开看「不能怎么设 / 会导致什么」',
-      'This page contains high-risk settings · expand for what NOT to do and what happens')));
+    s.appendChild(el('span', 'tag', T('红线提醒', 'NOTES')));
+    s.appendChild(document.createTextNode(T('本页有高风险设置', 'High-risk settings on this page')));
+    s.appendChild(el('span', 'more', T(' · 点开查看', ' · expand')));
+    s.appendChild(el('span', 'caret', '▸'));
     d.appendChild(s);
 
     var dl = document.createElement('dl');
-    var dt1 = document.createElement('dt'); dt1.textContent = T('不能怎么设置', 'What NOT to do');
-    var dd1 = document.createElement('dd'); dd1.textContent = rule.forbid;
-    var dt2 = document.createElement('dt'); dt2.textContent = T('设置后会导致什么', 'What will happen');
-    var dd2 = document.createElement('dd'); dd2.textContent = rule.effect;
-    dl.appendChild(dt1); dl.appendChild(dd1); dl.appendChild(dt2); dl.appendChild(dd2);
+    ids.forEach(function (id) {
+      var r = RULES[id];
+      dl.appendChild(el('dt', null, '✕ ' + T('不能怎么设置', 'What NOT to do') + ' · ' + r.title));
+      dl.appendChild(el('dd', null, r.forbid));
+      dl.appendChild(el('dt', null, '! ' + T('会导致什么', 'What happens')));
+      dl.appendChild(el('dd', null, r.effect));
+    });
     d.appendChild(dl);
 
-    var a = document.createElement('a');
-    a.className = 'reset-link';
-    a.href = '/cgi-bin/luci/admin/system/maintenance';
-    a.textContent = T('→ 前往「恢复出厂设置 / 系统维护」', '→ Go to Factory reset / System maintenance');
-    d.appendChild(a);
+    var ft = el('div', 'sy108-g-bar-ft');
+    var ack = el('button', 'sy108-g-ackbtn', T('知道了', 'Got it'));
+    ack.type = 'button';
+    ack.addEventListener('click', function (e) {
+      e.preventDefault();
+      setAcked(page);
+      d.open = false;
+    });
+    ft.appendChild(ack);
+    d.appendChild(ft);
+
+    /* 用户自己点过标题（展开或收起）就记住，下次不再自动弹开；
+       不监听 toggle，避免程序性 open 被误判成用户已读 */
+    s.addEventListener('click', function () {
+      window.setTimeout(function () { setAcked(page); }, 0);
+    });
+
     return d;
   }
 
-  var barRuleId = null, barEl = null;
   function refreshBar() {
-    var cur = matchPath(location.pathname + location.hash + location.search);
-    var id = cur ? cur.id : null;
-    if (id === barRuleId) return;
-    barRuleId = id;
+    var p = pageId();
+    var ids = NOTE[p];
+    var key = ids ? ids.join(',') : '';
+    if (key === barKey) return;
+    barKey = key;
     if (barEl && barEl.parentNode) barEl.parentNode.removeChild(barEl);
     barEl = null;
-    if (!cur) return;                                    // 普通页面：不显示任何提示
+    if (!ids) return;
     var host = document.querySelector('#maincontent, .maincontent, #content, main, .cbi-map, .container');
     if (!host) return;
-    barEl = buildBar(cur);
+    barEl = buildBar(ids, p);
     host.insertBefore(barEl, host.firstChild);
   }
 
-  /* ---------------- 语言切换按钮 ---------------- */
+  /* ---------------- 语言按钮（挪到左下，避免压住右下角「保存并应用」） ---------------- */
   function addLangBtn() {
-    if (document.querySelector('.sy108-guard-lang')) return;
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'sy108-guard-lang';
-    function label() { b.textContent = LANG === 'zh' ? 'EN 英文' : '中文 CN'; }
-    label();
-    b.title = T('切换本页提醒文字的语言 / Switch guard text language', 'Switch guard text language');
+    if (document.querySelector('.sy108-g-lang')) return;
+    var b = el('button', 'sy108-g-lang', LANG === 'zh' ? 'EN' : '中文');
+    b.type = 'button';
+    b.title = T('切换提醒文字语言', 'Switch guard language');
     b.addEventListener('click', function () {
       LANG = LANG === 'zh' ? 'en' : 'zh';
       setck('sy108-lang', LANG);
-      try { localStorage.setItem('sy108-lang', LANG); } catch (e) {}
-      label();
-      barRuleId = '__force__';
+      b.textContent = LANG === 'zh' ? 'EN' : '中文';
+      barKey = '__force__';
       refreshBar();
     });
     document.body.appendChild(b);
   }
 
+  /* 供本地自检使用（只读） */
+  window.__SY108_GUARD__ = {
+    rules: RULES,
+    pageId: pageId,
+    ruleForClick: ruleForClick,
+    ruleForConfirm: ruleForConfirm
+  };
+
   function init() { refreshBar(); addLangBtn(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
-  // LuCI 是前端路由：URL 变化不会重载文档，定时同步旁注条
   window.setInterval(refreshBar, 1500);
 })();
