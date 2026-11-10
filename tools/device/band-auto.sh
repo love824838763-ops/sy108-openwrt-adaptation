@@ -148,6 +148,12 @@ release_lock() { # 解锁回 auto（手机模式）
 	WD_BAD=0
 }
 
+# 扫描期间的临时锁：直接走 ubus，绝不写 /etc/bandlock.mode。
+# 否则扫描被 kill/断电中断时，某个无覆盖的中间频段会被 rc.local 开机永久恢复。
+scan_lock() { # $1=单个频段
+	ubus call udx.cellular band_lock "{\"lte\":[],\"nr\":[\"$1\"]}" >/dev/null 2>&1
+}
+
 # ---------- 看门狗：掉网自愈 / 锁定期间掉网解锁 / TTL 到期 ----------
 do_watch() {
 	[ -d "$LOCK" ] && return 0   # 扫描进行中，不干预
@@ -164,6 +170,12 @@ do_watch() {
 		# auto（手机式）模式下的掉网自愈：PDP 未激活连续 N 次 => 重试 APN
 		J=$(getj)
 		ST=$(echo "$J" | jsonfilter -e '@.cell.state' 2>/dev/null)
+		# 没插卡时不算「掉网」，不做无效的 APN 重试，也不刷日志
+		case "$ST" in
+		waiting_sim|no_sim|sim_error|"")
+			[ "$WD_BAD" != "0" ] && { WD_BAD=0; save_state; }
+			return 0 ;;
+		esac
 		if [ "$ST" = "pdp_active" ]; then
 			[ "$WD_BAD" != "0" ] && { WD_BAD=0; save_state; }
 			return 0
@@ -218,7 +230,9 @@ do_scan() {
 		return 1
 	fi
 	# shellcheck disable=SC2064
-	trap "rmdir '$LOCK' 2>/dev/null; rm -f /tmp/band-auto.scan '$CANDS'" EXIT INT TERM
+	# 异常退出（kill / 断电 / 重启）也要解锁并清掉持久化标记，
+	# 避免把扫描中间态的频段留到下次开机。
+	trap "/usr/bin/bandlock auto >/dev/null 2>&1; rm -f '$HOLD'; rmdir '$LOCK' 2>/dev/null; rm -f /tmp/band-auto.scan '$CANDS'" EXIT INT TERM
 
 	load_state   # 确保 POOR 等变量已初始化（直接 scan 调用时）
 
@@ -242,7 +256,7 @@ do_scan() {
 			CAND="$BASE"
 			ANY_REG=1   # 当前频段必然已注册（刚测过）
 		else
-			/usr/bin/bandlock "$b" >/dev/null 2>&1
+			scan_lock "$b"
 			if wait_band "$b"; then
 				ANY_REG=1
 				CAND=$(measure)
@@ -355,6 +369,15 @@ do_run() {
 	[ -f "$FLAG_ON" ] || exit 0          # 未启用（看门狗由入口处 do_watch 兜底）
 	load_state
 	J=$(getj)
+	# 无卡 / 未注册 / 数据通道未建立时：信号值是无意义的占位值（-99/-140），
+	# 不累计 POOR、不触发扫描。否则没卡期间每 5 分钟攒一次，
+	# 一插卡立刻触发一轮 7~8 分钟的全频段断网扫描。
+	ST=$(echo "$J" | jsonfilter -e '@.cell.state' 2>/dev/null)
+	case "$ST" in
+	waiting_sim|no_sim|sim_error|waiting_registration|connecting|"")
+		if [ "$POOR" != "0" ]; then POOR=0; save_state; fi
+		exit 0 ;;
+	esac
 	SN=$(echo "$J" | jsonfilter -e '@.signal.sinr' 2>/dev/null)
 	RS=$(echo "$J" | jsonfilter -e '@.signal.rsrp' 2>/dev/null)
 	[ -z "$SN" ] && SN=-99

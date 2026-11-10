@@ -250,7 +250,13 @@ modem.nr_capability='sa_nsa'
 
 ### 4.4 速率瓶颈说明（不是故障）
 
-实测证明瓶颈在**射频 SINR**（n79 SINR 6-12 时 96-205 Mbps，切换瞬间跌到几 Mbps），不在 USB/APN/TCP。USB 枚举为 high-speed（426 Mbps 显示值），换 USB 3.0 口与线缆可解锁 SuperSpeed（UDC 支持）。优化杠杆：壳移离机箱金属、靠近窗户 > 换 USB3 线 > 锁 n79。
+实测证明瓶颈在**射频 SINR / 单载波带宽**（n79 SINR 6-12 时 96-205 Mbps，切换瞬间跌到几 Mbps），不在 USB/APN/TCP。
+
+**USB 3.0 结论（2026-11-10 复核更正）**：早期记录写的「换 USB 3.0 线缆即可解锁 SuperSpeed」是**错误推测**，现已证伪。实测：设备侧 DWC3 `maximum-speed=super-speed`、gadget `max_speed=super-speed`、设备树 `maximum-speed` 为空、`phy-names=usb2-phy usb3-phy`（软件侧**完全没有限速**），但 `current_speed=high-speed`，Windows 枚举在 `ACPI(HS07)`（High-Speed 分支）。原因是**外侧母座（充电/连电脑那颗）物理上只引出 USB2 的 D+/D- 线对**，SuperSpeed 差分对只存在于内侧插手机的公头上。改装圈的公开经验也印证：「USB3.0 需全链路闭环，2.0 口和 3.0 口不能同时使用」。
+
+USB 段实测吞吐 42.7 MB/s（约 342 Mbps），而空口单流仅 16 Mbps、4 路并发约 75 Mbps —— **USB 段是空口的 4 倍以上，即使换成 SuperSpeed 也不会提升网速**。优化杠杆：改善摆放/遮挡与 SINR > 选对频段（避开 n1 的 20 MHz 小带宽）> 供电与散热稳定 > 换 USB3 线（收益≈0）。
+
+补充：CMHK 公开实测（ManHungTech, 2025-08）显示 **n1 平均下行 74.64 Mbps、多次不足 100 Mbps**（该运营商 n1 仅 20 MHz 带宽），而 n78 平均 293 Mbps；UDX710 / 春藤 V510 **不支持载波聚合**，单载波带宽无法叠加。这与「顶多 100、上不了 200」的体验吻合，属于网络侧与基带规格的先天上限，不是本适配引入的故障。
 
 ---
 
@@ -307,7 +313,7 @@ modem.nr_capability='sa_nsa'
 
 | 事项 | 优先级 | 说明 |
 |---|---|---|
-| USB 3.0 线缆/端口 | 中 | 主机口已确认是 USB 3.0（ROOT_HUB30 直连），瓶颈在 USB-C 线缆——换 USB 3.x 数据线（SS 标识）即可试 SuperSpeed |
+| ~~USB 3.0 线缆/端口~~ | ❌ 已证伪 | 2026-11-10 复核：软件侧无限速，但外侧母座物理上只有 USB2 线对；USB 段实测 342 Mbps 远高于空口，换线无收益（详见 4.4） |
 | ~~流量统计~~ | ✅ 已解决 | 18:30 轮已加跨重启累计流量（见附录） |
 | 锁 n79 开机脚本 | ✅ 已解决 | `bandlock n79|auto|status` + rc.local 开机恢复（见附录） |
 | IPv6 半残 | 低 | CMHK 只下发 IPv4，wan6 pending；ULA 已抑制，影响极小 |
@@ -322,7 +328,7 @@ modem.nr_capability='sa_nsa'
 2. **登录按钮相对化**：去掉硬编码 `192.168.66.1`，按当前 host 动态生成 LuCI 地址（portal 弹窗场景也能正确跳转）。
 3. **时区修正**：`/etc/TZ = HKT-8` + `uci system.timezone='HKT-8'`，设备日志/`date` 显示香港时间。
 4. **锁频工具**：`/usr/bin/bandlock n79|n78|n41|auto|status`；标记文件 `/etc/bandlock.mode` + `/etc/rc.local` 开机自动恢复（弥补 band_lock 不进 uci 的缺陷）。用法：速率不稳时 `bandlock n79`，恢复 `bandlock auto`。
-5. **USB 口诊断结论**：Windows 侧链路 = UsbNcm → `USB\ROOT_HUB30`（Intel xHCI 3.10，根集线器 USB 3.0 直连）→ **主机口是 USB 3.0 没问题**；实际枚举 high-speed 的剩余变量是 USB-C 线缆（需 SS 数据线）与壳侧 SuperSpeed 协商（上游项目也自述"SS 偶发不稳"）。**不建议**为启用 `sprd,pamu3-offload` 再动 DTB——风险（SSH 走 USB，挂了需全套救砖）大于收益（当前 130 Mbps 未顶到 USB2 上限）。
+5. **USB 口诊断结论（当时推测，2026-11-10 已更正）**：Windows 侧链路 = UsbNcm → `USB\ROOT_HUB30`（Intel xHCI 3.10）→ 主机口确为 USB 3.0。当时推测 high-speed 的剩余变量是线缆与协商；后续复核证实**外侧母座物理上只引出 USB2 线对**，软件侧无限速（见 4.4）。仍**不建议**为 `sprd,pamu3-offload` 改动 DTB（SSH 走 USB，挂了需全套救砖）。
 
 ---
 

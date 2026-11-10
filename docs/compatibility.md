@@ -116,7 +116,7 @@
 | **总线供电、无内置电池** | 拔 USB 线 = 断电重启；断电丢时钟/统计 | 流量统计原子写 + 回绕持久化；测试预设自动重启安全网 |
 | **Android OTG 供电不稳** | 安卓插上连一下就掉 | USB-C 供电入口焊 **10V 1000µF** 电容（见 `docs/solder-guide.md`），实测通过 |
 | **mtd0 SPL 无备份分区** | 擦了就是砖（唯一救星是事前备份） | 永远不要执行 `unisoc-reboot autodloader` |
-| USB3 SuperSpeed 偶发不稳 | 上游自述；实际枚举 high-speed（426 Mbps 显示值） | 未启用 `sprd,pamu3-offload`（SSH 走 USB，风险>收益）；130 Mbps 未顶到 USB2 上限 |
+| **外侧 USB 口只有 USB 2.0 线对** | 内侧公头（插手机）为 USB3，外侧母座（连电脑/充电）只引出 D+/D-；软件侧 gadget / UDC / 设备树均支持 super-speed、无限速，但物理链路只能协商到 high-speed（Windows 显示 426 Mbps） | 无法靠换线或改配置解决；也未启用 `sprd,pamu3-offload`（SSH 走 USB，风险>收益）。实测 USB 段 342 Mbps 已远高于空口，不是瓶颈 |
 
 ### 3.6 软件/工具链零星不兼容
 
