@@ -89,18 +89,11 @@ a{color:inherit}
 }
 
 /* ---------- 主状态卡 ---------- */
+/* 主状态卡：纯平面，无顶部渐变条、无右上装饰圆、无投影 */
 .hero{
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  padding:20px 20px 18px;box-shadow:var(--shadow);margin-bottom:14px;
-  position:relative;overflow:hidden;
-}
-.hero::before{
-  content:"";position:absolute;inset:0 0 auto 0;height:3px;
-  background:linear-gradient(90deg,var(--state),transparent 78%);opacity:.9;
-}
-.hero::after{
-  content:"";position:absolute;right:-60px;top:-90px;width:230px;height:230px;border-radius:50%;
-  background:var(--state-soft);opacity:.75;pointer-events:none;
+  padding:19px 20px 18px;box-shadow:none;margin-bottom:14px;
+  position:relative;
 }
 .hero>*{position:relative}
 .hero-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -108,10 +101,17 @@ a{color:inherit}
 .pulse{width:11px;height:11px;border-radius:50%;background:var(--state);flex:none;position:relative}
 .pulse::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--state);animation:ring 2.1s ease-out infinite}
 @keyframes ring{0%{transform:scale(1);opacity:.55}100%{transform:scale(3.1);opacity:0}}
+/* 右上角运行时长：必须压在装饰圆之上、不透明底 + 深色字，否则会被冲淡成水印 */
 .hero-clock{
-  font-size:12px;color:var(--text-2);font-weight:650;white-space:nowrap;
-  background:var(--surface-2);border:1px solid var(--border);border-radius:99px;padding:5px 11px;
+  position:relative;z-index:2;display:inline-flex;align-items:center;gap:5px;
+  font-family:inherit;font-size:12.5px;font-weight:750;line-height:1.3;color:var(--text);
+  white-space:nowrap;cursor:pointer;font-variant-numeric:tabular-nums;
+  background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:6px 12px;
+  box-shadow:none;
 }
+.hero-clock .hc-ico{font-size:13px;color:var(--accent);line-height:1}
+.hero-clock:hover,.hero-clock:focus-visible{border-color:var(--accent);color:var(--accent)}
+.hero-clock:active{transform:translateY(1px)}
 .hero-sub{font-size:12.5px;color:var(--text-2);margin-top:7px;min-height:19px;line-height:1.5}
 .hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:17px}
 .metric{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:9px 8px;min-width:0}
@@ -124,7 +124,7 @@ a{color:inherit}
 .err.show{display:block}
 
 /* ---------- 选项卡 ---------- */
-.tabs{display:flex;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:4px;margin-bottom:14px;box-shadow:var(--shadow);overflow-x:auto;scrollbar-width:none}
+.tabs{display:flex;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:4px;margin-bottom:14px;box-shadow:none;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:1 0 auto;min-width:68px;border:0;background:transparent;color:var(--text-2);padding:8px 9px;border-radius:9px;font-size:12.5px;font-weight:600;white-space:nowrap;transition:.18s}
 .tab:hover{color:var(--accent)}
@@ -135,7 +135,7 @@ a{color:inherit}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* ---------- 卡片 ---------- */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;box-shadow:none}
 .card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}
 .card h2{font-size:13px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
 .card h2::before{content:"";width:3px;height:13px;border-radius:2px;background:var(--accent)}
@@ -236,7 +236,7 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
   <section class="hero" id="hero" aria-live="polite">
     <div class="hero-top">
       <div class="state-badge"><span class="pulse" aria-hidden="true"></span><span id="stateText" data-i18n="检测中…">检测中…</span></div>
-      <div class="hero-clock num" id="heroClock">--</div>
+      <button class="hero-clock num" id="heroClock" type="button" title="点击查看系统信息：刷机日期、服役时长与累计运行">--</button>
     </div>
     <div class="hero-sub" id="stateSub" data-i18n="正在读取设备状态…">正在读取设备状态…</div>
     <div class="hero-metrics">
@@ -616,12 +616,15 @@ function applyLang(){
 	var ti=document.querySelectorAll('[data-i18n-title]');
 	for(var j=0;j<ti.length;j++){
 		var kt=ti[j].getAttribute('data-i18n-title');
-		ti[j].setAttribute('title',LANG==='en'?kt:kt);
+		ti[j].setAttribute('title',t(kt));
 	}
 	var ar=document.querySelectorAll('[data-i18n-aria]');
 	for(var a=0;a<ar.length;a++) ar[a].setAttribute('aria-label',t(ar[a].getAttribute('data-i18n-aria')));
 	$('langLabel').textContent=LANG==='zh'?'EN 英文':'中文 CN';
 	$('langBtn').setAttribute('title',LANG==='zh'?'切换到英文 / Switch to English':'切换到中文 / Switch to Chinese');
+	$('heroClock').setAttribute('title',LANG==='en'
+		?'Click for system info: flash date, service time and total powered-on time'
+		:'点击查看系统信息：刷机日期、服役时长与累计运行');
 	$('pwDisclaimer').innerHTML=LANG==='en'?HTML_EN.pw:HTML_ZH.pw;
 	$('enDisclaimer').innerHTML=LANG==='en'?HTML_EN.en:HTML_ZH.en;
 	$('autoBtn').textContent=autoOn?t('暂停'):t('继续');
@@ -734,7 +737,9 @@ function render(d){
   set('mDown', r.down_bps!==undefined ? fmtBps(r.down_bps) : '--');
   set('mBand', s.band||'--');
   set('mTemp', d.temp>0 ? d.temp+'°C' : '--');
-  set('heroClock', online ? '⏱ '+t('本次开机 ')+fmtUptime(d.uptime) : '--');
+  // 右上角运行时长：无论是否联网都显示，且用高对比徽章（旧版被装饰圆冲淡成水印）
+  var hcEl=$('heroClock');
+  if(hcEl) hcEl.innerHTML='<span class="hc-ico">⏱</span>'+esc(t('本次开机 ')+fmtUptime(d.uptime));
 
   var wanEl=$('ovWan');
   wanEl.textContent = online?t('已连接'):(w.up?t('接口在线'):t('未连接'));
@@ -894,6 +899,10 @@ $('autoBtn').addEventListener('click',function(){
   $('liveDot').className=autoOn?'dot-live':'dot-live paused';
   $('autoHint').textContent=autoOn?t('每 5 秒自动刷新'):t('已暂停自动刷新');
   restart();
+});
+$('heroClock').addEventListener('click',function(){
+  activate('about');
+  try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
 });
 applyLang();
 restart();
