@@ -337,7 +337,7 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
         <div class="meter-scale"><span data-i18n="-20 差">-20 差</span><span>-12</span><span data-i18n="-5 好">-5 好</span></div>
       </div>
       <div class="kv" style="margin-top:12px"><span class="k" data-i18n="网速体验">网速体验</span><span class="v"><span class="chip" id="sgFeel">--</span></span></div>
-      <div class="hint tip" data-i18n="SINR（抗干扰能力）比格数更影响网速。数值忽高忽低通常是同频干扰或遮挡，优先调整摆放位置。">SINR（抗干扰能力）比格数更影响网速。数值忽高忽低通常是同频干扰或遮挡，优先调整摆放位置。</div>
+      <div class="hint tip" data-i18n="格数取「覆盖」与「质量」中较差的一项，任一项拖后腿都会被看到。SINR 偏低多为同频干扰或遮挡，优先调整摆放位置。">格数取「覆盖」与「质量」中较差的一项，任一项拖后腿都会被看到。SINR 偏低多为同频干扰或遮挡，优先调整摆放位置。</div>
       <details class="tech">
         <summary data-i18n="技术详情（可忽略）">技术详情（可忽略）</summary>
         <div id="sgTech">--</div>
@@ -538,7 +538,7 @@ var EN = {
 '信号强弱':'Signal strength','信号强弱一目了然，格数由信号强度与质量综合判断。':'Bars combine signal strength and quality for a quick read.',
 '信号强度 RSRP':'Signal strength · RSRP','信号质量 SINR':'Signal quality · SINR','参考质量 RSRQ':'Reference quality · RSRQ',
 '-120 弱':'-120 weak','-80 强':'-80 strong','-5 差':'-5 poor','30 好':'30 good','-20 差':'-20 poor','-5 好':'-5 good',
-'网速体验':'Expected speed','SINR（抗干扰能力）比格数更影响网速。数值忽高忽低通常是同频干扰或遮挡，优先调整摆放位置。':'SINR affects speed more than bars do. Jumping values usually mean co-channel interference or obstruction — try repositioning first.',
+'网速体验':'Expected speed','格数取「覆盖」与「质量」中较差的一项，任一项拖后腿都会被看到。SINR 偏低多为同频干扰或遮挡，优先调整摆放位置。':'Bars take the weaker of coverage and quality, so either one holding you back shows up. Low SINR usually means co-channel interference or obstruction — reposition first.',
 '技术详情（可忽略）':'Technical details (optional)',
 '上行发射状态':'Uplink transmit status','只读监测':'Read-only','dBm':'dBm','估算':'estimated','按信号推算，非基带实测':'Estimated from signal, not modem-measured',
 '等待数据…':'Waiting for data…','0 dBm':'0 dBm','上限 ':'Cap ','剩余功率余量':'Remaining headroom',
@@ -590,7 +590,12 @@ var EN = {
 '信号一般，速率会有折损':'Fair signal, some speed loss','信号偏弱，建议靠近窗口或移动位置':'Weak signal, move closer to a window','信号很差，可能无法稳定连接':'Very poor signal, connection may be unstable',
 '暂无信号数据，可能未插卡或正在搜网。':'No signal data — SIM may be missing or the modem is searching.',
 '快 · 适合看视频':'Fast · good for video','一般 · 网页聊天够用':'Average · fine for browsing','慢 · 可能会卡':'Slow · may stutter',
-'小区 PCI ':'Cell PCI ',' · 频点 ARFCN ':' · ARFCN ',' · 带宽 ':' · Bandwidth ',' MHz':' MHz','未知':'Unknown',' · PLMN ':' · PLMN ',' · 采样时间 ':' · sampled at ',
+'偏慢 · 视频会缓冲':'Slow-ish · video will buffer',
+'信号一般，离基站稍远，速率会有折损':'Fair signal, far from the cell — some speed loss',
+'信号一般，有一定干扰，速率会有折损':'Fair signal with some interference — some speed loss',
+'覆盖偏弱，建议靠近窗口或移动位置':'Weak coverage — move closer to a window',
+'干扰偏大，建议换个位置再试':'Heavy interference — try another spot',
+'判定口径：取最近 5 次采样（约 25 秒）的中位数，单次跳变不翻转结论；上方数值为实时采样。':'How this is judged: median of the last 5 samples (~25s), so one spike will not flip the verdict; the numbers above are real-time.','小区 PCI ':'Cell PCI ',' · 频点 ARFCN ':' · ARFCN ',' · 带宽 ':' · Bandwidth ',' MHz':' MHz','未知':'Unknown',' · PLMN ':' · PLMN ',' · 采样时间 ':' · sampled at ',
 '估算区间 ':'Estimated range ',' dBm':' dBm','暂无足够信号数据':'Not enough signal data','等待信号采样':'Waiting for signal sample',
 '发射压力低':'Low transmit load','发射压力中等':'Moderate transmit load','接近满功率发射':'Near full transmit power',
 '已就绪':'Ready','未就绪':'Not ready','漫游中':'Roaming','非漫游':'Not roaming','自动':'Auto',
@@ -711,23 +716,61 @@ function meter(barId, val, lo, hi, colorFn){
   bar.style.width=p.toFixed(1)+'%';
   bar.style.background=(colorFn?colorFn(v):'var(--accent)');
 }
-function sigColor(n){ return n>=4?'var(--ok)':(n===3?'var(--warn)':(n>=1?'var(--bad)':'var(--text-3)')) }
+function sigColor(n){ return n>=4?'var(--ok)':(n>=2?'var(--warn)':(n>=1?'var(--bad)':'var(--text-3)')) }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function sigLevel(sinr, rsrp){
+/* 信号判定唯一数据源：格数 / 标签 / 提示 / 网速体验全部由同一个 n 推导，避免结论互相打架。
+   同时用最近 5 次采样（约 25 秒）的中位数判定，单次毛刺不会把结论整体掀翻；原始数值仍照实显示。 */
+var _sigHist={sinr:[],rsrp:[]};
+function histPush(k,v){ if(v===null||isNaN(v)) return; var a=_sigHist[k]; a.push(v); if(a.length>5) a.shift(); }
+function histMed(k){
+  var a=_sigHist[k]; if(!a.length) return null;
+  var b=a.slice().sort(function(x,y){return x-y;});
+  return b[(b.length-1)>>1];
+}
+function sigJudge(sinr, rsrp){
   var hs=(sinr!==null&&!isNaN(sinr)), hr=(rsrp!==null&&!isNaN(rsrp));
   var a=0,b=0;
   if(hs){ a = sinr>=20?5:sinr>=12?4:sinr>=5?3:sinr>=0?2:1; }
   if(hr){ b = rsrp>=-80?5:rsrp>=-90?4:rsrp>=-100?3:rsrp>=-110?2:1; }
-  var n = (hs&&hr) ? Math.min(a,b) : (hs?a:(hr?b:0));
+  var n=0, lim='';
+  /* 覆盖(RSRP)与质量(SINR)取较差的一档——木桶原理，任一项拖后腿都会被体现出来；
+     lim 记录到底是谁在拖后腿，用于给出「该换位置还是该躲干扰」的具体建议 */
+  if(hs&&hr){ if(a<=b){ n=a; lim='qual'; } else { n=b; lim='cov'; } }
+  else if(hs){ n=a; lim='qual'; }
+  else if(hr){ n=b; lim='cov'; }
+  return { n:n, lim:lim };
+}
+function sigLabel(n){
+  var L={5:t('极佳'),4:t('良好'),3:t('中等'),2:t('偏弱'),1:t('很差')};
+  return L[n]||'--';
+}
+function sigTip(n,lim){
+  if(n>=5) return t('信号极佳，可跑满套餐速率');
+  if(n===4) return t('信号良好，速率正常');
+  if(n===3) return lim==='cov' ? t('信号一般，离基站稍远，速率会有折损') : t('信号一般，有一定干扰，速率会有折损');
+  if(n===2) return lim==='cov' ? t('覆盖偏弱，建议靠近窗口或移动位置') : t('干扰偏大，建议换个位置再试');
+  return t('信号很差，可能无法稳定连接');
+}
+function sigFeel(n){
+  if(n>=4) return {txt:t('快 · 适合看视频'), cls:'ok'};
+  if(n===3) return {txt:t('一般 · 网页聊天够用'), cls:'warn'};
+  if(n===2) return {txt:t('偏慢 · 视频会缓冲'), cls:'warn'};
+  return {txt:t('慢 · 可能会卡'), cls:'bad'};
+}
+function applySignal(sinr, rsrp){
+  if(sinr===null && rsrp===null){ _sigHist.sinr=[]; _sigHist.rsrp=[]; }
+  histPush('sinr', sinr); histPush('rsrp', rsrp);
+  var j=sigJudge(histMed('sinr'), histMed('rsrp'));
+  var n=j.n;
   var items=document.querySelectorAll('#bars i');
   for(var i=0;i<items.length;i++) items[i].className = i<n?'on':'';
-  $('bars').style.setProperty('--sig',sigColor(n));
-  var LABEL={5:t('极佳'),4:t('良好'),3:t('中等'),2:t('偏弱'),1:t('很差')};
-  var TIP={5:t('信号极佳，可跑满套餐速率'),4:t('信号良好，速率正常'),3:t('信号一般，速率会有折损'),2:t('信号偏弱，建议靠近窗口或移动位置'),1:t('信号很差，可能无法稳定连接')};
-  set('sgLevel', n?LABEL[n]:'--');
-  set('sgHint', n?TIP[n]:t('暂无信号数据，可能未插卡或正在搜网。'));
-  return n?LABEL[n]:'--';
+  if($('bars')) $('bars').style.setProperty('--sig',sigColor(n));
+  set('sgLevel', n?sigLabel(n):'--');
+  set('sgHint', n?sigTip(n,j.lim):t('暂无信号数据，可能未插卡或正在搜网。'));
+  var f = n?sigFeel(n):{txt:'--',cls:''};
+  setChip('sgFeel', f.txt, f.cls);
+  return n?sigLabel(n):'--';
 }
 
 function setState(color, text, sub){
@@ -756,8 +799,7 @@ function render(d){
     else setState('var(--warn)',t('尚未连接'),t('状态：')+(c.state||t('未知')));
   }
 
-  var sl = sigLevel(num(s.sinr),num(s.rsrp));
-  set('mSignal', sl);
+  set('mSignal', applySignal(num(s.sinr),num(s.rsrp)));
   set('mDown', r.down_bps!==undefined ? fmtBps(r.down_bps) : '--');
   set('mBand', s.band||'--');
   set('mTemp', d.temp>0 ? d.temp+'°C' : '--');
@@ -789,16 +831,10 @@ function render(d){
   meter('sgRsrpBar',s.rsrp,-120,-70,function(v){return v>=-90?'var(--ok)':(v>=-105?'var(--warn)':'var(--bad)')});
   meter('sgSinrBar',s.sinr,-5,30,function(v){return v>=8?'var(--ok)':(v>=0?'var(--warn)':'var(--bad)')});
   meter('sgRsrqBar',s.rsrq,-20,-5,function(v){return v>=-12?'var(--ok)':(v>=-16?'var(--warn)':'var(--bad)')});
-  var feel='--',fc='';
-  if(s.sinr!=null||s.rsrp!=null){
-    if((s.sinr!=null&&s.sinr>=8)||(s.sinr!=null&&s.rsrp!=null&&s.sinr>=5&&s.rsrp>=-85)){ feel=t('快 · 适合看视频');fc='ok'; }
-    else if((s.sinr!=null&&s.sinr>=0)||(s.rsrp!=null&&s.rsrp>=-95)){ feel=t('一般 · 网页聊天够用');fc='warn'; }
-    else { feel=t('慢 · 可能会卡');fc='bad'; }
-  }
-  setChip('sgFeel',feel,fc);
   set('sgTech',t('小区 PCI ')+(s.pci!=null?s.pci:'--')+t(' · 频点 ARFCN ')+(s.arfcn!=null?s.arfcn:'--')+
     t(' · 带宽 ')+(s.bandwidth_mhz!=null?s.bandwidth_mhz+t(' MHz'):t('未知'))+t(' · PLMN ')+(c.plmn||'--')+
-    t(' · 采样时间 ')+new Date().toLocaleTimeString(LANG==='en'?'en-GB':'zh-CN'));
+    t(' · 采样时间 ')+new Date().toLocaleTimeString(LANG==='en'?'en-GB':'zh-CN')+
+    '<br>'+t('判定口径：取最近 5 次采样（约 25 秒）的中位数，单次跳变不翻转结论；上方数值为实时采样。'));
 
   var est=num(p.tx_est_dbm), cap=num(p.cap_dbm)||23;
   set('pwEst', est!==null?est.toFixed(0):'--');
