@@ -61,15 +61,16 @@ a{text-decoration:none}
 .txt-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
 .txt-btn .ico{font-size:13px;line-height:1}
 .txt-btn:active{transform:translateY(1px)}
-@media (max-width:400px){
-  .top-actions{width:100%;justify-content:flex-start}
-  .txt-btn{flex:1;justify-content:center}
+@media (max-width:430px){
+  .top{gap:8px;flex-wrap:nowrap}
+  .top-actions{gap:6px;flex:none;flex-wrap:nowrap}
+  .txt-btn{min-height:32px;padding:6px 9px;font-size:11.5px;gap:4px;border-radius:10px}
+  .txt-btn .ico{font-size:12px}
 }
 .hero{
   background:var(--surface);border:1px solid var(--border);border-radius:20px;
-  padding:26px 22px;text-align:center;box-shadow:var(--shadow);margin-bottom:14px;position:relative;overflow:hidden;
+  padding:26px 22px;text-align:center;box-shadow:none;margin-bottom:14px;position:relative;
 }
-.hero::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--tone,var(--warn)),transparent 80%)}
 .icon{
   width:74px;height:74px;border-radius:50%;margin:2px auto 16px;display:grid;place-items:center;
   background:var(--tone-soft,var(--warn-soft));color:var(--tone,var(--warn));position:relative;
@@ -84,17 +85,18 @@ a{text-decoration:none}
   display:inline-block;margin-top:14px;background:var(--surface-2);border:1px solid var(--border);
   border-radius:99px;padding:5px 13px;font-size:11.5px;color:var(--text-3);
 }
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:none}
 .card h2{font-size:12.5px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .card h2::before{content:"";width:3px;height:12px;border-radius:2px;background:var(--accent)}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:13px}
 .kv+.kv{border-top:1px solid var(--border)}
 .kv .k{color:var(--text-2);font-size:12.5px;flex:none}
-.kv .v{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;word-break:break-all}
+.kv .v{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;word-break:normal;overflow-wrap:break-word;min-width:0}
 .hint{font-size:11.5px;color:var(--text-3);line-height:1.7;margin-top:10px}
 .steps{margin:0;padding-left:19px;font-size:12.5px;color:var(--text-2);line-height:1.9}
 .steps li::marker{color:var(--accent);font-weight:700}
 .actions{display:flex;gap:9px;margin-top:4px}
+.actions .btn{flex:1 1 0;min-width:0;width:0}
 .btn{
   flex:1;border:1px solid var(--border);background:var(--surface);color:var(--text-2);
   border-radius:11px;padding:11px 10px;font-size:12.5px;font-weight:600;transition:.18s;text-align:center;
@@ -113,7 +115,7 @@ a{text-decoration:none}
       <div><div class="brand-name" data-i18n="5G 通信壳">5G 通信壳</div><div class="brand-sub" data-i18n="网络状态提醒">网络状态提醒</div></div>
     </div>
     <div class="top-actions">
-      <button class="txt-btn" id="langBtn" title="切换显示语言 / Switch display language"><span class="ico">文</span><span id="langLabel">EN 英文</span></button>
+      <button class="txt-btn" id="langBtn" title="切换显示语言 / Switch display language"><span id="langLabel">EN</span></button>
       <button class="txt-btn" id="themeBtn" title="切换深浅色 / Switch theme"><span class="ico">◐</span><span data-i18n="主题">主题</span></button>
     </div>
   </header>
@@ -195,7 +197,7 @@ function applyLang(){
   document.title=t('网络暂时断开 · 5G 通信壳');
   var els=document.querySelectorAll('[data-i18n]');
   for(var i=0;i<els.length;i++) els[i].textContent=t(els[i].getAttribute('data-i18n'));
-  $('langLabel').textContent=LANG==='zh'?'EN 英文':'中文 CN';
+  $('langLabel').textContent=LANG==='zh'?'EN':'中';
   $('langBtn').setAttribute('title',LANG==='zh'?'切换到英文 / Switch to English':'切换到中文 / Switch to Chinese');
   if(window.__last) checkRender(window.__last);
 }

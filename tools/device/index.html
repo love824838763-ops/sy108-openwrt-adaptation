@@ -10,7 +10,7 @@
 :root{
   --bg:#f4f6fb; --surface:#fff; --surface-2:#f7f9fc; --border:#e5eaf2;
   --text:#162030; --text-2:#5a687c; --text-3:#93a0b2;
-  --accent:#4f6bed; --accent-2:#7c8ff5; --accent-soft:#eef1ff;
+  --accent:#4f6bed; --accent-2:#7c8ff5; --accent-soft:#eef1ff; --accent-btn:#4f6bed;
   --ok:#15a34a; --ok-soft:#e8f7ee;
   --warn:#d98405; --warn-soft:#fff4e2;
   --bad:#dc3f3c; --bad-soft:#fdecec;
@@ -21,7 +21,7 @@
 html[data-theme="dark"]{
   --bg:#0c1119; --surface:#151c27; --surface-2:#1b2431; --border:#263141;
   --text:#e9eef7; --text-2:#a3b0c2; --text-3:#71809a;
-  --accent:#7c91ff; --accent-2:#5d73e8; --accent-soft:#1e2740;
+  --accent:#7c91ff; --accent-2:#5d73e8; --accent-soft:#1e2740; --accent-btn:#3f52c4;
   --ok:#3ecf72; --ok-soft:#152c21;
   --warn:#f0b04a; --warn-soft:#332713;
   --bad:#ff6b68; --bad-soft:#331b1c;
@@ -32,7 +32,7 @@ html[data-theme="dark"]{
   html[data-theme="auto"]{
     --bg:#0c1119; --surface:#151c27; --surface-2:#1b2431; --border:#263141;
     --text:#e9eef7; --text-2:#a3b0c2; --text-3:#71809a;
-    --accent:#7c91ff; --accent-2:#5d73e8; --accent-soft:#1e2740;
+    --accent:#7c91ff; --accent-2:#5d73e8; --accent-soft:#1e2740; --accent-btn:#3f52c4;
     --ok:#3ecf72; --ok-soft:#152c21;
     --warn:#f0b04a; --warn-soft:#332713;
     --bad:#ff6b68; --bad-soft:#331b1c;
@@ -55,7 +55,8 @@ a{color:inherit}
 
 /* ---------- 顶栏（带文字按钮，右上角清晰可读） ---------- */
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:0 1 auto;overflow:hidden}
+.brand>div{min-width:0}
 .mark{
   width:38px;height:38px;border-radius:13px;flex:none;position:relative;
   background:linear-gradient(140deg,var(--accent),var(--accent-2));
@@ -64,8 +65,8 @@ a{color:inherit}
 .mark::before,.mark::after{content:"";position:absolute;border:2px solid rgba(255,255,255,.9);border-radius:50%}
 .mark::before{inset:11px}
 .mark::after{inset:5px;border-color:rgba(255,255,255,.35);border-left-color:transparent;border-bottom-color:transparent;transform:rotate(-35deg)}
-.brand-name{font-size:15px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
-.brand-sub{font-size:11px;color:var(--text-3);letter-spacing:.4px}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-sub{font-size:11px;color:var(--text-3);letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top-actions{display:flex;align-items:center;gap:7px;flex:none;flex-wrap:wrap;justify-content:flex-end}
 .txt-btn{
   display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
@@ -76,16 +77,24 @@ a{color:inherit}
 .txt-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
 .txt-btn .ico{font-size:13px;line-height:1}
 .txt-btn.primary{
-  background:var(--accent);color:#fff;border-color:transparent;
+  background:var(--accent-btn);color:#fff;border-color:transparent;
   box-shadow:0 4px 12px rgba(79,107,237,.22);
 }
-.txt-btn.primary:hover{filter:brightness(1.07);background:var(--accent);color:#fff}
+.txt-btn.primary:hover{filter:brightness(1.06);background:var(--accent-btn);color:#fff}
 .txt-btn:active{transform:translateY(1px)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* 手机端：品牌 + 三枚按钮压在一行内，不再整行铺开 */
 @media (max-width:430px){
-  .top{gap:9px}
-  .top-actions{width:100%;justify-content:flex-start}
-  .txt-btn{flex:1;justify-content:center}
+  .top{gap:8px;flex-wrap:nowrap}
+  .top-actions{gap:6px;flex:none;flex-wrap:nowrap}
+  .txt-btn{min-height:32px;padding:6px 9px;font-size:11.5px;gap:4px;border-radius:10px}
+  .txt-btn .ico{font-size:12px}
+  .brand-name{font-size:14.5px}
+  .brand-sub{font-size:10.5px}
+}
+@media (max-width:360px){
+  .brand-sub{display:none}
+  .txt-btn{padding:6px 7px;font-size:11px}
 }
 
 /* ---------- 主状态卡 ---------- */
@@ -98,9 +107,10 @@ a{color:inherit}
 .hero>*{position:relative}
 .hero-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .state-badge{display:inline-flex;align-items:center;gap:9px;font-size:21px;font-weight:750;letter-spacing:.2px;color:var(--state)}
-.pulse{width:11px;height:11px;border-radius:50%;background:var(--state);flex:none;position:relative}
-.pulse::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--state);animation:ring 2.1s ease-out infinite}
-@keyframes ring{0%{transform:scale(1);opacity:.55}100%{transform:scale(3.1);opacity:0}}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--state);flex:none;position:relative}
+.pulse::after,.pulse::before{content:"";position:absolute;inset:0;border-radius:50%;background:var(--state);animation:ring 2.6s ease-out infinite}
+.pulse::before{animation-delay:1.3s}
+@keyframes ring{0%{transform:scale(1);opacity:.45}70%{opacity:.06}100%{transform:scale(3.2);opacity:0}}
 /* 右上角运行时长：必须压在装饰圆之上、不透明底 + 深色字，否则会被冲淡成水印 */
 .hero-clock{
   position:relative;z-index:2;display:inline-flex;align-items:center;gap:5px;
@@ -113,10 +123,16 @@ a{color:inherit}
 .hero-clock:hover,.hero-clock:focus-visible{border-color:var(--accent);color:var(--accent)}
 .hero-clock:active{transform:translateY(1px)}
 .hero-sub{font-size:12.5px;color:var(--text-2);margin-top:7px;min-height:19px;line-height:1.5}
-.hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:17px}
-.metric{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:9px 8px;min-width:0}
-.metric .mk{font-size:10.5px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.metric .mv{font-size:14px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* 指标条：不用嵌套白卡，改用细竖线分栏，减少盒子套盒子 */
+.hero-metrics{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  margin-top:16px;padding-top:14px;border-top:1px solid var(--border);
+}
+.metric{padding:0 9px;border-left:1px solid var(--border);min-width:0;position:relative}
+.metric:first-child{border-left:0;padding-left:0}
+.metric:last-child{padding-right:0}
+.metric .mk{font-size:10px;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px}
+.metric .mv{font-size:15px;font-weight:750;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px}
 .banner{display:none;margin-top:14px;border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.55;background:var(--warn-soft);color:var(--warn);border:1px solid rgba(217,132,5,.22)}
 .banner.show{display:block}
 .banner strong{font-weight:700}
@@ -124,9 +140,9 @@ a{color:inherit}
 .err.show{display:block}
 
 /* ---------- 选项卡 ---------- */
-.tabs{display:flex;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:4px;margin-bottom:14px;box-shadow:none;overflow-x:auto;scrollbar-width:none}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:4px;margin-bottom:14px;box-shadow:none;overflow:hidden}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:1 0 auto;min-width:68px;border:0;background:transparent;color:var(--text-2);padding:8px 9px;border-radius:9px;font-size:12.5px;font-weight:600;white-space:nowrap;transition:.18s}
+.tab{flex:1 1 0;min-width:0;border:0;background:transparent;color:var(--text-2);padding:8px 4px;border-radius:9px;font-size:12.5px;font-weight:600;white-space:nowrap;letter-spacing:-.1px;transition:.18s;overflow:hidden;text-overflow:ellipsis}
 .tab:hover{color:var(--accent)}
 .tab.active{background:var(--accent-soft);color:var(--accent)}
 .panel{display:none;animation:fade .22s ease}
@@ -140,11 +156,11 @@ a{color:inherit}
 .card h2{font-size:13px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
 .card h2::before{content:"";width:3px;height:13px;border-radius:2px;background:var(--accent)}
 .card-note{font-size:11px;color:var(--text-3)}
-.kv{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:8px 0;font-size:13.5px}
+.kv{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:9px 0;font-size:13.5px}
 .kv+.kv{border-top:1px solid var(--border)}
 .kv .k{color:var(--text-2);flex:none;font-size:12.5px}
-.kv .v{text-align:right;word-break:break-all;font-weight:600}
-.hint{font-size:11px;color:var(--text-3);line-height:1.6;margin:-3px 0 7px}
+.kv .v{text-align:right;font-weight:600;word-break:normal;overflow-wrap:break-word;min-width:0}
+.hint{font-size:10.5px;color:var(--text-3);line-height:1.6;margin:-4px 0 9px;opacity:.92;max-width:94%}
 .hint.tip{background:var(--accent-soft);color:var(--accent);border-radius:9px;padding:9px 11px;margin:11px 0 0;font-size:11.5px}
 .chip{display:inline-block;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:2px 9px;font-size:12px;font-weight:700;color:var(--text)}
 .chip.ok{background:var(--ok-soft);color:var(--ok);border-color:transparent}
@@ -179,18 +195,26 @@ details.tech[open] summary::before{content:"▾ "}
 details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:8px;word-break:break-all}
 
 /* ---------- 功率 / 能耗 ---------- */
-.power-hero{display:flex;align-items:center;gap:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:13px 14px;margin-bottom:12px}
-.power-num{font-size:29px;font-weight:750;line-height:1;letter-spacing:-.5px}
-.power-unit{font-size:13px;color:var(--text-2);font-weight:600}
-.power-side{flex:1;min-width:0}
-.estimate-tag{display:inline-block;background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:1px 7px;font-size:10px;font-weight:700;margin-bottom:5px}
-.gauge{height:9px;border-radius:99px;background:var(--surface);border:1px solid var(--border);position:relative;overflow:hidden;margin:13px 0 5px}
-.gauge .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ok),var(--warn));transition:width .45s ease}
-.gauge .band{position:absolute;top:0;bottom:0;background:rgba(79,107,237,.16);border-left:1px solid var(--accent);border-right:1px solid var(--accent)}
-.gauge-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--text-3)}
+.power-hero{display:flex;align-items:center;gap:12px;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:12px 13px;margin-bottom:10px;flex-wrap:wrap}
+.power-num{font-size:32px;font-weight:750;line-height:.95;letter-spacing:-1px}
+.power-unit{font-size:12px;color:var(--text-2);font-weight:600;margin-top:3px}
+.power-side{flex:1 1 150px;min-width:0}
+.estimate-tag{display:inline-block;background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:1px 7px;font-size:9.5px;font-weight:700;margin-bottom:4px;white-space:nowrap}
+.gauge{
+  height:10px;border-radius:99px;background:var(--surface);
+  background-image:repeating-linear-gradient(90deg,var(--border) 0 1px,transparent 1px 25%);
+  border:1px solid var(--border);position:relative;overflow:hidden;margin:13px 0 5px;
+}
+.gauge .fill{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ok),var(--warn));transition:width .45s ease;position:relative}
+.gauge .fill::after{
+  content:"";position:absolute;right:0;top:50%;width:4px;height:4px;margin:-2px -1px 0 0;
+  border-radius:50%;background:var(--surface);box-shadow:0 0 0 1.5px rgba(0,0,0,.18);
+}
+.gauge .band{position:absolute;top:0;bottom:0;background:rgba(79,107,237,.13);border-left:1px solid var(--accent);border-right:1px solid var(--accent)}
+.gauge-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);letter-spacing:.2px}
 .disclaimer{font-size:11px;line-height:1.65;color:var(--text-3);background:var(--surface-2);border-left:2px solid var(--border);padding:9px 11px;border-radius:0 9px 9px 0;margin-top:12px}
 
-/* ---------- 关于 / 出处 ---------- */
+/* ---------- 关于 ---------- */
 .about-lead{font-size:12.5px;line-height:1.7;color:var(--text-2);background:var(--accent-soft);color:var(--accent);border-radius:10px;padding:10px 12px;margin-bottom:13px}
 .src{border:1px solid var(--border);border-radius:12px;padding:11px 12px;margin-bottom:9px;background:var(--surface-2)}
 .src-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:5px}
@@ -227,9 +251,9 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
       </div>
     </div>
     <div class="top-actions">
-      <button class="txt-btn" id="langBtn" data-i18n-title="切换显示语言 / Switch display language" title="切换显示语言 / Switch display language"><span class="ico">文</span><span id="langLabel">EN 英文</span></button>
+      <button class="txt-btn" id="langBtn" data-i18n-title="切换显示语言 / Switch display language" title="切换显示语言 / Switch display language"><span id="langLabel">EN</span></button>
       <button class="txt-btn" id="themeBtn" data-i18n-title="切换深浅色 / Switch theme" title="切换深浅色 / Switch theme"><span class="ico">◐</span><span data-i18n="主题">主题</span></button>
-      <a class="txt-btn primary" id="loginBtn" href="/cgi-bin/luci/"><span data-i18n="管理登录">管理登录</span><span class="ico">→</span></a>
+      <a class="txt-btn primary" id="loginBtn" href="/cgi-bin/luci/"><span data-i18n="管理">管理</span><span class="ico">→</span></a>
     </div>
   </header>
 
@@ -251,10 +275,10 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
 
   <nav class="tabs" id="tabs" role="tablist" data-i18n-aria="状态分类" aria-label="状态分类">
     <button class="tab active" data-tab="overview" role="tab" aria-selected="true" data-i18n="概览">概览</button>
-    <button class="tab" data-tab="signal" role="tab" aria-selected="false" data-i18n="信号质量">信号质量</button>
-    <button class="tab" data-tab="power" role="tab" aria-selected="false" data-i18n="上行 / 功率">上行 / 功率</button>
-    <button class="tab" data-tab="device" role="tab" aria-selected="false" data-i18n="设备与流量">设备与流量</button>
-    <button class="tab" data-tab="about" role="tab" aria-selected="false" data-i18n="关于 / 出处">关于 / 出处</button>
+    <button class="tab" data-tab="signal" role="tab" aria-selected="false" data-i18n="信号">信号</button>
+    <button class="tab" data-tab="power" role="tab" aria-selected="false" data-i18n="功率">功率</button>
+    <button class="tab" data-tab="device" role="tab" aria-selected="false" data-i18n="设备">设备</button>
+    <button class="tab" data-tab="about" role="tab" aria-selected="false" data-i18n="关于">关于</button>
   </nav>
 
   <!-- 概览 -->
@@ -287,7 +311,7 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
     </div>
   </section>
 
-  <!-- 信号质量 -->
+  <!-- 信号 -->
   <section class="panel" id="panel-signal" role="tabpanel">
     <div class="card">
       <div class="card-head"><h2 data-i18n="信号强弱">信号强弱</h2><span class="card-note" id="sgBandTag">--</span></div>
@@ -321,7 +345,7 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
     </div>
   </section>
 
-  <!-- 上行 / 功率 -->
+  <!-- 功率 -->
   <section class="panel" id="panel-power" role="tabpanel">
     <div class="card">
       <div class="card-head"><h2 data-i18n="上行发射状态">上行发射状态</h2><span class="card-note" data-i18n="只读监测">只读监测</span></div>
@@ -352,7 +376,7 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
     </div>
   </section>
 
-  <!-- 设备与流量 -->
+  <!-- 设备 -->
   <section class="panel" id="panel-device" role="tabpanel">
     <div class="card">
       <div class="card-head"><h2 data-i18n="设备状态">设备状态</h2><span class="card-note" data-i18n="实时">实时</span></div>
@@ -363,7 +387,7 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
       <div class="kv"><span class="k" data-i18n="可用内存">可用内存</span><span class="v num" id="dvMem">--</span></div>
       <div class="kv"><span class="k" data-i18n="系统负载">系统负载</span><span class="v num" id="dvLoad">--</span></div>
       <div class="kv"><span class="k" data-i18n="系统版本">系统版本</span><span class="v num" id="dvVer">--</span></div>
-      <div class="hint" data-i18n="需要协助时提供这个版本号；完整系统信息与出处见「关于 / 出处」">需要协助时提供这个版本号；完整系统信息与出处见「关于 / 出处」</div>
+      <div class="hint" data-i18n="需要协助时提供这个版本号；完整系统信息与出处见「关于」">需要协助时提供这个版本号；完整系统信息与出处见「关于」</div>
     </div>
     <div class="card">
       <div class="card-head"><h2 data-i18n="连接信息">连接信息</h2><span class="card-note" data-i18n="只读">只读</span></div>
@@ -399,7 +423,7 @@ details.tech div{font-size:11px;color:var(--text-3);line-height:1.75;margin-top:
     </div>
   </section>
 
-  <!-- 关于 / 出处 -->
+  <!-- 关于 -->
   <section class="panel" id="panel-about" role="tabpanel">
     <div class="card">
       <div class="card-head"><h2 data-i18n="系统信息">系统信息</h2><span class="card-note" data-i18n="只读 · 设备实测">只读 · 设备实测</span></div>
@@ -497,12 +521,12 @@ document.getElementById('loginBtn').href = BASE + '/cgi-bin/luci/';
    动态文本用 t('中文原文')。中文模式返回原文，英文模式查表。 */
 var LANG = 'zh';
 var EN = {
-'5G 通信壳':'5G Communication Shell','运行状态 · 免登录':'Live status · no login','5G 通信壳 · 设备状态':'5G Shell · Device Status',
+'5G 通信壳':'5G Shell','运行状态 · 免登录':'Live status · no login','5G 通信壳 · 设备状态':'5G Shell · Device Status',
 '切换显示语言 / Switch display language':'Switch display language','切换深浅色 / Switch theme':'Switch theme',
-'主题':'Theme','管理登录':'Admin','EN 英文':'EN 英文','中文 CN':'中文 CN',
+'主题':'Theme','管理':'Admin','EN':'EN','中':'中',
 '检测中…':'Checking…','正在读取设备状态…':'Reading device status…',
 '信号':'Signal','实时下载':'Download','当前频段':'Band','温度':'Temp',
-'概览':'Overview','信号质量':'Signal','上行 / 功率':'Uplink / Power','设备与流量':'Device / Data','关于 / 出处':'About / Credits','状态分类':'Status sections',
+'概览':'Overview','信号':'Signal','功率':'Power','设备':'Device','关于':'About','状态分类':'Status sections',
 '网络连接':'Connection','能不能上网':'Internet access','显示蜂窝数据通道是否已建立':'Whether the cellular data session is up',
 '运营商':'Carrier','按电话卡自动识别，换卡无需手动设置':'Detected from the SIM automatically; no manual setup after swapping cards',
 '驻留频段':'Current band','系统会自动挑选更合适的频段，无需手动锁定':'The system picks a suitable band automatically; do not lock one manually',
@@ -525,7 +549,7 @@ var EN = {
 '设备状态':'Device','实时':'Live','运行时长':'Uptime','从上次通电开机到现在':'Since the device was last powered on',
 '设备温度':'Temperature','超过 60°C 可能触发降速保护，保持通风即可':'Above 60°C may trigger throttling; keep it ventilated',
 '可用内存':'Free memory','系统负载':'Load','系统版本':'Firmware',
-'需要协助时提供这个版本号；完整系统信息与出处见「关于 / 出处」':'Quote this version when asking for help; full system info and credits are under About / Credits',
+'需要协助时提供这个版本号；完整系统信息与出处见「关于」':'Quote this version when asking for help; full system info and credits are under About',
 '连接信息':'Connection details','只读':'Read-only','SIM 卡状态':'SIM','网络制式':'Network mode','漫游状态':'Roaming','数据通道':'Data interface','连接已持续':'Session uptime','自动选频':'Band selection',
 '耗电估算':'Power estimate','模型推算，非实测':'Model estimate, not measured','W':'W','当前估算':'current','设备无电流采样硬件':'No current sensor on this device',
 '常见范围约 1 ~ 4 W':'Typical range about 1–4 W','本次开机耗电':'This boot','累计耗电':'Lifetime energy','折合电费':'Approx. cost','按 0.60 元 / 度估算，仅供量级参考。':'At CNY 0.60/kWh, for order-of-magnitude only.',
@@ -620,7 +644,7 @@ function applyLang(){
 	}
 	var ar=document.querySelectorAll('[data-i18n-aria]');
 	for(var a=0;a<ar.length;a++) ar[a].setAttribute('aria-label',t(ar[a].getAttribute('data-i18n-aria')));
-	$('langLabel').textContent=LANG==='zh'?'EN 英文':'中文 CN';
+	$('langLabel').textContent=LANG==='zh'?'EN':'中';
 	$('langBtn').setAttribute('title',LANG==='zh'?'切换到英文 / Switch to English':'切换到中文 / Switch to Chinese');
 	$('heroClock').setAttribute('title',LANG==='en'
 		?'Click for system info: flash date, service time and total powered-on time'
