@@ -1,0 +1,10 @@
+# 设备端脚本/页面必须是 LF（busybox sh、uhttpd CGI 对 CRLF 敏感）。
+# Windows 上 core.autocrlf 会把工作副本转成 CRLF，这里强制回 LF。
+tools/device/*.sh   text eol=lf
+tools/device/*.cgi  text eol=lf
+tools/device/*.html text eol=lf
+tools/device/*.js   text eol=lf
+tools/device/*.css  text eol=lf
+tools/device/*.db   text eol=lf
+tools/device/*.txt  text eol=lf
+*.md                text eol=lf
