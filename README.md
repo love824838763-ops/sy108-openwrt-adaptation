@@ -95,7 +95,7 @@ python tools/device/rsh.py 'sh /tmp/sy108-ui/bandlock.sh status'
 - **管理后台**：`http://192.168.66.1/cgi-bin/luci/`。普通设置直接放行；危险操作弹红色确认并写明「不能怎么设置 / 会导致什么」；恢复出厂与刷机需输入确认词。恢复出厂入口：**System → System maintenance**
 - **一键部署**：`tools/device/install-web-ui.sh`（幂等，7 步流程，末尾 6 项 HTTP 自检）
 
-**不包含**（有意排除）：固件二进制、工厂镜像/备份、拆解照片（版权归原文所有，见 CREDITS）、任何个人信息（IMSI / ICCID / 本机路径等已脱敏）。
+**不包含**（有意排除）：固件二进制、工厂镜像/备份、拆解照片（一律不收录）、任何个人信息（IMSI / ICCID / 本机路径等已脱敏）。
 
 ## 已验证 / 未验证
 

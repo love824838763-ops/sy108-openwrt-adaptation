@@ -25,7 +25,7 @@
 |---|---|---|
 | `tools/device/apn-auto.db`（APN 数据库） | LineageOS `apns-conf.xml`（AOSP 派生） | Apache License 2.0；本仓库仅做格式转换（mcc\|mnc\|… 管道分隔）并追加少量实测覆盖条目 |
 | `tools/device/apn-country.db`（MCC 国家表） | ITU E.212 MCC 分配 + 常见公开映射 | 事实性数据 |
-| 硬件拆解/焊点信息（`docs/solder-guide.md`） | 充电头网 SY108 拆解评测、魔改圈改装文章 | **仅引用与链接，不搬运图片**；版权归原文所有 |
+| 硬件拆解/焊点信息（`docs/solder-guide.md`） | 公开拆解资料 + 魔改圈改装文章（PCB 型号 Dorado_Y1.00_PCB） | **仅文字描述，不搬运图片** |
 | DTB 修复思路 | 本仓库作者的实机排错 | MIT（见 LICENSE） |
 
 ## 引用建议
