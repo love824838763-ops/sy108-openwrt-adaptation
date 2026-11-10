@@ -46,13 +46,25 @@ button{font:inherit;cursor:pointer}
 a{text-decoration:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .app{max-width:480px;margin:0 auto;padding:20px 15px 38px}
-.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.brand{display:flex;align-items:center;gap:9px}
-.mark{width:32px;height:32px;border-radius:11px;background:linear-gradient(140deg,var(--accent),#95a4f8);position:relative}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.mark{width:32px;height:32px;border-radius:11px;background:linear-gradient(140deg,var(--accent),#95a4f8);position:relative;flex:none}
 .mark::before{content:"";position:absolute;inset:9px;border:2px solid rgba(255,255,255,.9);border-radius:50%}
-.brand-name{font-size:14px;font-weight:700}
+.brand-name{font-size:14px;font-weight:700;white-space:nowrap}
 .brand-sub{font-size:10.5px;color:var(--text-3)}
-.link{font-size:12px;color:var(--accent);font-weight:600;border:1px solid var(--border);background:var(--surface);border-radius:10px;padding:7px 12px}
+.top-actions{display:flex;align-items:center;gap:7px;flex:none}
+.txt-btn{
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+  min-height:34px;padding:7px 11px;border-radius:11px;font-size:12px;font-weight:650;
+  border:1px solid var(--border);background:var(--surface);color:var(--text-2);transition:.18s;
+}
+.txt-btn:hover{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.txt-btn .ico{font-size:13px;line-height:1}
+.txt-btn:active{transform:translateY(1px)}
+@media (max-width:400px){
+  .top-actions{width:100%;justify-content:flex-start}
+  .txt-btn{flex:1;justify-content:center}
+}
 .hero{
   background:var(--surface);border:1px solid var(--border);border-radius:20px;
   padding:26px 22px;text-align:center;box-shadow:var(--shadow);margin-bottom:14px;position:relative;overflow:hidden;
@@ -98,66 +110,117 @@ a{text-decoration:none}
   <header class="top">
     <div class="brand">
       <div class="mark" aria-hidden="true"></div>
-      <div><div class="brand-name">5G 通信壳</div><div class="brand-sub">网络状态提醒</div></div>
+      <div><div class="brand-name" data-i18n="5G 通信壳">5G 通信壳</div><div class="brand-sub" data-i18n="网络状态提醒">网络状态提醒</div></div>
     </div>
-    <a class="link" id="themeBtn" href="#" title="切换深浅色">◐</a>
+    <div class="top-actions">
+      <button class="txt-btn" id="langBtn" title="切换显示语言 / Switch display language"><span class="ico">文</span><span id="langLabel">EN 英文</span></button>
+      <button class="txt-btn" id="themeBtn" title="切换深浅色 / Switch theme"><span class="ico">◐</span><span data-i18n="主题">主题</span></button>
+    </div>
   </header>
 
   <section class="hero" id="hero" aria-live="polite">
     <div class="icon" id="iconBox" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M2 8.8a15.7 15.7 0 0 1 20 0"/><path d="M5 12.3a11.2 11.2 0 0 1 14 0"/><path d="M8.5 15.8a6.5 6.5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/><path d="M3 3l18 18" stroke-width="2.2"/></svg>
     </div>
-    <div class="state" id="stateText">网络暂时断开</div>
-    <div class="sub" id="stateSub">正在检查设备状态，请稍候…</div>
-    <div class="pill" id="checkTip">每 5 秒自动检测一次</div>
+    <div class="state" id="stateText" data-i18n="网络暂时断开">网络暂时断开</div>
+    <div class="sub" id="stateSub" data-i18n="正在检查设备状态，请稍候…">正在检查设备状态，请稍候…</div>
+    <div class="pill" id="checkTip" data-i18n="每 5 秒自动检测一次">每 5 秒自动检测一次</div>
   </section>
 
   <div class="card">
-    <h2>可以按顺序试一下</h2>
+    <h2 data-i18n="可以按顺序试一下">可以按顺序试一下</h2>
     <ol class="steps">
-      <li>确认设备已插好电话卡，且供电没有松动</li>
-      <li>把设备移到窗边或开阔处，避开金属遮挡</li>
-      <li>等待 1-3 分钟；期间系统可能正在自动选频</li>
-      <li>仍未恢复再重启设备（拔插一次 USB）</li>
+      <li data-i18n="确认设备已插好电话卡，且供电没有松动">确认设备已插好电话卡，且供电没有松动</li>
+      <li data-i18n="把设备移到窗边或开阔处，避开金属遮挡">把设备移到窗边或开阔处，避开金属遮挡</li>
+      <li data-i18n="等待 1-3 分钟；期间系统可能正在自动选频">等待 1-3 分钟；期间系统可能正在自动选频</li>
+      <li data-i18n="仍未恢复再重启设备（拔插一次 USB）">仍未恢复再重启设备（拔插一次 USB）</li>
     </ol>
-    <div class="hint">大多数短暂断网会在几分钟内自行恢复，不需要改动任何设置。</div>
+    <div class="hint" data-i18n="大多数短暂断网会在几分钟内自行恢复，不需要改动任何设置。">大多数短暂断网会在几分钟内自行恢复，不需要改动任何设置。</div>
   </div>
 
   <div class="card">
-    <h2>设备当前读数</h2>
-    <div class="kv"><span class="k">数据通道</span><span class="v" id="kWan">--</span></div>
-    <div class="kv"><span class="k">运行状态</span><span class="v" id="kState">--</span></div>
-    <div class="kv"><span class="k">运行时长</span><span class="v" id="kUptime">--</span></div>
-    <div class="kv"><span class="k">设备温度</span><span class="v" id="kTemp">--</span></div>
-    <div class="kv"><span class="k">信号 / 频段</span><span class="v" id="kSignal">--</span></div>
+    <h2 data-i18n="设备当前读数">设备当前读数</h2>
+    <div class="kv"><span class="k" data-i18n="数据通道">数据通道</span><span class="v" id="kWan">--</span></div>
+    <div class="kv"><span class="k" data-i18n="运行状态">运行状态</span><span class="v" id="kState">--</span></div>
+    <div class="kv"><span class="k" data-i18n="运行时长">运行时长</span><span class="v" id="kUptime">--</span></div>
+    <div class="kv"><span class="k" data-i18n="设备温度">设备温度</span><span class="v" id="kTemp">--</span></div>
+    <div class="kv"><span class="k" data-i18n="信号 / 频段">信号 / 频段</span><span class="v" id="kSignal">--</span></div>
   </div>
 
   <div class="actions">
-    <button class="btn" id="retryBtn">重新检测</button>
-    <a class="btn primary" id="statusBtn" href="http://192.168.66.1/">完整状态页</a>
+    <button class="btn" id="retryBtn" data-i18n="重新检测">重新检测</button>
+    <a class="btn primary" id="statusBtn" href="http://192.168.66.1/" data-i18n="完整状态页">完整状态页</a>
   </div>
-  <div class="foot">恢复上网后此页面会提示，可直接关闭本窗口</div>
+  <div class="foot" data-i18n="恢复上网后此页面会提示，可直接关闭本窗口">恢复上网后此页面会提示，可直接关闭本窗口</div>
 </div>
 
 <script>
+/* 断网弹窗在 88 端口、状态页在 80 端口：localStorage 按 origin 隔离，
+   因此语言/主题统一用 cookie（同 host、不分端口）共享。 */
 var BASE='http://192.168.66.1';
 var fails=0, checks=0;
+
+var LANG='zh';
+var EN={
+'5G 通信壳':'5G Communication Shell','网络状态提醒':'Connection notice',
+'网络暂时断开 · 5G 通信壳':'Connection lost · 5G Shell','主题':'Theme',
+'网络暂时断开':'Connection lost','正在检查设备状态，请稍候…':'Checking device status, please wait…',
+'每 5 秒自动检测一次':'Auto-check every 5 s',
+'可以按顺序试一下':'Try these in order',
+'确认设备已插好电话卡，且供电没有松动':'Make sure the SIM is seated and the USB power cable is firmly plugged in',
+'把设备移到窗边或开阔处，避开金属遮挡':'Move the device near a window or open area, away from metal objects',
+'等待 1-3 分钟；期间系统可能正在自动选频':'Wait 1–3 minutes; the system may be scanning for a better band',
+'仍未恢复再重启设备（拔插一次 USB）':'If it is still down, reboot the device (unplug and replug the USB cable)',
+'大多数短暂断网会在几分钟内自行恢复，不需要改动任何设置。':'Most brief outages recover within a few minutes. No settings need to be changed.',
+'设备当前读数':'Current readings','数据通道':'Data session','运行状态':'State','运行时长':'Uptime','设备温度':'Temperature','信号 / 频段':'Signal / band',
+'重新检测':'Check again','完整状态页':'Full status page','打开状态页':'Open status page',
+'恢复上网后此页面会提示，可直接关闭本窗口':'This page will notify you once the connection is back. You can close this window.',
+'接口在线':'Interface up','未建立':'Not established',
+'正在自动优化网络':'Optimizing network','系统正在扫描更优 5G 频段，约 1-3 分钟，期间网络可能短暂中断，请勿断电。':'Scanning for a better 5G band (1–3 min). Brief disconnects are normal — do not power off.',
+'网络已恢复':'Connection restored','设备已重新连上互联网，可以关闭本窗口继续使用了。':'The device is back online. You can close this window.',
+'未检测到电话卡':'No SIM detected','请确认卡已插好、方向正确；插入后需要重启设备才会被识别。':'Check that the SIM is seated correctly; a reboot is required after inserting it.',
+'连接失败':'Connection failed','未注册到网络':'Not registered to network','请检查电话卡状态，或把设备移到信号更好的位置。':'Check the SIM, or move the device to a spot with better signal.',
+'正在重新连接':'Reconnecting','设备正在拨号或搜索网络，请稍候。':'The device is dialing or searching for a network, please wait.',
+'无法读取设备状态':'Cannot read device status','暂时无法连接设备':'Cannot reach the device','检测超时':'Check timed out',
+'状态数据暂时无法读取':'Status data unavailable','设备返回错误 ':'Device returned error ','请确认设备已通电并连接':'Make sure the device is powered and connected',
+'扫描进行中 · 已检测 ':'Scanning · checks: ','已恢复 · 自动检测 ':'Recovered · checks: ','已检测 ':'Checks: ',
+'（已连续 ':' (failed ',' 次）':' times in a row)'
+};
+function t(s){ if(LANG==='en' && Object.prototype.hasOwnProperty.call(EN,s)) return EN[s]; return s; }
+function ck(n){ var m=document.cookie.match(new RegExp('(?:^|;\\s*)'+n+'=([^;]+)')); return m?m[1]:''; }
+function setck(n,v){ try{ document.cookie=n+'='+v+';path=/;max-age=31536000;SameSite=Lax'; }catch(e){} }
+function readPref(n,dflt){ var v=ck(n); if(!v){ try{ v=localStorage.getItem(n)||''; }catch(e){} } return v||dflt; }
+function applyLang(){
+  document.documentElement.setAttribute('lang',LANG==='en'?'en':'zh-CN');
+  document.title=t('网络暂时断开 · 5G 通信壳');
+  var els=document.querySelectorAll('[data-i18n]');
+  for(var i=0;i<els.length;i++) els[i].textContent=t(els[i].getAttribute('data-i18n'));
+  $('langLabel').textContent=LANG==='zh'?'EN 英文':'中文 CN';
+  $('langBtn').setAttribute('title',LANG==='zh'?'切换到英文 / Switch to English':'切换到中文 / Switch to Chinese');
+  if(window.__last) checkRender(window.__last);
+}
+LANG=readPref('sy108-lang',(navigator.language||'').toLowerCase().indexOf('zh')===0?'zh':'en');
+if(LANG!=='zh'&&LANG!=='en') LANG='zh';
+$('langBtn').addEventListener('click',function(){ LANG=(LANG==='zh')?'en':'zh'; setck('sy108-lang',LANG); try{localStorage.setItem('sy108-lang',LANG)}catch(e){} applyLang(); });
+
 function $(id){return document.getElementById(id)}
 function set(id,v){$(id).textContent=(v===undefined||v===null)?'--':v}
 function fmtUptime(s){
   s=Math.floor(Number(s)||0);
   var d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),q=s%60;
+  if(LANG==='en'){
+    if(d>0)return d+'d '+h+'h';
+    if(h>0)return h+'h '+m+'m';
+    if(m>0)return m+'m '+q+'s';
+    return q+'s';
+  }
   if(d>0)return d+' 天 '+h+' 小时';
   if(h>0)return h+' 小时 '+m+' 分';
   if(m>0)return m+' 分 '+q+' 秒';
   return q+' 秒';
 }
 function tone(kind){
-  var map={
-    ok:['var(--ok)','var(--ok-soft)'],
-    warn:['var(--warn)','var(--warn-soft)'],
-    bad:['var(--bad)','var(--bad-soft)']
-  };
+  var map={ ok:['var(--ok)','var(--ok-soft)'], warn:['var(--warn)','var(--warn-soft)'], bad:['var(--bad)','var(--bad-soft)'] };
   var c=map[kind]||map.warn;
   document.documentElement.style.setProperty('--tone',c[0]);
   document.documentElement.style.setProperty('--tone-soft',c[1]);
@@ -166,55 +229,63 @@ function setState(kind,text,sub,checked){
   tone(kind);
   set('stateText',text);
   set('stateSub',sub);
-  set('checkTip',checked||'每 5 秒自动检测一次');
-  $('statusBtn').textContent = kind==='ok' ? '打开状态页' : '完整状态页';
+  set('checkTip',checked||t('每 5 秒自动检测一次'));
+  $('statusBtn').textContent = kind==='ok' ? t('打开状态页') : t('完整状态页');
+}
+function checkRender(d){
+  window.__last=d;
+  var c=d.cell||{},w=d.wan||{},s=d.signal||{};
+  set('kWan',w.up===true?t('接口在线'):t('未建立'));
+  set('kState',c.state||'--');
+  set('kUptime',fmtUptime(d.uptime));
+  set('kTemp',d.temp>0?d.temp+' °C':'--');
+  set('kSignal',(s.rsrp!=null?s.rsrp.toFixed(0)+' dBm':'--')+' / '+(s.band||'--'));
+  var online=(w.up===true&&c.state==='pdp_active');
+  if(d.scan){
+    setState('warn',t('正在自动优化网络'),t('系统正在扫描更优 5G 频段，约 1-3 分钟，期间网络可能短暂中断，请勿断电。'),t('扫描进行中 · 已检测 ')+checks);
+  } else if(online){
+    setState('ok',t('网络已恢复'),t('设备已重新连上互联网，可以关闭本窗口继续使用了。'),t('已恢复 · 自动检测 ')+checks);
+  } else if(c.state==='waiting_sim'||c.sim==='NOT_READY'){
+    setState('bad',t('未检测到电话卡'),t('请确认卡已插好、方向正确；插入后需要重启设备才会被识别。'),t('已检测 ')+checks);
+  } else if(c.last_error){
+    setState('bad',t('连接失败'),String(c.last_error),t('已检测 ')+checks);
+  } else if(c.registered===false){
+    setState('bad',t('未注册到网络'),t('请检查电话卡状态，或把设备移到信号更好的位置。'),t('已检测 ')+checks);
+  } else {
+    setState('warn',t('正在重新连接'),t('设备正在拨号或搜索网络，请稍候。'),t('已检测 ')+checks);
+  }
 }
 function check(){
   var x=new XMLHttpRequest();
   x.open('GET',BASE+'/cgi-bin/sy108status?_='+Date.now(),true);
   x.timeout=9000;
   x.onload=function(){
-    if(x.status!==200){ offline('设备返回错误 '+x.status); return; }
-    var d; try{d=JSON.parse(x.responseText)}catch(e){ offline('状态数据暂时无法读取'); return; }
-    fails=0; checks++;
-    var c=d.cell||{},w=d.wan||{},s=d.signal||{};
-    set('kWan',w.up===true?'接口在线':'未建立');
-    set('kState',c.state||'--');
-    set('kUptime',fmtUptime(d.uptime));
-    set('kTemp',d.temp>0?d.temp+' °C':'--');
-    set('kSignal',(s.rsrp!=null?s.rsrp.toFixed(0)+' dBm':'--')+' / '+(s.band||'--'));
-    var online=(w.up===true&&c.state==='pdp_active');
-    if(d.scan){
-      setState('warn','正在自动优化网络','系统正在扫描更优 5G 频段，约 1-3 分钟，期间网络可能短暂中断，请勿断电。','扫描进行中 · 已检测 '+checks+' 次');
-    } else if(online){
-      setState('ok','网络已恢复','设备已重新连上互联网，可以关闭本窗口继续使用了。','已恢复 · 自动检测 '+checks+' 次');
-    } else if(c.state==='waiting_sim'||c.sim==='NOT_READY'){
-      setState('bad','未检测到电话卡','请确认卡已插好、方向正确；插入后需要重启设备才会被识别。','已检测 '+checks+' 次');
-    } else if(c.last_error){
-      setState('bad','连接失败',String(c.last_error),'已检测 '+checks+' 次');
-    } else if(c.registered===false){
-      setState('bad','未注册到网络','请检查电话卡状态，或把设备移到信号更好的位置。','已检测 '+checks+' 次');
-    } else {
-      setState('warn','正在重新连接','设备正在拨号或搜索网络，请稍候。','已检测 '+checks+' 次');
-    }
+    if(x.status!==200){ offline(t('设备返回错误 ')+x.status); return; }
+    var d; try{d=JSON.parse(x.responseText)}catch(e){ offline(t('状态数据暂时无法读取')); return; }
+    fails=0; checks++; checkRender(d);
   };
-  x.onerror=function(){offline('暂时无法连接设备')};
-  x.ontimeout=function(){offline('检测超时')};
+  x.onerror=function(){offline(t('暂时无法连接设备'))};
+  x.ontimeout=function(){offline(t('检测超时'))};
   x.send();
 }
 function offline(msg){
   fails++;
-  setState('bad','无法读取设备状态',msg+(fails>2?'（已连续 '+fails+' 次）':''),'请确认设备已通电并连接');
+  setState('bad',t('无法读取设备状态'),msg+(fails>2?t('（已连续 ')+fails+t(' 次）'):''),t('请确认设备已通电并连接'));
 }
 $('retryBtn').addEventListener('click',check);
-$('themeBtn').addEventListener('click',function(e){
-  e.preventDefault();
+function applyTheme(tv){
+  document.documentElement.setAttribute('data-theme',tv);
+  setck('sy108-theme',tv);
+  try{localStorage.setItem('sy108-theme',tv)}catch(e){}
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m) m.setAttribute('content',tv==='dark'?'#0c1119':'#f4f6fb');
+}
+$('themeBtn').addEventListener('click',function(){
   var cur=document.documentElement.getAttribute('data-theme')||'auto';
-  var next=cur==='auto'?'light':(cur==='light'?'dark':'auto');
-  document.documentElement.setAttribute('data-theme',next);
-  try{localStorage.setItem('sy108-theme',next)}catch(err){}
+  applyTheme(cur==='auto'?'light':(cur==='light'?'dark':'auto'));
 });
-try{var th=localStorage.getItem('sy108-theme');if(th)document.documentElement.setAttribute('data-theme',th)}catch(e){}
+applyTheme(readPref('sy108-theme','auto'));
+applyLang();
 check();
 setInterval(check,5000);
 </script>

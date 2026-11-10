@@ -27,7 +27,7 @@ English summary: Adaptation notes and auxiliary tools for running OpenWrt on the
 | 目录 | 内容 |
 |---|---|
 | `tools/dtb-fix/` | **DTB 兼容性修复工具**（`fix_capsule.py` 等）——修复 `dr_mode="otg"` 导致 USB 全死的问题，本仓库最有复用价值的部分 |
-| `tools/device/` | 设备端辅助脚本：自动 APN 识别、智能选频、免登录状态页、captive portal、LuCI 只读锁等 |
+| `tools/device/` | 设备端辅助脚本：自动 APN 识别、智能选频、免登录状态页、captive portal、LuCI 分级保护、中英界面、一键部署脚本等 |
 | `tools/windows/` | Windows 侧路由/优先级小工具 |
 | `docs/` | 项目总报告（踩坑记录）、[原厂系统与不兼容清单](docs/compatibility.md)、供电电容焊接指南 |
 
@@ -39,7 +39,9 @@ English summary: Adaptation notes and auxiliary tools for running OpenWrt on the
 - **原厂系统**：Linux 4.14.98（厂商内核）+ ofono + 自研 8080 Web 后台，USB 仅 RNDIS（只有 Windows 能用）——详见 [docs/compatibility.md](docs/compatibility.md)（原厂系统详解 + 全部已知不兼容点）
 - **目标**：刷入 OpenWrt 后作为 USB NCM 网卡 + 便携路由器使用，Windows/macOS/iPadOS/Android 免驱
 - **实测环境**：中国香港 CMHK 实体 SIM（本仓库的蜂窝参数以该卡为准，作者原版仅实测过中国联通）
-- **状态页**：`http://192.168.66.1/`（免登录，中文白话界面；含信号质量、实时速率、上行发射状态与耗电估算，均为只读监测，详见 [IMPROVEMENTS.md](IMPROVEMENTS.md) C2 节）
+- **状态页**：`http://192.168.66.1/`（免登录，中 / 英切换；含信号质量、实时速率、上行发射状态、耗电估算与「关于 / 出处」栏；刷机日期、服役时长、累计通电运行与原创作者来源均标注清楚。功率与耗电为只读估算，非实测，详见 [IMPROVEMENTS.md](IMPROVEMENTS.md) C2 / C3 节）
+- **管理后台**：`http://192.168.66.1/cgi-bin/luci/`。**普通设置直接放行**；危险操作弹红色确认并写明「不能怎么设置 / 会导致什么」；恢复出厂与刷机需输入确认词。**恢复出厂入口**：System → System maintenance（上游已有功能，本轮解除全锁并加强确认，见 C3 节）
+- **一键部署**：`tools/device/install-web-ui.sh`（幂等，自动备份原件并校验 7 项 HTTP）
 
 ## 风险提示与免责声明
 

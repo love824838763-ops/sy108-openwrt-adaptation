@@ -67,6 +67,39 @@ LOAD=$(cut -d' ' -f1 /proc/loadavg)
 VER=$(sed -n "s/^DISTRIB_DESCRIPTION='\(.*\)'/\1/p" /etc/openwrt_release 2>/dev/null)
 REL=$(sed -n "s/^DISTRIB_RELEASE='\(.*\)'/\1/p" /etc/openwrt_release 2>/dev/null)
 [ -z "$VER" ] && VER="${REL:-OpenWrt}"
+KERN=$(uname -r)
+TARGET=$(sed -n "s/^DISTRIB_TARGET='\(.*\)'/\1/p" /etc/openwrt_release 2>/dev/null)
+REV=$(sed -n "s/^DISTRIB_REVISION='\(.*\)'/\1/p" /etc/openwrt_release 2>/dev/null)
+
+# 刷机 / 首次启动时间：取「首次开机自动生成」文件中最早的时间戳。
+# 依据：/etc/config/fstab|firewall|luci|ubihealthd 与 dropbear 主机密钥，
+# 由镜像首次启动时的 uci-defaults / dropbear 生成，之后不再变动。
+FLASH_EPOCH=0
+for f in /etc/config/fstab /etc/config/firewall /etc/config/luci /etc/config/ubihealthd \
+         /etc/dropbear/dropbear_ed25519_host_key /etc/dropbear/dropbear_rsa_host_key; do
+	[ -f "$f" ] || continue
+	FT=$(date -r "$f" +%s 2>/dev/null)
+	case "$FT" in ''|*[!0-9]*) continue ;; esac
+	[ "$FT" -gt 0 ] || continue
+	if [ "$FLASH_EPOCH" -eq 0 ] || [ "$FT" -lt "$FLASH_EPOCH" ]; then FLASH_EPOCH=$FT; fi
+done
+[ "$FLASH_EPOCH" -eq 0 ] && FLASH_EPOCH=$((NOW - UP))
+FLASH_DATE=$(date -d @"$FLASH_EPOCH" "+%Y-%m-%d %H:%M" 2>/dev/null)
+SERVICE_SEC=$((NOW - FLASH_EPOCH)); [ "$SERVICE_SEC" -lt 0 ] && SERVICE_SEC=0
+
+# 累计通电运行时间：/usr/bin/runtime-tick 每 5 分钟采样，跨重启累加。
+# 重启后采样脚本尚未运行时，临时把上一段计入显示值（不写回，避免重复累加）。
+RST=/root/runtime.state
+RTOTAL=0; RLAST_UP=0; RSINCE=$NOW; RSAMPLES=0; RLAST_TS=0
+[ -f "$RST" ] && . "$RST"
+for _v in RTOTAL RLAST_UP RSINCE RSAMPLES RLAST_TS; do
+	eval "_t=\$$_v"
+	case "$_t" in ''|*[!0-9]*) eval "$_v=0" ;; esac
+done
+[ "$RSINCE" -eq 0 ] && RSINCE=$NOW
+[ "$RLAST_UP" -gt "$UP" ] && RTOTAL=$((RTOTAL + RLAST_UP))
+RUNTIME_TOTAL=$((RTOTAL + UP))
+RUNTIME_SINCE_DATE=$(date -d @"$RSINCE" "+%Y-%m-%d %H:%M" 2>/dev/null)
 
 # ---------- 3. 蜂窝 ----------
 CS=$(ubus call udx.cellular status 2>/dev/null)
@@ -262,6 +295,7 @@ echo "ELTS=$NOW ELASTCW=$PWCW ETOTAL=$ETOTAL EBOOT=$EBOOT EBOOTUP=$UP" > "$ETMP"
 # ---------- 10. 输出 ----------
 cat <<EOF
 {"uptime":$UP,"temp":$TEMP,"mem_total":$MEMT,"mem_free":$MEMF,"load":"$LOAD","version":"$VER","scan":"$SCAN","band_mode":"$BANDMODE",
+"system":{"version":"$VER","release":"$REL","revision":"$REV","target":"$TARGET","kernel":"$KERN","flash_epoch":$FLASH_EPOCH,"flash_date":"$FLASH_DATE","flash_basis":"first-boot generated files: /etc/config/fstab, dropbear host keys","service_sec":$SERVICE_SEC,"runtime_total_sec":$RUNTIME_TOTAL,"runtime_since":$RSINCE,"runtime_since_date":"$RUNTIME_SINCE_DATE","runtime_samples":$RSAMPLES,"boot_sec":$UP},
 "cell":{"state":"$STATE","last_error":$ERR_JSON,"apn":"$APN","registered":$REG,"roaming":$ROAM,
 "plmn":"$PLMN","act":$ACT,"iccid":"$ICCID","attached":$ATTACHED,"sim":"$SIMST","country":"$COUNTRY","carrier":"$CARRIER"},
 "wan":{"up":$WUP,"ip":"$WIP","dns":"$WDNS","uptime":$WUPT,"iface":"wwan0"},

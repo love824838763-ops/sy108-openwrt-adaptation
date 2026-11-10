@@ -22,3 +22,20 @@
   box-shadow:0 6px 18px rgba(79,107,237,.28);
 }
 .sy108-back:hover{filter:brightness(1.08)}
+/* 语言切换按钮（与返回入口同侧、带文字，避免只有符号看不懂） */
+.sy108-lang{
+  position:fixed;right:16px;bottom:60px;z-index:9999;
+  display:inline-flex;align-items:center;gap:5px;
+  background:#ffffff;color:#5a687c;border:1px solid #e5eaf2;
+  border-radius:11px;padding:8px 12px;font-size:12px;font-weight:650;cursor:pointer;
+  box-shadow:0 6px 18px rgba(18,30,55,.12);font-family:inherit;
+}
+.sy108-lang:hover{color:#4f6bed;border-color:#4f6bed}
+@media (prefers-color-scheme:dark){
+  .sy108-lang{background:#1b2431;color:#a3b0c2;border-color:#263141}
+  .sy108-lang:hover{color:#7c91ff;border-color:#7c91ff}
+}
+@media (max-width:420px){
+  .sy108-back,.sy108-lang{right:12px;bottom:12px}
+  .sy108-lang{bottom:56px}
+}
