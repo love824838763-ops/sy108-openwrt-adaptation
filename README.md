@@ -16,36 +16,105 @@
 > 首次公开：源码 2026-10-18（jason-liu-4980），成品固件 2026-10-28（xuxin1955）。
 > 详细致谢见 [CREDITS.md](CREDITS.md)。使用本仓库前请遵守各上游项目的许可证。
 
-English summary: Adaptation notes and auxiliary tools for running OpenWrt on the Soyealink SY108 5G phone case (UNISOC UDX710). **The core system is NOT ours** — it belongs to [jason-liu-4980/sy108-mainline](https://github.com/jason-liu-4980/sy108-mainline). This repo only contains a DTB compatibility fix, carrier adaptation notes, and helper scripts. See [CREDITS.md](CREDITS.md).
+English: adaptation notes and helper tools for running OpenWrt on the Soyealink SY108 5G phone case
+(UNISOC UDX710). **The core system is NOT ours** — it belongs to
+[jason-liu-4980/sy108-mainline](https://github.com/jason-liu-4980/sy108-mainline). What is here:
+a DTB fix that brings a dead USB port back, carrier/APN adaptation, band selection, a login-free
+status page, a graded LuCI guard, and Windows routing helpers. See [CREDITS.md](CREDITS.md).
 
 ---
 
-## 本仓库包含什么
+## 这个仓库解决什么问题
 
-全部内容是在 jason-liu-4980 首个公开版本（2026-10-28 固件）基础上，于**另一台实机**上适配验证的增量工作。详见 [IMPROVEMENTS.md](IMPROVEMENTS.md)（对比原作者做了哪些改动/增强）。
+上游固件在一台机器上验证通过，换到另一台同款硬件时出现了 USB 全死。本仓库是**在第二台实机上的适配增量**：
 
-| 目录 | 内容 |
+| 问题 | 解决 | 位置 |
+|---|---|---|
+| 刷完 USB 完全不识别（`/sys/class/udc/` 空、`dwc3` error -95） | 修 DTB：`dr_mode` otg→peripheral，NOP role-switch 属性，重算 CRC | [`tools/dtb-fix/`](tools/dtb-fix/README.md) |
+| 换张卡要手动配 APN | 按 IMSI 的 MCC/MNC 查表自动切 APN，换卡自动检测 | [`tools/device/`](tools/device/README.md) |
+| 频段选得差、掉速 | 智能选频：默认自动，只在明确更优时锁「频段组」 | [`tools/device/`](tools/device/README.md) |
+| 想看状态但没有登录态 | 免登录状态页 + 断网引导页，中英双语 | [`tools/device/`](tools/device/README.md) |
+| LuCI 要么全开放要么全锁死 | 分级守卫：普通设置放行，危险操作红色确认 | [`tools/device/`](tools/device/README.md) |
+| 插上 USB 后电脑不走 WiFi / 不出网 | Windows 路由与度量脚本 | [`tools/windows/`](tools/windows/README.md) |
+
+改动对比原作者的完整清单见 [IMPROVEMENTS.md](IMPROVEMENTS.md)（A 硬件兼容 / B 蜂窝适配 / C 界面与管控 / D 工程救砖）。
+
+## 快速开始
+
+前提：设备已刷入上游 OpenWrt 固件，能通过 USB 网卡访问 `192.168.66.1`，SSH 可登录。
+
+```bash
+# 0) 电脑侧依赖（只影响传输工具，设备端脚本是纯 shell）
+pip install paramiko
+
+# 1) 克隆
+git clone https://github.com/love824838763-ops/sy108-openwrt-adaptation.git
+cd sy108-openwrt-adaptation
+
+# 2) 先确认 USB 是否正常 —— 不正常就先做 DTB 修复，别往下走
+ssh root@192.168.66.1 'ls /sys/class/udc/'
+#   有内容 → 跳过 DTB；空 → 见 tools/dtb-fix/README.md
+
+# 3) 上传并部署状态页 / 引导页 / 分级守卫（幂等，自动备份原件）
+#    设备固件的 dropbear 没有 sftp，scp/sftp 都不可用，用附带的 rput.py
+for f in tools/device/*; do
+  [ -f "$f" ] && python tools/device/rput.py "$f" "/tmp/sy108-ui/$(basename $f)"
+done
+python tools/device/rsh.py 'sh /tmp/sy108-ui/install-web-ui.sh'
+
+# 4) 蜂窝（可选）：先只看不改
+python tools/device/rsh.py 'sh /tmp/sy108-ui/apn-auto.sh show'
+python tools/device/rsh.py 'sh /tmp/sy108-ui/bandlock.sh status'
+
+# 5) 电脑侧路由（Windows，管理员运行）
+#    tools/windows/usb-net-setup.bat   → 上网走 WiFi，USB 仍可管设备
+```
+
+部署脚本末尾会打印 6 项 HTTP 自检。回滚方式见 [tools/device/README.md](tools/device/README.md#回滚)。
+
+## 文档地图
+
+| 文档 | 内容 |
 |---|---|
-| `tools/dtb-fix/` | **DTB 兼容性修复工具**（`fix_capsule.py` 等）——修复 `dr_mode="otg"` 导致 USB 全死的问题，本仓库最有复用价值的部分 |
-| `tools/device/` | 设备端辅助脚本：自动 APN 识别、智能选频、免登录状态页、captive portal、LuCI 分级保护、中英界面、一键部署脚本等 |
-| `tools/windows/` | Windows 侧路由/优先级小工具 |
-| `docs/` | 项目总报告（踩坑记录）、[原厂系统与不兼容清单](docs/compatibility.md)、供电电容焊接指南 |
+| [IMPROVEMENTS.md](IMPROVEMENTS.md) | **对比原作者的改动清单**，每条含现象、根因、验证。想知道「做了什么」看这里 |
+| [docs/project-report.md](docs/project-report.md) | 完整踩坑记录：分区布局、刷机流程、十个坑与解法 |
+| [docs/compatibility.md](docs/compatibility.md) | 原厂系统详解 + 全部已知不兼容点 |
+| [docs/solder-guide.md](docs/solder-guide.md) | 供电改造与焊接位置 |
+| [tools/dtb-fix/README.md](tools/dtb-fix/README.md) | USB 全死的修复流程，以及两个**换固件必须重新定位**的偏移量 |
+| [tools/device/README.md](tools/device/README.md) | 设备端脚本逐个说明、部署位置、三条红线、回滚命令 |
+| [tools/windows/README.md](tools/windows/README.md) | 三个路由脚本的差别与适用场景 |
+| [CREDITS.md](CREDITS.md) | 致谢与出处 |
 
-**不包含**（有意排除）：固件二进制、工厂镜像/备份、拆解照片（版权归原文所有，见 CREDITS）、任何个人信息（IMSI/ICCID/本机路径等已脱敏）。
-
-## 快速了解
+## 设备与实测环境
 
 - **设备**：Soyealink SY108-688 5G 通信壳（保护壳形态的 5G 模块，配套某品牌旗舰手机，具体适配机型以实物铭牌为准；UNISOC UDX710 平台，512MB RAM，2022 年前后国内运营商定制款）
-- **原厂系统**：Linux 4.14.98（厂商内核）+ ofono + 自研 8080 Web 后台，USB 仅 RNDIS（只有 Windows 能用）——详见 [docs/compatibility.md](docs/compatibility.md)（原厂系统详解 + 全部已知不兼容点）
-- **目标**：刷入 OpenWrt 后作为 USB NCM 网卡 + 便携路由器使用，Windows/macOS/iPadOS/Android 免驱
+- **原厂系统**：Linux 4.14.98（厂商内核）+ ofono + 自研 8080 Web 后台，USB 仅 RNDIS（只有 Windows 认）
+- **目标**：刷入 OpenWrt 后作为 USB NCM 网卡 + 便携路由器使用，Windows / macOS / iPadOS / Android 免驱
 - **实测环境**：中国香港 CMHK 实体 SIM（本仓库的蜂窝参数以该卡为准，作者原版仅实测过中国联通）
-- **状态页**：`http://192.168.66.1/`（免登录，中 / 英切换；含信号质量、实时速率、上行发射状态、耗电估算与「关于 / 出处」栏；刷机日期、服役时长、累计通电运行与原创作者来源均标注清楚。功率与耗电为只读估算，非实测，详见 [IMPROVEMENTS.md](IMPROVEMENTS.md) C2 / C3 节）
-- **管理后台**：`http://192.168.66.1/cgi-bin/luci/`。**普通设置直接放行**；危险操作弹红色确认并写明「不能怎么设置 / 会导致什么」；恢复出厂与刷机需输入确认词。**恢复出厂入口**：System → System maintenance（上游已有功能，本轮解除全锁并加强确认，见 C3 节）
-- **一键部署**：`tools/device/install-web-ui.sh`（幂等，自动备份原件并校验 7 项 HTTP）
+- **状态页**：`http://192.168.66.1/`，免登录，中/英切换，五栏（概览 / 信号 / 功率 / 设备 / 关于）。含实时速率、上行发射状态、耗电估算、刷机日期与累计通电运行。**功率与耗电是只读估算，不是实测**，见 [IMPROVEMENTS.md](IMPROVEMENTS.md) C2 / C3 节
+- **管理后台**：`http://192.168.66.1/cgi-bin/luci/`。普通设置直接放行；危险操作弹红色确认并写明「不能怎么设置 / 会导致什么」；恢复出厂与刷机需输入确认词。恢复出厂入口：**System → System maintenance**
+- **一键部署**：`tools/device/install-web-ui.sh`（幂等，7 步流程，末尾 6 项 HTTP 自检）
+
+**不包含**（有意排除）：固件二进制、工厂镜像/备份、拆解照片（版权归原文所有，见 CREDITS）、任何个人信息（IMSI / ICCID / 本机路径等已脱敏）。
+
+## 已验证 / 未验证
+
+诚实标注边界，避免误用：
+
+| 项 | 状态 |
+|---|---|
+| DTB 修复 | ✅ 本机实测：修复后 Windows / macOS / Linux 均识别为 NCM 网卡 |
+| APN 自动识别 | ✅ CMHK 实测；其他运营商依赖数据库覆盖，未逐一验证 |
+| 智能选频 | ✅ 实测可用；代价是切频瞬间断流数秒 |
+| 状态页 / 引导页 | ✅ 四平台浏览器 + 中英 + 浅深主题；390px 窄屏逐屏核对 |
+| LuCI 分级守卫 | ✅ 守卫逻辑 DOM 自检 15/15；登录页浅深 × 中英四组截图确认 |
+| LuCI **内页**视觉 | ⚠️ 只改了颜色令牌与图标，未做像素级验证（该主题视图懒加载，无头浏览器截不到内页） |
+| Windows 路由脚本 | ✅ 本机 Win11 实测；其他版本行为可能不同 |
+| 其他批次硬件 | ❌ 未验证。DTB 差异恰恰说明同款不同批次可能不一样，请先确认症状与本仓库一致 |
 
 ## 风险提示与免责声明
 
-- **本仓库按"现状"提供，不作任何明示或暗示的担保**。刷机、改 DTB、拆机焊接均有**变砖/损坏/失去保修风险**，操作前务必完整备份（尤其 SPL 分区，变砖后唯一救星）；因操作本仓库内容造成的任何损失，贡献者不承担责任。
+- **本仓库按"现状"提供，不作任何明示或暗示的担保**。刷机、改 DTB、拆机焊接均有**变砖 / 损坏 / 失去保修风险**，操作前务必完整备份（尤其 SPL 分区，变砖后唯一救星）；因操作本仓库内容造成的任何损失，贡献者不承担责任。
 - 上游项目自述仅在一台硬件上验证；本仓库的 DTB 修复恰恰证明**同款不同批次存在差异**——其他批次设备可能需要不同的适配。
 - 本仓库不提供固件包，请到上游 Releases 获取，或自行按上游文档编译；使用前请遵守各上游项目的许可证。
 - 修改设备射频/网络配置可能受当地法规约束，使用者自行确保合规。

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """从设备下载文件（二进制安全） 用法: rget.py <remote> <local>"""
 import sys, os, paramiko

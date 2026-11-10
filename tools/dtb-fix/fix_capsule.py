@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """修复 main.dtb 的 USB 节点：dr_mode otg->peripheral，删除 role-switch 相关属性，
    然后回填进 main_kernel.bin 的 capsule，重算 dtb_crc / header_crc / dtb_size。

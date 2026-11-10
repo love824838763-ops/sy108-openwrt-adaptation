@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """在 DTB struct 块中精确定位某节点的某属性，并做等长或变长替换"""
 import os, struct, zlib

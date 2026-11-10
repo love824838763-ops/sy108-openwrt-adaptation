@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """FDT 解析器（修正版）：正确按 4 字节对齐处理 BEGIN_NODE / PROP。"""
 import struct, sys

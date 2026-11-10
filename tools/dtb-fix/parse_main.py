@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """解析 main kernel capsule 布局，定位 DTB"""
 import os, struct, zlib

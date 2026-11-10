@@ -1,0 +1,28 @@
+# 系统垃圾文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 编辑器/IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# 运行产物（脚本会就地读写这些文件，不属于源码）
+tools/windows/*-result.txt
+
+# 大文件——本仓库有意不收录固件、镜像与备份
+*.img
+*.bin
+*.pac
+*.ubipac
+*.7z
+*.zip

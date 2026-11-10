@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """通过 SSH stdin 直接写文件（无需 base64） 用法: rput.py <local> <remote> [mode]"""
 import sys, paramiko

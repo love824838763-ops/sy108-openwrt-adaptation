@@ -1,10 +1,28 @@
-# 设备端脚本/页面必须是 LF（busybox sh、uhttpd CGI 对 CRLF 敏感）。
-# Windows 上 core.autocrlf 会把工作副本转成 CRLF，这里强制回 LF。
-tools/device/*.sh   text eol=lf
-tools/device/*.cgi  text eol=lf
-tools/device/*.html text eol=lf
-tools/device/*.js   text eol=lf
-tools/device/*.css  text eol=lf
-tools/device/*.db   text eol=lf
-tools/device/*.txt  text eol=lf
-*.md                text eol=lf
+# 换行统一策略
+#
+# 设备端脚本/页面必须是 LF：busybox sh 解析 CRLF 会报 "not found"，
+# uhttpd CGI 输出 CRLF 也会污染 HTTP 头。Git for Windows 的 core.autocrlf
+# 默认会把工作副本转成 CRLF，所以这里逐个类型钉死。
+tools/device/*.sh    text eol=lf
+tools/device/*.cgi   text eol=lf
+tools/device/*.html  text eol=lf
+tools/device/*.js    text eol=lf
+tools/device/*.css   text eol=lf
+tools/device/*.db    text eol=lf
+tools/device/*.py    text eol=lf
+tools/device/*.txt   text eol=lf
+tools/device/*.init  text eol=lf
+tools/dtb-fix/*.py   text eol=lf
+*.md                 text eol=lf
+*.svg                text eol=lf
+
+# Windows 侧脚本保持 CRLF（cmd.exe 对纯 LF 的某些语法处理不完整）
+tools/windows/*.bat  text eol=crlf
+tools/windows/*.ps1  text eol=crlf
+
+# 图片按二进制处理，避免任何换行转换
+*.png                binary
+
+# 仓库自身的配置文件也用 LF，避免每次操作都报换行警告
+.gitattributes text eol=lf
+.gitignore     text eol=lf

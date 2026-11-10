@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """调用 udx.cellular ubus 接口并等待异步结果
 用法: cellop.py <method> [json-args]

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """批量执行 AT 命令 用法: atq.py "AT+CSQ" "AT+COPS?" ..."""
 import sys

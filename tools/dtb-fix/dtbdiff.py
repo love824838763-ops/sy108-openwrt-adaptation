@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """对比两份 DTB 的节点与属性差异"""
 import os, sys
